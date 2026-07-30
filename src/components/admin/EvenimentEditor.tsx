@@ -1,0 +1,271 @@
+'use client';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import QRCode from 'qrcode';
+import { supabaseBrowser } from '@/lib/supabase/client';
+import { urlCoperta } from '@/lib/storage';
+import { NUME_TIP, type Event, type Tarif, type TipDedicatie } from '@/lib/types';
+
+const PLATFORME_STREAM: { cheie: string; eticheta: string }[] = [
+  { cheie: 'youtube', eticheta: 'YouTube' },
+  { cheie: 'facebook', eticheta: 'Facebook' },
+  { cheie: 'tiktok', eticheta: 'TikTok' },
+  { cheie: 'instagram', eticheta: 'Instagram' },
+  { cheie: 'telegram', eticheta: 'Telegram' },
+];
+
+const ETICHETA_STATUS: Record<Event['status'], string> = {
+  live: 'live',
+  upcoming: 'urmează',
+  ended: 'încheiat',
+};
+
+function slugify(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'eveniment'
+  );
+}
+
+function laBani(lei: string): number {
+  const n = Math.round(parseFloat(lei.replace(',', '.')) * 100);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Event; tarife: Tarif[] }) {
+  const router = useRouter();
+  const [nume, setNume] = useState(event.nume);
+  const [subtitlu, setSubtitlu] = useState(event.subtitlu ?? '');
+  const [slug, setSlug] = useState(event.slug);
+  const [descriere, setDescriere] = useState(event.descriere ?? '');
+  const [dataShow, setDataShow] = useState(event.data_show ? event.data_show.slice(0, 16) : '');
+  const [locatie, setLocatie] = useState(event.locatie ?? '');
+  const [artistA, setArtistA] = useState(event.artist_a ?? '');
+  const [artistB, setArtistB] = useState(event.artist_b ?? '');
+  const [linkuri, setLinkuri] = useState<Record<string, string>>(() => ({ ...(event.linkuri_stream ?? {}) }));
+  const [status, setStatus] = useState(event.status);
+  const [coverPath, setCoverPath] = useState(event.cover_path);
+  const [coverIncarcare, setCoverIncarcare] = useState(false);
+  const [tarife, setTarife] = useState(() =>
+    (['sustinere', 'ecran', 'prezentator'] as TipDedicatie[]).map((tip) => {
+      const existent = tarifeInitiale.find((t) => t.tip === tip);
+      return {
+        tip,
+        pret: existent ? String(existent.pret_bani / 100) : '',
+        activ: existent?.activ ?? true,
+      };
+    })
+  );
+  const [salvare, setSalvare] = useState('');
+  const [qr, setQr] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://12rounds.ro'}/live`;
+    QRCode.toDataURL(url, { margin: 1, width: 320, color: { dark: '#0a0a0b', light: '#ffffff' } }).then(setQr);
+  }, []);
+
+  async function incarcaCoperta(fisier: File) {
+    setCoverIncarcare(true);
+    const extensie = fisier.name.split('.').pop() ?? 'jpg';
+    const cale = `${event.id}/${crypto.randomUUID()}.${extensie}`;
+    const { error } = await supabaseBrowser().storage.from('covere').upload(cale, fisier, { upsert: true });
+    setCoverIncarcare(false);
+    if (error) {
+      alert('Încărcarea coperții a eșuat: ' + error.message);
+      return;
+    }
+    setCoverPath(cale);
+  }
+
+  async function salveaza() {
+    setSalvare('Se salvează…');
+    const sb = supabaseBrowser();
+    const linkuriCurate = Object.fromEntries(Object.entries(linkuri).filter(([, v]) => v.trim().length > 0));
+
+    const { error: evErr } = await sb
+      .from('events')
+      .update({
+        nume,
+        subtitlu: subtitlu || null,
+        slug,
+        descriere: descriere || null,
+        data_show: dataShow ? new Date(dataShow).toISOString() : null,
+        locatie: locatie || null,
+        artist_a: artistA || null,
+        artist_b: artistB || null,
+        linkuri_stream: linkuriCurate,
+        cover_path: coverPath,
+      })
+      .eq('id', event.id);
+
+    if (evErr) {
+      setSalvare(
+        evErr.code === '23505' ? 'Acest slug este deja folosit de alt eveniment.' : 'Eroare: ' + evErr.message
+      );
+      return;
+    }
+
+    for (const t of tarife) {
+      await sb
+        .from('tarife')
+        .upsert({ event_id: event.id, tip: t.tip, pret_bani: laBani(t.pret), activ: t.activ }, { onConflict: 'event_id,tip' });
+    }
+
+    setSalvare('Salvat ✓');
+    router.refresh();
+    setTimeout(() => setSalvare(''), 2000);
+  }
+
+  async function schimbaStatus(nou: Event['status']) {
+    const confirmari: Partial<Record<Event['status'], string>> = {
+      live: 'Pornești LIVE? Din acest moment se acceptă plăți pentru această ediție.',
+      ended: 'Încheii show-ul? Nu se vor mai accepta plăți pentru această ediție.',
+    };
+    const mesaj = confirmari[nou];
+    if (mesaj && !window.confirm(mesaj)) return;
+    await supabaseBrowser().from('events').update({ status: nou }).eq('id', event.id);
+    setStatus(nou);
+    router.refresh();
+  }
+
+  return (
+    <div style={{ maxWidth: 640, margin: '0 auto' }}>
+      <div className="rand">
+        <h1 style={{ margin: 0 }}>{nume || 'Eveniment nou'}</h1>
+        <span className={`badge-eveniment ${status}`}>{ETICHETA_STATUS[status]}</span>
+      </div>
+
+      <div className="card">
+        <div className="rand">
+          <span>
+            Status curent: <strong>{ETICHETA_STATUS[status]}</strong>
+          </span>
+          <span className="rand" style={{ width: 'auto', gap: 8 }}>
+            {status === 'upcoming' && (
+              <button className="btn ok mic" onClick={() => schimbaStatus('live')}>● Pornește LIVE</button>
+            )}
+            {status === 'live' && (
+              <button className="btn danger mic" onClick={() => schimbaStatus('ended')}>■ Încheie show-ul</button>
+            )}
+            {status === 'ended' && (
+              <button className="btn secondary mic" onClick={() => schimbaStatus('upcoming')}>↺ Redeschide</button>
+            )}
+          </span>
+        </div>
+      </div>
+
+      <div className="card">
+        <label>Copertă</label>
+        <div
+          className="editor-cover-preview"
+          style={{ backgroundImage: `url(${urlCoperta(coverPath)})` }}
+          onClick={() => fileRef.current?.click()}
+        >
+          {coverIncarcare && <span className="editor-cover-overlay-text">Se încarcă…</span>}
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => e.target.files?.[0] && incarcaCoperta(e.target.files[0])}
+        />
+        <button type="button" className="btn secondary mic" style={{ marginTop: 8 }} onClick={() => fileRef.current?.click()}>
+          Schimbă coperta
+        </button>
+        <p className="sub" style={{ marginTop: 6, textAlign: 'left' }}>Recomandat 1200×630px, pentru share-uri.</p>
+      </div>
+
+      <div className="card">
+        <label htmlFor="nume">Titlu</label>
+        <input id="nume" value={nume} onChange={(e) => setNume(e.target.value)} />
+        <label htmlFor="subtitlu">Subtitlu</label>
+        <input id="subtitlu" value={subtitlu} onChange={(e) => setSubtitlu(e.target.value)} />
+        <label htmlFor="slug">Slug — URL: /eveniment/{slug || '…'}</label>
+        <div className="rand" style={{ gap: 8 }}>
+          <input id="slug" value={slug} onChange={(e) => setSlug(slugify(e.target.value))} style={{ flex: 1 }} />
+          <button type="button" className="btn secondary mic" onClick={() => setSlug(slugify(nume))}>
+            Din titlu
+          </button>
+        </div>
+        <label htmlFor="descriere">Descriere</label>
+        <textarea id="descriere" value={descriere} onChange={(e) => setDescriere(e.target.value)} />
+        <label htmlFor="data">Data și ora show-ului</label>
+        <input id="data" type="datetime-local" value={dataShow} onChange={(e) => setDataShow(e.target.value)} />
+        <label htmlFor="locatie">Locație</label>
+        <input id="locatie" value={locatie} onChange={(e) => setLocatie(e.target.value)} placeholder="Club X, București" />
+        <label htmlFor="artistA">Artist A</label>
+        <input id="artistA" value={artistA} onChange={(e) => setArtistA(e.target.value)} />
+        <label htmlFor="artistB">Artist B</label>
+        <input id="artistB" value={artistB} onChange={(e) => setArtistB(e.target.value)} />
+      </div>
+
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>Tarife</h2>
+        {tarife.map((t, i) => (
+          <div key={t.tip} className="rand" style={{ marginBottom: 10 }}>
+            <span style={{ flex: 1 }}>{NUME_TIP[t.tip]}</span>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              value={t.pret}
+              onChange={(e) =>
+                setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, pret: e.target.value } : x)))
+              }
+              style={{ width: 90 }}
+            />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, margin: 0, width: 'auto' }}>
+              <input
+                type="checkbox"
+                checked={t.activ}
+                onChange={(e) =>
+                  setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, activ: e.target.checked } : x)))
+                }
+                style={{ width: 'auto' }}
+              />
+              activ
+            </label>
+          </div>
+        ))}
+      </div>
+
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>Linkuri stream</h2>
+        {PLATFORME_STREAM.map((p) => (
+          <div key={p.cheie}>
+            <label htmlFor={p.cheie}>{p.eticheta}</label>
+            <input
+              id={p.cheie}
+              value={linkuri[p.cheie] ?? ''}
+              onChange={(e) => setLinkuri((prev) => ({ ...prev, [p.cheie]: e.target.value }))}
+              placeholder="https://..."
+            />
+          </div>
+        ))}
+      </div>
+
+      <button className="btn" onClick={salveaza}>Salvează</button>
+      {salvare && <p className="sub" style={{ marginTop: 8 }}>{salvare}</p>}
+
+      <div className="card" style={{ marginTop: 24, textAlign: 'center' }}>
+        <h2 style={{ marginTop: 0 }}>Cod QR — 12rounds.ro/live</h2>
+        {qr && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={qr} alt="Cod QR către /live" width={200} height={200} style={{ margin: '0 auto', borderRadius: 12 }} />
+            <a className="btn secondary" style={{ marginTop: 12 }} href={qr} download="12rounds-qr-live.png">
+              Descarcă PNG
+            </a>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

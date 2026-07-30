@@ -1,0 +1,13 @@
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+
+// Coperta unui eveniment (bucket public 'covere'). Fara path, folosim logo-ul
+// ca fallback vizual — nu toate evenimentele au o coperta urcata inca.
+export function urlCoperta(coverPath: string | null): string {
+  if (!coverPath) return '/logo.jpeg';
+  return `${SUPABASE_URL}/storage/v1/object/public/covere/${coverPath}`;
+}
+
+// Poza aprobata a unei dedicatii (bucket public 'poze-aprobate'), afisata in overlay.
+export function urlPozaAprobata(pozaPath: string): string {
+  return `${SUPABASE_URL}/storage/v1/object/public/poze-aprobate/${pozaPath}`;
+}

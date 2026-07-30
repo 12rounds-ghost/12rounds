@@ -1,0 +1,293 @@
+:root {
+  --bg: #0a0a0b;          /* negru din logo */
+  --panel: #141416;
+  --panel-2: #1c1c1f;
+  --border: #2a2a2e;
+  --text: #f5f5f5;
+  --muted: #9a9aa2;
+  --accent: #e21d1d;       /* rosul 12 ROUNDS */
+  --accent-hover: #ff2e2e;
+  --accent-dark: #8f1212;
+  --danger: #e21d1d;
+  --ok: #2fbf71;
+  --font-display: 'Anton', 'Arial Black', sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 480px; margin: 0 auto; padding: 24px 16px 64px; }
+.wide { max-width: 900px; }
+
+.logo { display: block; width: 130px; height: 130px; margin: 0 auto 12px; border-radius: 50%; }
+
+.brand {
+  font-family: var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: var(--accent);
+  text-align: center;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 8px 0 4px;
+  text-align: center;
+}
+h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; text-align: center; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* selector pachet */
+.tier {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; text-align: left;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 16px; margin-bottom: 10px; cursor: pointer; font-size: 15px;
+  font-family: inherit;
+}
+.tier:active { transform: scale(0.99); }
+.tier.selected { border-color: var(--accent); background: var(--panel-2); box-shadow: 0 0 0 1px var(--accent); }
+.tier .pret {
+  font-family: var(--font-display);
+  font-size: 17px; letter-spacing: 0.03em;
+  color: var(--accent); white-space: nowrap; margin-left: 12px;
+}
+
+label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; }
+input, textarea {
+  width: 100%; background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px; font-size: 16px; font-family: inherit;
+}
+input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+textarea { min-height: 90px; resize: vertical; }
+.contor-caractere { text-align: right; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+.btn {
+  display: block; width: 100%;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 12px;
+  padding: 15px; font-size: 17px;
+  font-family: var(--font-display); font-weight: 400;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  cursor: pointer; margin-top: 18px;
+  text-align: center; text-decoration: none;
+}
+.btn:hover { background: var(--accent-hover); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+.btn.mic { width: auto; display: inline-block; padding: 8px 16px; font-size: 14px; margin-top: 0; }
+/* butoane mari pentru /admin/regie — tableta, sub semnal slab, degete nu cursor */
+.btn.touch { width: auto; display: inline-block; padding: 14px 24px; font-size: 17px; margin-top: 0; min-height: 48px; }
+.btn.danger { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn.danger:hover { background: var(--accent); color: #fff; }
+.btn.ok { background: var(--ok); color: #06281a; }
+
+.eroare { color: var(--accent-hover); font-size: 14px; margin-top: 10px; }
+
+/* timeline status client */
+.pas { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; }
+.pas .bulina {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
+  border: 2px solid var(--border); background: var(--panel-2);
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+.pas.activ .bulina { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 900; }
+.pas.trecut .bulina { border-color: var(--ok); background: var(--ok); color: #06281a; font-weight: 900; }
+.pas .titlu { font-weight: 600; font-size: 15px; }
+.pas .detaliu { color: var(--muted); font-size: 13px; }
+
+/* admin */
+.rand {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+}
+.comutator-sunet {
+  display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px;
+  margin-bottom: 16px; cursor: pointer; width: fit-content;
+}
+.comutator-sunet input { width: auto; }
+.selector-eveniment {
+  width: 100%; background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; font-size: 15px; font-family: inherit; margin-bottom: 16px;
+}
+.mesaj-card .meta { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.mesaj-card .text { font-size: 16px; margin: 6px 0 12px; }
+.badge {
+  display: inline-block; font-size: 12px; font-weight: 700;
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+}
+.badge.gold { color: var(--accent-hover); border-color: var(--accent-dark); }
+.badge.warn { color: #f5c451; border-color: #7a5f1a; background: #2a2210; }
+
+nav.adminnav { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; justify-content: center; }
+nav.adminnav a {
+  color: var(--muted); text-decoration: none; font-size: 13px;
+  font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border);
+}
+nav.adminnav a:hover { color: #fff; border-color: var(--accent); }
+
+a { color: var(--accent-hover); }
+
+/* footer public */
+.site-footer {
+  margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
+  text-align: center; font-size: 13px;
+}
+.site-footer-linkuri { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 8px; }
+.site-footer-linkuri a { color: var(--muted); text-decoration: none; }
+.site-footer-linkuri a:hover { color: var(--text); }
+.site-footer-extern { color: var(--muted); }
+.site-footer-extern a { color: var(--muted); text-decoration: underline; }
+
+/* pagina principala — hero + grila de evenimente (Sarcina C) */
+.badge-eveniment {
+  display: inline-block; font-size: 12px; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.badge-eveniment.live { background: var(--accent); color: #fff; }
+.badge-eveniment.live.pulsand { animation: pulseLive 1.6s ease-in-out infinite; }
+@keyframes pulseLive { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+.badge-eveniment.upcoming { background: transparent; color: var(--text); border: 1px solid var(--text); }
+.badge-eveniment.ended { background: var(--panel-2); color: var(--muted); border: 1px solid var(--border); }
+
+.hero-eveniment {
+  display: block; position: relative; border-radius: 18px; overflow: hidden;
+  min-height: 260px; margin: 20px 0 8px; background-size: cover; background-position: center;
+  text-decoration: none; color: var(--text);
+}
+.hero-eveniment-overlay {
+  position: relative; z-index: 1; padding: 28px 24px; text-align: center;
+  background: linear-gradient(180deg, rgba(10,10,11,0.35) 0%, rgba(10,10,11,0.92) 85%);
+  min-height: 260px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+}
+.hero-eveniment-overlay h1 { margin: 10px 0 2px; }
+
+.grid-evenimente {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;
+}
+.card-eveniment {
+  display: block; border-radius: 14px; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--border); text-decoration: none; color: var(--text);
+}
+.card-eveniment-cover { height: 130px; background-size: cover; background-position: center; background-color: var(--panel-2); }
+.card-eveniment-body { padding: 12px 14px 16px; }
+.card-eveniment-titlu { font-family: var(--font-display); font-size: 16px; margin-top: 8px; text-transform: uppercase; }
+.card-eveniment-data { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+/* /admin dashboard */
+.grid-statistici-dashboard {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px;
+}
+.grid-statistici-dashboard strong { font-family: var(--font-display); font-size: 20px; }
+.rand-eveniment-dashboard {
+  text-decoration: none; color: var(--text); cursor: pointer; justify-content: flex-start;
+}
+.rand-eveniment-dashboard:hover { border-color: var(--accent); }
+
+/* poze dedicatii (Sarcina B) */
+.poza-moderare-preview { max-width: 260px; max-height: 260px; border-radius: 10px; margin: 8px 0; display: block; }
+.poza-buton-upload {
+  display: inline-flex; align-items: center; gap: 8px; width: auto;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 16px; cursor: pointer; font-size: 14px; color: var(--text);
+}
+.poza-preview-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.poza-preview { max-width: 200px; max-height: 200px; border-radius: 10px; border: 1px solid var(--border); }
+.overlay-poza {
+  width: 220px; height: 220px; object-fit: cover; border-radius: 16px;
+  border: 3px solid var(--accent); flex-shrink: 0;
+}
+
+/* /admin/dedicatii */
+.grid-filtre-dedicatii {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;
+}
+.grid-filtre-dedicatii select, .grid-filtre-dedicatii input {
+  width: 100%; background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-size: 14px;
+}
+
+/* editor eveniment (/admin/evenimente/[id]) */
+.editor-cover-preview {
+  height: 160px; border-radius: 12px; background-size: cover; background-position: center;
+  background-color: var(--panel-2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  border: 1px dashed var(--border);
+}
+.editor-cover-overlay-text {
+  background: rgba(10,10,11,0.75); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 13px;
+}
+
+/* pagina de detaliu eveniment (/eveniment/[slug]) */
+.eveniment-cover {
+  border-radius: 18px; overflow: hidden; min-height: 200px;
+  background-size: cover; background-position: center; margin-bottom: 16px;
+}
+.eveniment-cover-overlay {
+  min-height: 200px; padding: 24px 20px; text-align: center;
+  background: linear-gradient(180deg, rgba(10,10,11,0.25) 0%, rgba(10,10,11,0.92) 85%);
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px;
+}
+.eveniment-meta {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;
+  color: var(--muted); font-size: 13px; margin-bottom: 12px;
+}
+.eveniment-descriere { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+.mesaj-selectie { font-size: 14px; padding: 8px 0; border-top: 1px solid var(--border); }
+.mesaj-selectie:first-of-type { border-top: none; }
+
+/* pagini legale */
+.legal h2 { font-size: 16px; margin: 20px 0 8px; color: var(--text); }
+.legal h2:first-child { margin-top: 0; }
+.legal p, .legal li { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.legal ul { padding-left: 20px; margin: 8px 0; }
+.legal strong { color: var(--text); }
+
+/* plata rapida — Express Checkout Element + Payment Element (Sarcina E) */
+.camp-email { margin-bottom: 18px; }
+.separator-plata {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--muted); font-size: 13px; margin: 18px 0;
+}
+.separator-plata::before, .separator-plata::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.link-discret {
+  display: block; width: 100%; background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 13px; text-decoration: underline;
+  margin-top: 14px; padding: 0; font-family: inherit; text-align: center;
+}
+.link-discret:hover { color: var(--text); }
+.link-dedicatiile-mele {
+  display: block; color: var(--muted); font-size: 13px; text-decoration: underline; margin-bottom: 10px;
+}
+.link-dedicatiile-mele:hover { color: var(--text); }
+
+.badge.danger { color: var(--accent); border-color: var(--accent-dark); background: #2a1010; }
