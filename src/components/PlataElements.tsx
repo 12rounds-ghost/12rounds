@@ -94,6 +94,8 @@ function FormularPlata({
         return;
       }
 
+      const emailFinal = billingDetails.email || email || '';
+
       const res = await fetch('/api/payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,7 +103,7 @@ function FormularPlata({
           ...dateDedicatie,
           billingDetails: {
             name: billingDetails.name,
-            email: billingDetails.email || email || undefined,
+            email: emailFinal || undefined,
             address: billingDetails.address,
           },
         }),
@@ -115,7 +117,13 @@ function FormularPlata({
       const { error: confirmError } = await stripe.confirmPayment({
         elements,
         clientSecret: data.clientSecret,
-        confirmParams: { return_url: `${origin}/status/${data.dedicatie_id}` },
+        confirmParams: {
+          return_url: `${origin}/status/${data.dedicatie_id}`,
+          // Payment Element are fields.billingDetails.email = 'never' (avem
+          // propriul camp de email deasupra) — Stripe cere explicit aceasta
+          // valoare aici, altfel arunca eroare la confirmare.
+          payment_method_data: { billing_details: { email: emailFinal } },
+        },
       });
       if (confirmError) {
         setEroare(confirmError.message ?? 'Plata nu a putut fi confirmată.');
