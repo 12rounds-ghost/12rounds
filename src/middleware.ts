@@ -1,0 +1,29 @@
+import { NextResponse, type NextRequest } from 'next/server';
+
+// Site "revenim in curand": tot domeniul e blocat cu o parola pana la
+// lansare, ca sa se poata lucra pe 12rounds.ro fara sa fie public inca.
+// Stripe trebuie sa poata ajunge oricand la /api/webhook, indiferent de gate.
+const CALE_LIBERA = ['/coming-soon', '/api/site-access', '/api/webhook'];
+
+const COOKIE = '12rounds_access';
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  if (CALE_LIBERA.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return NextResponse.next();
+  }
+
+  const acces = req.cookies.get(COOKIE)?.value;
+  if (acces && acces === process.env.SITE_ACCESS_TOKEN) {
+    return NextResponse.next();
+  }
+
+  const url = req.nextUrl.clone();
+  url.pathname = '/coming-soon';
+  url.search = '';
+  return NextResponse.redirect(url);
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|logo.jpeg).*)'],
+};
