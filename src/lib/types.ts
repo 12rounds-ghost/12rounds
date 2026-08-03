@@ -52,6 +52,8 @@ export interface Dedicatie {
   factura_status: 'neemisa' | 'emisa' | 'eroare' | 'manual';
   factura_numar: string | null;
   factura_eroare: string | null;
+  email_trimis_la: string | null;
+  email_eroare: string | null;
   created_at: string;
 }
 

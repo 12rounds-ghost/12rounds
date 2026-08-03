@@ -21,6 +21,7 @@ interface Filtre {
   dataDeLa: string;
   dataPanaLa: string;
   doarFacturiProbleme: boolean;
+  doarEmailuriNereusite: boolean;
 }
 
 const FILTRE_GOALE: Filtre = {
@@ -33,6 +34,7 @@ const FILTRE_GOALE: Filtre = {
   dataDeLa: '',
   dataPanaLa: '',
   doarFacturiProbleme: false,
+  doarEmailuriNereusite: false,
 };
 
 function aplicaFiltre<T>(q: T, f: Filtre): T {
@@ -48,6 +50,7 @@ function aplicaFiltre<T>(q: T, f: Filtre): T {
   if (f.dataDeLa) query = query.gte('created_at', f.dataDeLa);
   if (f.dataPanaLa) query = query.lte('created_at', `${f.dataPanaLa}T23:59:59`);
   if (f.doarFacturiProbleme) query = query.in('factura_status', ['eroare', 'manual']);
+  if (f.doarEmailuriNereusite) query = query.not('email_eroare', 'is', null);
   if (f.cautare.trim()) {
     const termen = `%${f.cautare.trim()}%`;
     query = query.or(`mesaj.ilike.${termen},de_la.ilike.${termen},pentru.ilike.${termen}`);
@@ -85,6 +88,7 @@ export function DedicatiiClient({
   const [expandat, setExpandat] = useState<string | null>(null);
   const [numeFacturaEdit, setNumeFacturaEdit] = useState<Record<string, string>>({});
   const [reincercare, setReincercare] = useState<string | null>(null);
+  const [reincercareEmail, setReincercareEmail] = useState<string | null>(null);
   const esteAdmin = rol === 'admin';
 
   const numeEveniment = useCallback(
@@ -159,6 +163,17 @@ export function DedicatiiClient({
       alert(error);
     }
     setReincercare(null);
+    incarca();
+  }
+
+  async function reincearcaEmail(d: Dedicatie) {
+    setReincercareEmail(d.id);
+    const res = await fetch(`/api/admin/dedicatii/${d.id}/retrimite-email`, { method: 'POST' });
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: 'A apărut o eroare.' }));
+      alert(error);
+    }
+    setReincercareEmail(null);
     incarca();
   }
 
@@ -250,6 +265,14 @@ export function DedicatiiClient({
               Facturi cu probleme
             </label>
           )}
+          <label className="rand" style={{ gap: 6, justifyContent: 'flex-start', width: 'auto' }}>
+            <input
+              type="checkbox"
+              checked={filtre.doarEmailuriNereusite}
+              onChange={(e) => actualizeazaFiltru('doarEmailuriNereusite', e.target.checked)}
+            />
+            Emailuri nereușite
+          </label>
         </div>
       </div>
 
@@ -270,7 +293,8 @@ export function DedicatiiClient({
                   <span className="badge">{d.status_difuzare}</span>{' '}
                   {esteAdmin && (d.factura_status === 'eroare' || d.factura_status === 'manual') && (
                     <span className="badge danger">factură: {d.factura_status}</span>
-                  )}
+                  )}{' '}
+                  {d.email_eroare && <span className="badge danger">email nereușit</span>}
                   <div className="sub" style={{ margin: '4px 0 0', textAlign: 'left' }}>
                     {numeEveniment(d.event_id)} · {new Date(d.created_at).toLocaleString('ro-RO')}
                     {esteAdmin && <> · {lei(d.suma_bani)}</>}
@@ -313,6 +337,21 @@ export function DedicatiiClient({
                         onClick={() => reincearcaFactura(d)}
                       >
                         {reincercare === d.id ? 'Se salvează…' : 'Reîncearcă emiterea'}
+                      </button>
+                    </div>
+                  )}
+                  {d.email_eroare && (
+                    <div className="card" style={{ marginTop: 8, background: 'var(--panel-2)' }}>
+                      <p className="sub" style={{ textAlign: 'left', margin: '0 0 8px', color: 'var(--accent-hover)' }}>
+                        Email nereușit ({d.email ?? 'fără adresă'}): {d.email_eroare}
+                      </p>
+                      <button
+                        type="button"
+                        className="btn mic"
+                        disabled={reincercareEmail === d.id}
+                        onClick={() => reincearcaEmail(d)}
+                      >
+                        {reincercareEmail === d.id ? 'Se retrimite…' : 'Retrimite email'}
                       </button>
                     </div>
                   )}

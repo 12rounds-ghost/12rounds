@@ -60,7 +60,7 @@ export async function POST(req: Request) {
           })
           .eq('id', dedicatieId)
           .eq('status_plata', 'pending')
-          .select('id, tip, pentru')
+          .select('id, tip, pentru, de_la, mesaj')
           .maybeSingle();
 
         if (actualizate && email) {
@@ -69,6 +69,8 @@ export async function POST(req: Request) {
             dedicatieId: actualizate.id,
             tip: actualizate.tip,
             pentru: actualizate.pentru,
+            deLa: actualizate.de_la,
+            mesaj: actualizate.mesaj,
           });
         }
       }
@@ -119,7 +121,7 @@ export async function POST(req: Request) {
         })
         .eq('id', dedicatieId)
         .eq('status_plata', 'pending')
-        .select('id, tip, pentru, stripe_customer_id')
+        .select('id, tip, pentru, de_la, mesaj, stripe_customer_id')
         .maybeSingle();
 
       if (actualizate) {
@@ -143,6 +145,8 @@ export async function POST(req: Request) {
             dedicatieId: actualizate.id,
             tip: actualizate.tip,
             pentru: actualizate.pentru,
+            deLa: actualizate.de_la,
+            mesaj: actualizate.mesaj,
           });
         }
       }

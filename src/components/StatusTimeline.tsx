@@ -2,7 +2,15 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DedicatieStatusPublic } from '@/lib/types';
 
-const INTERVAL_POLLING_MS = 5000;
+// Sarcina E (IMPLEMENTARE-V3.md): polling explicit, nu Realtime — mai simplu
+// si mai robust. Cauza reala a bug-ului raportat nu era RLS (status API
+// foloseste service role, ocoleste RLS), ci lipsa oricarei legaturi cu
+// document.visibilityState: pe telefon, un tab pus in fundal isi are
+// timerele reduse/oprite de browser, iar la revenire pagina parea "blocata"
+// pana la un refresh manual.
+const INTERVAL_MS = 4000;
+const INTERVAL_LENT_MS = 15000;
+const PRAG_LENT_MS = 30 * 60 * 1000; // 30 minute fara schimbare -> polling mai rar
 
 function esteStareFinala(d: DedicatieStatusPublic): boolean {
   return (
@@ -17,7 +25,7 @@ const PASI = [
   { cheie: 'verificare', titlu: 'Mesaj în verificare', detaliu: 'Moderatorul citește mesajul.' },
   { cheie: 'aprobat', titlu: 'Mesaj aprobat', detaliu: 'Mesajul a trecut de moderare.' },
   { cheie: 'programat', titlu: 'Programat pentru difuzare', detaliu: 'Urmează într-o tranziție.' },
-  { cheie: 'difuzat', titlu: 'Difuzat', detaliu: 'Mesajul a apărut în sală și în transmisie.' },
+  { cheie: 'difuzat', titlu: 'Difuzat', detaliu: 'Mesajul a apărut pe ecranele din sală.' },
 ] as const;
 
 function pasCurent(d: DedicatieStatusPublic): number {
@@ -33,30 +41,50 @@ export function StatusTimeline({ initial }: { initial: DedicatieStatusPublic }) 
   const [ded, setDed] = useState(initial);
   const dedRef = useRef(ded);
   dedRef.current = ded;
+  const ultimaSchimbareRef = useRef(Date.now());
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (esteStareFinala(dedRef.current)) return;
-
     let anulat = false;
-    const interval = setInterval(async () => {
-      if (esteStareFinala(dedRef.current)) {
-        clearInterval(interval);
-        return;
-      }
+
+    async function verifica() {
+      if (anulat || document.visibilityState === 'hidden') return;
       try {
         const res = await fetch(`/api/status/${initial.id}`, { cache: 'no-store' });
         if (!res.ok || anulat) return;
         const proaspat = (await res.json()) as DedicatieStatusPublic;
-        setDed(proaspat);
-        if (esteStareFinala(proaspat)) clearInterval(interval);
+        if (JSON.stringify(proaspat) !== JSON.stringify(dedRef.current)) {
+          setDed(proaspat);
+          ultimaSchimbareRef.current = Date.now();
+        }
+        if (esteStareFinala(proaspat)) return; // stare finala — nu mai programam niciun tick
       } catch {
         // conexiune cazuta temporar — reincercam la urmatorul tick
       }
-    }, INTERVAL_POLLING_MS);
+      programeaza();
+    }
+
+    function programeaza() {
+      if (anulat) return;
+      const lent = Date.now() - ultimaSchimbareRef.current > PRAG_LENT_MS;
+      timeoutRef.current = setTimeout(verifica, lent ? INTERVAL_LENT_MS : INTERVAL_MS);
+    }
+
+    function laRevenire() {
+      if (document.visibilityState === 'visible' && !esteStareFinala(dedRef.current)) {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        verifica(); // refetch imediat, fara sa astepte urmatorul tick
+      }
+    }
+
+    programeaza();
+    document.addEventListener('visibilitychange', laRevenire);
 
     return () => {
       anulat = true;
-      clearInterval(interval);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      document.removeEventListener('visibilitychange', laRevenire);
     };
   }, [initial.id]);
 
@@ -90,7 +118,9 @@ export function StatusTimeline({ initial }: { initial: DedicatieStatusPublic }) 
         const stare = i < curent ? 'trecut' : i === curent ? 'activ' : '';
         return (
           <div key={p.cheie} className={`pas ${stare}`}>
-            <div className="bulina">{i < curent ? '✓' : ''}</div>
+            <div key={curent} className={`bulina${i === curent ? ' bulina-noua' : ''}`}>
+              {i < curent ? '✓' : ''}
+            </div>
             <div>
               <div className="titlu">{p.titlu}</div>
               <div className="detaliu">{p.detaliu}</div>
