@@ -11,3 +11,8 @@ export function urlCoperta(coverPath: string | null): string {
 export function urlPozaAprobata(pozaPath: string): string {
   return `${SUPABASE_URL}/storage/v1/object/public/poze-aprobate/${pozaPath}`;
 }
+
+// Logo sponsor (bucket public 'sponsori', Sarcina A2).
+export function urlSponsorLogo(logoPath: string): string {
+  return `${SUPABASE_URL}/storage/v1/object/public/sponsori/${logoPath}`;
+}

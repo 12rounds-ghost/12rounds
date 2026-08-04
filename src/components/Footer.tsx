@@ -4,19 +4,36 @@ import { LinkDedicatiileMele } from '@/components/LinkDedicatiileMele';
 export function Footer() {
   return (
     <footer className="site-footer">
-      <LinkDedicatiileMele />
-      <nav className="site-footer-linkuri">
-        <Link href="/termeni">Termeni și condiții</Link>
-        <Link href="/confidentialitate">Confidențialitate</Link>
-        <Link href="/rambursare">Politica de rambursare</Link>
-      </nav>
-      <p className="site-footer-extern">
-        <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer">ANPC</a>
-        {' · '}
+      <div className="site-footer-grid">
+        <div className="site-footer-despre">
+          <b>12 Rounds</b>
+          <p>The Battle of the Bands. Un format live: doi artiști, douăsprezece runde, un singur final.</p>
+        </div>
+        <div>
+          <h5>Evenimente</h5>
+          <Link href="/format">Despre format</Link>
+          <Link href="/#viitoare">Calendar</Link>
+          <Link href="/#trecute">Arhivă</Link>
+        </div>
+        <div>
+          <h5>Dedicații</h5>
+          <Link href="/live">Trimite o dedicație</Link>
+          <LinkDedicatiileMele />
+        </div>
+        <div>
+          <h5>Legal</h5>
+          <Link href="/termeni">Termeni și condiții</Link>
+          <Link href="/confidentialitate">Confidențialitate</Link>
+          <Link href="/rambursare">Politica de rambursare</Link>
+          <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer">ANPC</a>
+        </div>
+      </div>
+      <div className="site-footer-bot">
+        <span>© {new Date().getFullYear()} 12 ROUNDS. Toate drepturile rezervate.</span>
         <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">
           Soluționarea online a litigiilor (SOL)
         </a>
-      </p>
+      </div>
     </footer>
   );
 }

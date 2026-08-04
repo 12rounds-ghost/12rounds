@@ -49,6 +49,8 @@ export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Even
   const [artistB, setArtistB] = useState(event.artist_b ?? '');
   const [linkuri, setLinkuri] = useState<Record<string, string>>(() => ({ ...(event.linkuri_stream ?? {}) }));
   const [status, setStatus] = useState(event.status);
+  const [spectatori, setSpectatori] = useState(event.spectatori != null ? String(event.spectatori) : '');
+  const [momenteLive, setMomenteLive] = useState(event.momente_live != null ? String(event.momente_live) : '');
   const [coverPath, setCoverPath] = useState(event.cover_path);
   const [coverIncarcare, setCoverIncarcare] = useState(false);
   const [tarife, setTarife] = useState(() =>
@@ -101,6 +103,8 @@ export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Even
         artist_b: artistB || null,
         linkuri_stream: linkuriCurate,
         cover_path: coverPath,
+        spectatori: spectatori.trim() ? Math.max(0, parseInt(spectatori, 10)) : null,
+        momente_live: momenteLive.trim() ? Math.max(0, parseInt(momenteLive, 10)) : null,
       })
       .eq('id', event.id);
 
@@ -234,6 +238,17 @@ export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Even
             </label>
           </div>
         ))}
+      </div>
+
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>Cifrele ediției</h2>
+        <p className="sub" style={{ margin: '0 0 4px', textAlign: 'left' }}>
+          Completează după eveniment — apar pe pagina publică (Arhivă). Lasă gol dacă nu ai cifra, nu se afișează.
+        </p>
+        <label htmlFor="spectatori">Spectatori</label>
+        <input id="spectatori" type="number" min={0} value={spectatori} onChange={(e) => setSpectatori(e.target.value)} placeholder="ex. 2400" />
+        <label htmlFor="momenteLive">Momente live</label>
+        <input id="momenteLive" type="number" min={0} value={momenteLive} onChange={(e) => setMomenteLive(e.target.value)} placeholder="ex. 13" />
       </div>
 
       <div className="card">

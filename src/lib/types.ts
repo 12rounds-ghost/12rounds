@@ -16,7 +16,20 @@ export interface Event {
   artist_a: string | null;
   artist_b: string | null;
   locatie: string | null;
+  spectatori: number | null;
+  momente_live: number | null;
   created_at: string;
+}
+
+export interface Sponsor {
+  id: string;
+  event_id: string | null;
+  nume: string;
+  logo_path: string | null;
+  url: string | null;
+  nivel: 'principal' | 'sustinator';
+  ordine: number;
+  activ: boolean;
 }
 
 export interface Tarif {

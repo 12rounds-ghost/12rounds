@@ -17,5 +17,5 @@ export default async function LiveRedirect() {
     .maybeSingle();
 
   if (live?.slug) redirect(`/eveniment/${live.slug}`);
-  redirect('/?fara_live=1');
+  redirect('/');
 }

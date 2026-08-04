@@ -1,85 +1,186 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { supabaseServer } from '@/lib/supabase/server';
+import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { EventGrid } from '@/components/EventGrid';
+import { EditiiUrmeaza } from '@/components/EditiiUrmeaza';
+import { EditiiIncheiate } from '@/components/EditiiIncheiate';
+import { SponsoriSection } from '@/components/SponsoriSection';
+import { StareBadge } from '@/components/StareBadge';
 import { urlCoperta } from '@/lib/storage';
-import type { Event } from '@/lib/types';
+import type { Event, Sponsor } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-// Fallback-uri pentru evenimente fara data_show, ca sa nu rupa sortarea:
-// un 'upcoming' fara data trece la coada (crescator), un 'ended' fara data
-// trece tot la coada (descrescator).
-const DATA_MAXIMA = '9999-12-31';
-const DATA_MINIMA = '0000-01-01';
+const NUMAR_EDITII_INCHEIATE = 3;
 
-function ordineEvenimente(a: Event, b: Event): number {
-  const rang = (s: Event['status']) => (s === 'live' ? 0 : s === 'upcoming' ? 1 : 2);
-  const diferentaRang = rang(a.status) - rang(b.status);
-  if (diferentaRang !== 0) return diferentaRang;
-
-  if (a.status === 'upcoming') {
-    return (a.data_show ?? DATA_MAXIMA).localeCompare(b.data_show ?? DATA_MAXIMA);
-  }
-  if (a.status === 'ended') {
-    return (b.data_show ?? DATA_MINIMA).localeCompare(a.data_show ?? DATA_MINIMA);
-  }
-  return b.created_at?.localeCompare(a.created_at ?? '') ?? 0;
-}
-
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: { fara_live?: string };
-}) {
+export default async function Home() {
   const sb = supabaseServer();
   const { data } = await sb.from('events').select('*').order('created_at', { ascending: false }).limit(200);
-  const evenimente = ((data ?? []) as Event[]).sort(ordineEvenimente);
+  const evenimente = (data ?? []) as Event[];
 
-  const hero = evenimente.find((e) => e.status === 'live') ?? null;
-  const restul = evenimente.filter((e) => e.id !== hero?.id);
+  const live = evenimente.find((e) => e.status === 'live') ?? null;
+  const viitoare = evenimente
+    .filter((e) => e.status === 'upcoming')
+    .sort((a, b) => (a.data_show ?? '9999').localeCompare(b.data_show ?? '9999'));
+  const incheiate = evenimente
+    .filter((e) => e.status === 'ended')
+    .sort((a, b) => (b.data_show ?? '').localeCompare(a.data_show ?? ''))
+    .slice(0, NUMAR_EDITII_INCHEIATE);
+
+  // Hero: editia live, sau — daca nu e nimic live — urmatoarea editie.
+  const hero = live ?? viitoare[0] ?? null;
+  const railViitoare = viitoare.filter((e) => e.id !== hero?.id);
+
+  let difuzatePerEveniment = new Map<string, number>();
+  if (incheiate.length > 0) {
+    const { data: randuri } = await sb
+      .from('dedicatii')
+      .select('event_id')
+      .eq('status_difuzare', 'difuzat')
+      .eq('status_plata', 'paid')
+      .in('event_id', incheiate.map((e) => e.id));
+    difuzatePerEveniment = new Map();
+    for (const r of randuri ?? []) {
+      difuzatePerEveniment.set(r.event_id, (difuzatePerEveniment.get(r.event_id) ?? 0) + 1);
+    }
+  }
+
+  const { data: sponsoriData } = await sb
+    .from('sponsori')
+    .select('*')
+    .eq('activ', true)
+    .or(hero ? `event_id.is.null,event_id.eq.${hero.id}` : 'event_id.is.null')
+    .order('ordine', { ascending: true });
+  const sponsori = (sponsoriData ?? []) as Sponsor[];
 
   return (
-    <main className="container wide">
-      <Image src="/logo.jpeg" alt="12 ROUNDS — The Battle of the Bands" width={130} height={130} className="logo" priority />
-      <div className="brand">The battle of the bands</div>
-
-      {!hero && searchParams.fara_live === '1' && (
-        <p className="sub" style={{ textAlign: 'center' }}>
-          Niciun show live acum — vezi mai jos următoarea ediție.
-        </p>
-      )}
-
-      {hero && (
-        <Link
-          href={`/eveniment/${hero.slug}`}
-          className="hero-eveniment"
-          style={{ backgroundImage: `url(${urlCoperta(hero.cover_path)})` }}
-        >
-          <div className="hero-eveniment-overlay">
-            <span className="badge-eveniment live pulsand">● LIVE ACUM</span>
-            <h1>{hero.nume}</h1>
-            {hero.subtitlu && <p className="sub" style={{ margin: '4px 0 16px' }}>{hero.subtitlu}</p>}
-            <span className="btn" style={{ display: 'inline-block', width: 'auto', padding: '14px 32px' }}>
-              Trimite o dedicație
-            </span>
+    <>
+      <Header />
+      <main className="container wide">
+        {hero && (
+          <div className="hero-eveniment-wrap">
+            <Link
+              href={`/eveniment/${hero.slug}`}
+              className="hero-eveniment"
+              style={{ backgroundImage: `url(${urlCoperta(hero.cover_path)})` }}
+            >
+              <div className="hero-eveniment-overlay">
+                <StareBadge
+                  status={hero.status === 'live' ? 'live' : 'upcoming'}
+                  dataScurta={
+                    hero.data_show
+                      ? new Date(hero.data_show).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })
+                      : null
+                  }
+                />
+                <h1>{hero.nume}</h1>
+                <p className="sub" style={{ margin: '4px 0 16px' }}>
+                  {hero.data_show &&
+                    new Date(hero.data_show).toLocaleString('ro-RO', { dateStyle: 'full', timeStyle: 'short' })}
+                  {hero.locatie ? ` · ${hero.locatie}` : ''}
+                  {(hero.artist_a || hero.artist_b) &&
+                    ` · ${hero.artist_a ?? ''}${hero.artist_a && hero.artist_b ? ' vs ' : ''}${hero.artist_b ?? ''}`}
+                </p>
+                <span className="btn" style={{ display: 'inline-block', width: 'auto', padding: '14px 32px' }}>
+                  {hero.status === 'live' ? 'Trimite o dedicație' : 'Vezi detalii'}
+                </span>
+                {hero.status === 'live' && (
+                  <span className="hero-note">Dedicațiile se trimit din sală, în timpul show-ului</span>
+                )}
+              </div>
+            </Link>
           </div>
-        </Link>
-      )}
+        )}
 
-      {restul.length > 0 && (
-        <>
-          <h2 style={{ marginTop: hero ? 32 : 12 }}>{hero ? 'Alte ediții' : 'Ediții'}</h2>
-          <EventGrid evenimente={restul} />
-        </>
-      )}
+        {!hero && (
+          <div className="card" style={{ textAlign: 'center' }}>Nicio ediție anunțată încă.</div>
+        )}
 
-      {evenimente.length === 0 && (
-        <div className="card" style={{ textAlign: 'center' }}>Nicio ediție anunțată încă.</div>
-      )}
+        {/* Formatul */}
+        <section className="shead" style={{ marginTop: 40 }}>
+          <div>
+            <div className="kicker">Formatul</div>
+            <h2>Nu este un concert dublu.<br />Este un show cu mecanism.</h2>
+          </div>
+          <p>Doi artiști, aceleași șase provocări, răspunsuri complet diferite. Fără juriu, fără eliminări, fără învinși.</p>
+        </section>
+        <div className="formula">
+          <div><b>2</b><span>Artiști</span></div>
+          <div><b>×6</b><span>Provocări fiecare</span></div>
+          <div><b>12</b><span>Rounds</span></div>
+          <div><b>+1</b><span>Grand Finale</span></div>
+        </div>
+        <div className="concept-cta">
+          <div>
+            <h3>Șase provocări. Două interpretări. Două identități.</h3>
+            <p>Signature, Exchange, Emotion, Roots, Freestyle și Power + Surprise — aceleași reguli pentru amândoi artiștii, răspunsuri complet diferite.</p>
+          </div>
+          <Link className="btn" href="/format">Despre format</Link>
+        </div>
+        <div className="quote">
+          <p>12 rounds îi separă. Ultima piesă îi aduce împreună.</p>
+          <span>1 prezentator · 1 DJ · 2 invitați-surpriză · ≈85 de minute, fără pauză</span>
+        </div>
 
-      <Footer />
-    </main>
+        {/* Editii viitoare */}
+        {railViitoare.length > 0 && (
+          <section id="viitoare" style={{ marginTop: 48 }}>
+            <div className="shead">
+              <div><div className="kicker">Calendar</div><h2>Ediții care urmează</h2></div>
+            </div>
+            <EditiiUrmeaza evenimente={railViitoare} />
+          </section>
+        )}
+
+        {/* Cum functioneaza dedicatiile */}
+        <section style={{ marginTop: 48 }}>
+          <div className="shead">
+            <div>
+              <div className="kicker">Dedicații · doar în sală</div>
+              <h2>Mesajul tău, pe ecranele din sală</h2>
+            </div>
+            <p>Dedicațiile se trimit din sală, în timpul show-ului, și apar pe ecranele din sală. Fără cont și fără aplicație — durează sub un minut, de pe telefon.</p>
+          </div>
+          <div className="steps">
+            <div><h4>Scanezi codul QR</h4><p>De pe ecranele din sală, de pe masă sau de pe bilet.</p></div>
+            <div><h4>Scrii mesajul</h4><p>De la cine, pentru cine, artistul preferat. Opțional, o poză.</p></div>
+            <div><h4>Plătești</h4><p>Apple Pay, Google Pay sau card. Un singur tap, fără cont.</p></div>
+            <div><h4>Apare pe ecran</h4><p>După aprobarea moderatorului, pe ecranele din sală.</p></div>
+          </div>
+          <p className="disclaimer">Dedicațiile sunt disponibile exclusiv pentru publicul prezent în sală și se afișează doar pe ecranele din sală — nu în transmisiunile online.</p>
+        </section>
+
+        {/* Editii incheiate */}
+        {incheiate.length > 0 && (
+          <section id="trecute" style={{ marginTop: 48 }}>
+            <div className="shead">
+              <div><div className="kicker">Arhivă</div><h2>Ediții încheiate</h2></div>
+            </div>
+            <EditiiIncheiate evenimente={incheiate} difuzatePerEveniment={difuzatePerEveniment} />
+          </section>
+        )}
+
+        {/* Parteneri */}
+        {sponsori.length > 0 && (
+          <section id="sponsori" style={{ marginTop: 48 }}>
+            <div className="shead">
+              <div><div className="kicker">Parteneri</div><h2>Cei care fac show-ul posibil</h2></div>
+            </div>
+            <SponsoriSection sponsori={sponsori} />
+          </section>
+        )}
+
+        {/* Banda finala */}
+        <section style={{ marginTop: 48 }}>
+          <div className="strip">
+            <h2>Every 12 rounds have a story</h2>
+            <p>Ești în sală? Trimite o dedicație și fii parte din ediția de diseară.</p>
+            <Link className="btn" href={hero ? `/eveniment/${hero.slug}` : '/'}>Trimite o dedicație</Link>
+          </div>
+        </section>
+
+        <Footer />
+      </main>
+    </>
   );
 }
