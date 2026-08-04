@@ -147,6 +147,7 @@ textarea { min-height: 90px; resize: vertical; }
 }
 .badge.gold { color: var(--accent-hover); border-color: var(--accent-dark); }
 .badge.warn { color: #f5c451; border-color: #7a5f1a; background: #2a2210; }
+.badge.ok { color: #6fd88a; border-color: #1f5c33; background: #102a18; }
 
 nav.adminnav { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; justify-content: center; }
 nav.adminnav a {

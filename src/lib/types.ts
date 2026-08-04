@@ -75,7 +75,19 @@ export interface Dedicatie {
   factura_eroare: string | null;
   email_trimis_la: string | null;
   email_eroare: string | null;
+  ecran_curent: number | null;
+  nr_difuzari: number;
+  ultima_difuzare: string | null;
   created_at: string;
+}
+
+// Configurarea unui ecran fizic din sala (Sarcina F, IMPLEMENTARE-V3.md) —
+// randul se creeaza singur la primul heartbeat trimis de kiosk.
+export interface EcranConfig {
+  nr: number;
+  nume: string | null;
+  activ: boolean;
+  ultima_conectare: string | null;
 }
 
 // Subset public al unei dedicatii, expus de /api/status/[id] — niciodata

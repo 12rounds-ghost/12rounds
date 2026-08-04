@@ -9,8 +9,10 @@ Aplicație Next.js completă pentru fluxul: **QR/link → dedicație → plată 
 | `/` | Pagina publică — formular dedicație când show-ul e live, mesaj „următorul show" când nu e |
 | `/status/[id]` | Pagina clientului — cele 5 stări, actualizate în timp real |
 | `/overlay` | Browser Source pentru OBS / vMix — afișează dedicația curentă (fundal transparent) |
+| `/ecran/[nr]` | Kiosk fullscreen pentru un ecran fizic din sală — rotește automat dedicațiile tip „ecran", fără operator |
 | `/admin/moderare` | Coada de mesaje plătite: aprobă / respinge / refund |
-| `/admin/regie` | Ecranul operatorului: „Pe ecran" → „Difuzat" (gândit pentru tabletă) |
+| `/admin/regie` | Coada prezentatorului — doar dedicațiile citite cu voce tare (tip „prezentator") |
+| `/admin/ecrane` | Vezi ecranele conectate, activează/dezactivează, copiază link-ul de kiosk |
 | `/admin/event` | Toggle LIVE/încheiat, mesaje, linkuri stream |
 | `/api/checkout` | Creează sesiunea Stripe Checkout |
 | `/api/webhook` | Confirmarea plății de la Stripe |
@@ -61,13 +63,40 @@ Testează plata cu cardul de test Stripe: `4242 4242 4242 4242`, orice dată vii
 - În `/admin/event` completează linkurile de stream (JSON) și pornește LIVE înainte de show.
 - În OBS/vMix: **Add → Browser Source** cu `https://12rounds.ro/overlay`, 1920×1080. Aceeași scenă alimentează LED-urile din sală și transmisiile.
 
+### 6. Configurare ecrane fizice din sală (Sarcina F)
+
+Dedicațiile tip „ecran" nu mai trec printr-un operator — fiecare ecran fizic din sală
+(TV, tabletă, monitor) cere singur, automat, următoarea dedicație disponibilă și o
+afișează câteva secunde, apoi trece la următoarea (sau, dacă nu mai e nimic nou, la
+un cod QR / logo sponsor / branding, rotite la întâmplare).
+
+1. Setează `ECRAN_SECRET` în `.env.local` / Vercel (același mod ca `OVERLAY_SECRET`):
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
+   ```
+2. Pe fiecare dispozitiv din sală, deschide într-un browser în mod fullscreen/kiosk:
+   ```
+   https://12rounds.ro/ecran/1?key=<ECRAN_SECRET>
+   ```
+   Numărul din URL (`1`, `2`, `3`...) e doar o etichetă — fiecare ecran cu un număr
+   diferit; poți vedea/gestiona ecranele conectate din `/admin/ecrane`.
+3. Dezactivează screensaver-ul și sleep-ul dispozitivului (pe tabletă: "Ghid de acces"/
+   "Guided Access" pe iOS, "Screen Pinning" pe Android — ține browserul fullscreen și
+   blochează ieșirea accidentală).
+4. Fără `?key=` corect, pagina rămâne complet neagră — nu există alt mesaj de eroare,
+   intenționat (nu vrei să confirmi unui necunoscut că URL-ul e valid).
+5. Ecranul nu ține nicio stare locală (fără `localStorage`) — poți reporni dispozitivul
+   oricând în timpul show-ului, fără să rămână blocat într-o stare veche.
+
 ## Fluxul în timpul show-ului
 
 1. Spectatorul plătește → mesajul apare **instant** în `/admin/moderare`.
-2. Moderatorul aprobă → apare instant în `/admin/regie`.
-3. Operatorul apasă **„Pe ecran"** → overlay-ul îl afișează peste tot.
-4. **„Difuzat"** → ecranul se eliberează, clientul vede statusul final.
-5. Respins / nedifuzat → **Refund** dintr-un click (banii se întorc automat).
+2. Moderatorul aprobă:
+   - tip **„ecran"** → intră direct în coada ecranelor fizice, fără operator; primul
+     ecran liber îl revendică și îl afișează automat (`/ecran/[nr]`).
+   - tip **„prezentator"** → apare în `/admin/regie`, unde prezentatorul/operatorul îl
+     citește cu voce tare și îl marchează **„Citit"**.
+3. Respins → **Refund** dintr-un click (banii se întorc automat).
 
 ## De îmbunătățit înainte de lansarea la scară (TODO)
 

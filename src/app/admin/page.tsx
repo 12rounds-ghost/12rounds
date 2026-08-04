@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
     sb.from('events').select('*').order('created_at', { ascending: false }),
     sb
       .from('dedicatii')
-      .select('event_id, suma_bani, status_plata, status_moderare, status_difuzare'),
+      .select('event_id, tip, suma_bani, status_plata, status_moderare, status_difuzare'),
   ]);
 
   const lista = (evenimente ?? []) as Event[];
@@ -34,8 +34,8 @@ export default async function AdminDashboard() {
       numarDedicatii: platite.length,
       incasari: platite.reduce((s, r) => s + r.suma_bani, 0),
       inAsteptareModerare: platite.filter((r) => r.status_moderare === 'in_verificare').length,
-      inCoadaRegie: platite.filter(
-        (r) => r.status_moderare === 'aprobat' && ['in_asteptare', 'programat'].includes(r.status_difuzare)
+      inCoadaPrezentator: platite.filter(
+        (r) => r.tip === 'prezentator' && r.status_moderare === 'aprobat' && ['in_asteptare', 'programat'].includes(r.status_difuzare)
       ).length,
       difuzate: platite.filter((r) => r.status_difuzare === 'difuzat').length,
     };
@@ -60,7 +60,7 @@ export default async function AdminDashboard() {
             return (
               <div className="grid-statistici-dashboard">
                 <div><div className="sub" style={{ margin: 0 }}>La moderare</div><strong>{s.inAsteptareModerare}</strong></div>
-                <div><div className="sub" style={{ margin: 0 }}>În coadă regie</div><strong>{s.inCoadaRegie}</strong></div>
+                <div><div className="sub" style={{ margin: 0 }}>Coadă prezentator</div><strong>{s.inCoadaPrezentator}</strong></div>
                 <div><div className="sub" style={{ margin: 0 }}>Difuzate</div><strong>{s.difuzate}</strong></div>
                 <div><div className="sub" style={{ margin: 0 }}>Încasări</div><strong>{lei(s.incasari)}</strong></div>
               </div>
@@ -69,6 +69,7 @@ export default async function AdminDashboard() {
           <div className="rand" style={{ marginTop: 14, justifyContent: 'flex-start', gap: 10 }}>
             <Link className="btn mic" href="/admin/moderare">Moderare</Link>
             <Link className="btn mic secondary" href="/admin/regie">Regie</Link>
+            <Link className="btn mic secondary" href="/admin/ecrane">Ecrane</Link>
             <Link className="btn mic secondary" href={`/admin/evenimente/${live.id}`}>Editează</Link>
           </div>
         </div>

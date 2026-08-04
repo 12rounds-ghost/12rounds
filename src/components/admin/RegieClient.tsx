@@ -4,15 +4,17 @@ import { supabaseBrowser } from '@/lib/supabase/client';
 import { NUME_TIP, type Dedicatie } from '@/lib/types';
 import { SelectorEveniment } from '@/components/SelectorEveniment';
 
-// Ecranul operatorului video / prezentatorului (gândit pentru tabletă).
+// Coada prezentatorului (gandit pentru tableta) - dedicatiile tip='ecran' nu
+// mai trec pe aici, ele sunt preluate automat de ecranele fizice din sala
+// (Sarcina F, IMPLEMENTARE-V3.md). Aici raman doar cele citite cu voce tare.
 export function RegieClient() {
   const [coada, setCoada] = useState<Dedicatie[]>([]);
   const [peEcran, setPeEcran] = useState<Dedicatie | null>(null);
   const [eventId, setEventId] = useState('');
 
   const incarca = useCallback(async () => {
-    // La fel ca în moderare: rezervările apar abia când event-ul lor devine
-    // live; operatorul poate alege orice ediție explicit (implicit cea live).
+    // La fel ca in moderare: rezervarile apar abia cand event-ul lor devine
+    // live; operatorul poate alege orice editie explicit (implicit cea live).
     if (!eventId) {
       setPeEcran(null);
       setCoada([]);
@@ -23,6 +25,7 @@ export function RegieClient() {
       .from('dedicatii')
       .select('*')
       .eq('event_id', eventId)
+      .eq('tip', 'prezentator')
       .eq('status_plata', 'paid')
       .eq('status_moderare', 'aprobat')
       .in('status_difuzare', ['in_asteptare', 'programat'])
@@ -48,7 +51,7 @@ export function RegieClient() {
 
   async function trimitePeEcran(d: Dedicatie) {
     if (peEcran) {
-      alert('Marchează întâi ca „Difuzat” dedicația de pe ecran.');
+      alert('Marcheaza intai ca "Citit" dedicatia curenta.');
       return;
     }
     await sb.from('dedicatii').update({ status_difuzare: 'programat' }).eq('id', d.id);
@@ -63,27 +66,27 @@ export function RegieClient() {
 
   return (
     <div>
-      <h1>Regie</h1>
+      <h1>Regie · Prezentator</h1>
       <p className="sub">
-        „Pe ecran” trimite dedicația către overlay (sală + streamuri). „Difuzat” o scoate și
-        eliberează ecranul.
+        Doar dedicațiile citite cu voce tare de prezentator — cele de pe ecran se rotesc automat,
+        fără operator (vezi „Ecrane"). „Pe rând" trimite mesajul către prezentator, „Citit" îl scoate.
       </p>
 
       <SelectorEveniment eventId={eventId} onChange={setEventId} />
 
-      <h2 style={{ fontSize: 18 }}>Acum pe ecran</h2>
+      <h2 style={{ fontSize: 18 }}>Acum la prezentator</h2>
       {peEcran ? (
         <div className="card mesaj-card" style={{ borderColor: 'var(--accent)' }}>
-          <div className="text">„{peEcran.mesaj}”</div>
+          <div className="text">„{peEcran.mesaj}"</div>
           <div className="meta">
             De la <strong>{peEcran.de_la || '—'}</strong> pentru <strong>{peEcran.pentru || '—'}</strong>
           </div>
           <button className="btn ok touch" onClick={() => marcheazaDifuzat(peEcran)}>
-            ✓ Difuzat — următorul
+            ✓ Citit — următorul
           </button>
         </div>
       ) : (
-        <div className="card">Ecranul este liber.</div>
+        <div className="card">Nimic în așteptare.</div>
       )}
 
       <h2 style={{ fontSize: 18 }}>Coada aprobată ({coada.length})</h2>
@@ -93,11 +96,11 @@ export function RegieClient() {
             <span className="badge gold">{NUME_TIP[d.tip]}</span>
             {d.artist_preferat && <span className="badge"> {d.artist_preferat}</span>}
           </div>
-          <div className="text">„{d.mesaj}”</div>
+          <div className="text">„{d.mesaj}"</div>
           <div className="meta">
             De la <strong>{d.de_la || '—'}</strong> pentru <strong>{d.pentru || '—'}</strong>
           </div>
-          <button className="btn touch" onClick={() => trimitePeEcran(d)}>▶ Pe ecran</button>
+          <button className="btn touch" onClick={() => trimitePeEcran(d)}>▶ Pe rând</button>
         </div>
       ))}
       {coada.length === 0 && <div className="card">Coada este goală.</div>}

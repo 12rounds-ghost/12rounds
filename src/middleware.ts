@@ -4,7 +4,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 // lansare, ca sa se poata lucra pe 12rounds.ro fara sa fie public inca.
 // Stripe trebuie sa poata ajunge oricand la /api/webhook, indiferent de gate.
 // /.well-known e pentru fisierul de verificare a domeniului pentru Apple Pay.
-const CALE_LIBERA = ['/coming-soon', '/api/site-access', '/api/webhook', '/.well-known'];
+// /ecran si /api/ecran raman libere de gate-ul "revenim in curand" — kiosk-urile
+// din sala nu au niciodata cookie-ul de acces, dar sunt oricum protejate separat
+// de ECRAN_SECRET (Sarcina F).
+const CALE_LIBERA = ['/coming-soon', '/api/site-access', '/api/webhook', '/.well-known', '/ecran', '/api/ecran'];
 
 const COOKIE = '12rounds_access';
 
