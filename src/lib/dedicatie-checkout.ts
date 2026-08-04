@@ -80,10 +80,18 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
     return { eroare: NextResponse.json({ error: 'Tariful nu este disponibil.' }, { status: 400 }) };
   }
 
+  // Poza e permisa doar pentru dedicatiile de tip "ecran" (Sarcina D,
+  // IMPLEMENTARE-V3.md) — modelul de model-change al V3 elimina orice
+  // legatura intre dedicatii si transmisiuni online, iar poza citita de
+  // prezentator sau la sustinere nu are unde sa fie afisata.
+  if (typeof poza_path === 'string' && poza_path.length > 0 && tip !== 'ecran') {
+    return { eroare: NextResponse.json({ error: 'Poza este permisă doar pentru dedicația pe ecran.' }, { status: 400 }) };
+  }
+
   // O problema la poza nu trebuie sa blocheze plata (Sarcina B) — o ignoram
   // pur si simplu daca nu e valida.
   let pozaValidata: string | null = null;
-  if (typeof poza_path === 'string' && poza_path.length > 0 && tip !== 'sustinere') {
+  if (typeof poza_path === 'string' && poza_path.length > 0 && tip === 'ecran') {
     const { data: fisiere } = await sb.storage.from('poze-in-verificare').list('', { search: poza_path });
     if (fisiere?.some((f) => f.name === poza_path)) {
       pozaValidata = poza_path;

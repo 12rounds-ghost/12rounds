@@ -59,6 +59,13 @@ export function DedicationForm({
     setPozaEroare('');
   }
 
+  // Poza e permisa doar la dedicatia pe ecran (Sarcina D) — daca userul schimba
+  // tipul dupa ce a urcat o poza, o eliminam ca sa nu ajunga trimisa cu un tip gresit.
+  function selecteazaTip(nou: TipDedicatie) {
+    setTip(nou);
+    if (nou !== 'ecran') eliminaPoza();
+  }
+
   // Fluxul de rezervă (Sarcina E, Pasul 7): Stripe Checkout găzduit, folosit
   // cand Express Checkout Element nu se încarcă sau clientul îl alege explicit.
   // Aici emailul e obligatoriu — acceptabil pentru un caz marginal.
@@ -107,7 +114,7 @@ export function DedicationForm({
           key={t.id}
           type="button"
           className={`tier${tip === t.tip ? ' selected' : ''}`}
-          onClick={() => setTip(t.tip)}
+          onClick={() => selecteazaTip(t.tip)}
         >
           <span>{NUME_TIP[t.tip]}</span>
           <span className="pret">{lei(t.pret_bani)}</span>
@@ -132,36 +139,40 @@ export function DedicationForm({
           />
           <div className="contor-caractere">{mesaj.length} / 300</div>
 
-          <label>Adaugă o poză (opțional)</label>
-          {pozaPreview ? (
-            <div className="poza-preview-wrap">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={pozaPreview} alt="Previzualizare poză" className="poza-preview" />
-              {pozaIncarcare ? (
-                <div className="sub" style={{ margin: 0 }}>Se încarcă…</div>
+          {tip === 'ecran' && (
+            <>
+              <label>Adaugă o poză (opțional)</label>
+              {pozaPreview ? (
+                <div className="poza-preview-wrap">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={pozaPreview} alt="Previzualizare poză" className="poza-preview" />
+                  {pozaIncarcare ? (
+                    <div className="sub" style={{ margin: 0 }}>Se încarcă…</div>
+                  ) : (
+                    <button type="button" className="btn secondary mic" onClick={eliminaPoza}>
+                      Elimină poza
+                    </button>
+                  )}
+                </div>
               ) : (
-                <button type="button" className="btn secondary mic" onClick={eliminaPoza}>
-                  Elimină poza
-                </button>
+                <label className="poza-buton-upload">
+                  📷 Adaugă o poză
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    style={{ display: 'none' }}
+                    onChange={(e) => e.target.files?.[0] && incarcaPoza(e.target.files[0])}
+                  />
+                </label>
               )}
-            </div>
-          ) : (
-            <label className="poza-buton-upload">
-              📷 Adaugă o poză
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                style={{ display: 'none' }}
-                onChange={(e) => e.target.files?.[0] && incarcaPoza(e.target.files[0])}
-              />
-            </label>
+              {pozaEroare && <p className="eroare">{pozaEroare}</p>}
+              <p className="sub" style={{ textAlign: 'left', margin: '6px 0 0' }}>
+                Poza apare pe ecran alături de mesaj, după verificarea moderatorului. Nu urca poze cu
+                alte persoane fără acordul lor.
+              </p>
+            </>
           )}
-          {pozaEroare && <p className="eroare">{pozaEroare}</p>}
-          <p className="sub" style={{ textAlign: 'left', margin: '6px 0 0' }}>
-            Poza apare pe ecran alături de mesaj, după verificarea moderatorului. Nu urca poze cu
-            alte persoane fără acordul lor.
-          </p>
         </div>
       )}
 
