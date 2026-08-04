@@ -1,10 +1,13 @@
+import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
 export const metadata = { title: 'Confidențialitate — 12 ROUNDS' };
 
 export default function Confidentialitate() {
   return (
-    <main className="container">
+    <>
+      <Header />
+      <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Politica de confidențialitate</h1>
       <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
@@ -29,16 +32,16 @@ export default function Confidentialitate() {
         </p>
         <p>
           Poza atașată este vizibilă doar echipei, până la aprobarea sau respingerea ei de
-          către un moderator. Devine public vizibilă (pe ecranele din sală și în
-          transmisiune) doar dacă e aprobată explicit — aprobarea mesajului nu aprobă
-          automat și poza.
+          către un moderator. Devine public vizibilă (doar pe ecranele din sală, nu în
+          transmisiunile online) doar dacă e aprobată explicit — aprobarea mesajului nu
+          aprobă automat și poza.
         </p>
 
         <h2>3. Scopul prelucrării</h2>
         <p>
-          Folosim aceste date pentru: procesarea plății, afișarea dedicației pe ecran și
-          în transmisiune, trimiterea unui email de confirmare cu linkul de status și, dacă
-          e cazul, pentru a efectua o rambursare.
+          Folosim aceste date pentru: procesarea plății, afișarea dedicației pe ecranele din
+          sală, trimiterea unui email de confirmare cu linkul de status și, dacă e cazul,
+          pentru a efectua o rambursare.
         </p>
 
         <h2>4. Temeiul legal</h2>
@@ -78,6 +81,7 @@ export default function Confidentialitate() {
       </div>
 
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }

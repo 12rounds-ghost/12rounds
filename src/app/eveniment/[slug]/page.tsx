@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
 import { DedicationForm } from '@/components/DedicationForm';
+import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { urlCoperta } from '@/lib/storage';
 import { calculeazaStatisticiPublice } from '@/lib/statistici-publice';
@@ -39,7 +40,9 @@ export default async function EvenimentPage({
   const linkuriStream = Object.entries(event.linkuri_stream ?? {});
 
   return (
-    <main className="container">
+    <>
+      <Header />
+      <main className="container">
       <div
         className="eveniment-cover"
         style={{ backgroundImage: `url(${urlCoperta(event.cover_path)})` }}
@@ -151,6 +154,7 @@ export default async function EvenimentPage({
       )}
 
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }

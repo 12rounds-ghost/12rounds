@@ -1,11 +1,14 @@
 import Link from 'next/link';
+import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
 export const metadata = { title: 'Termeni și condiții — 12 ROUNDS' };
 
 export default function Termeni() {
   return (
-    <main className="container">
+    <>
+      <Header />
+      <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Termeni și condiții</h1>
       <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
@@ -23,9 +26,9 @@ export default function Termeni() {
         <h2>2. Ce oferă serviciul</h2>
         <p>
           Platforma permite achiziționarea de dedicații („Susține show-ul", „Dedicație pe
-          ecran", „Dedicație citită de prezentator") care sunt afișate pe ecranele din sală
-          și în transmisiunile live ale evenimentului 12 ROUNDS — The Battle of the Bands,
-          după aprobarea unui moderator al echipei.
+          ecran", „Dedicație citită de prezentator") disponibile exclusiv publicului prezent
+          în sală. Dedicațiile aprobate sunt afișate pe ecranele din sală — nu în
+          transmisiunile online — după aprobarea unui moderator al echipei.
         </p>
 
         <h2>3. Prețuri</h2>
@@ -71,6 +74,7 @@ export default function Termeni() {
       </div>
 
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }

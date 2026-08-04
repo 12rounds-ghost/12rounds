@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { obtineDedicatiiLocale, type DedicatieLocala } from '@/lib/dedicatii-locale';
 import type { DedicatieStatusPublic } from '@/lib/types';
@@ -54,7 +55,9 @@ export default function DedicatiileMelePage() {
   }, []);
 
   return (
-    <main className="container">
+    <>
+      <Header />
+      <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Dedicațiile mele</h1>
       <p className="sub">Istoricul dedicațiilor trimise din acest browser.</p>
@@ -84,6 +87,7 @@ export default function DedicatiileMelePage() {
       ))}
 
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }

@@ -1,10 +1,13 @@
+import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
 export const metadata = { title: 'Politica de rambursare — 12 ROUNDS' };
 
 export default function Rambursare() {
   return (
-    <main className="container">
+    <>
+      <Header />
+      <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Politica de rambursare</h1>
       <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
@@ -28,8 +31,8 @@ export default function Rambursare() {
 
         <h2>Ce nu se rambursează</h2>
         <p>
-          O dedicație deja difuzată (apărută pe ecran și în transmisiune) sau aflată încă
-          în așteptare, aprobată, în timp ce show-ul este live, nu este eligibilă pentru
+          O dedicație deja difuzată (apărută pe ecranele din sală) sau aflată încă în
+          așteptare, aprobată, în timp ce show-ul este live, nu este eligibilă pentru
           rambursare — serviciul a fost sau urmează să fie livrat conform planificării
           show-ului.
         </p>
@@ -50,6 +53,7 @@ export default function Rambursare() {
       </div>
 
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }
