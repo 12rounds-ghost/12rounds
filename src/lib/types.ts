@@ -32,6 +32,14 @@ export interface Sponsor {
   activ: boolean;
 }
 
+export interface PozaGalerie {
+  id: string;
+  event_id: string;
+  path: string;
+  descriere: string | null;
+  ordine: number;
+}
+
 export interface Tarif {
   id: string;
   event_id: string;

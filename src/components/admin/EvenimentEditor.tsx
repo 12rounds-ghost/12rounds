@@ -3,8 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import QRCode from 'qrcode';
 import { supabaseBrowser } from '@/lib/supabase/client';
-import { urlCoperta } from '@/lib/storage';
-import { NUME_TIP, type Event, type Tarif, type TipDedicatie } from '@/lib/types';
+import { urlCoperta, urlGalerie } from '@/lib/storage';
+import { NUME_TIP, type Event, type Tarif, type TipDedicatie, type PozaGalerie } from '@/lib/types';
 
 const PLATFORME_STREAM: { cheie: string; eticheta: string }[] = [
   { cheie: 'youtube', eticheta: 'YouTube' },
@@ -37,7 +37,15 @@ function laBani(lei: string): number {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
-export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Event; tarife: Tarif[] }) {
+export function EvenimentEditor({
+  event,
+  tarife: tarifeInitiale,
+  galerieInitiala,
+}: {
+  event: Event;
+  tarife: Tarif[];
+  galerieInitiala: PozaGalerie[];
+}) {
   const router = useRouter();
   const [nume, setNume] = useState(event.nume);
   const [subtitlu, setSubtitlu] = useState(event.subtitlu ?? '');
@@ -65,7 +73,10 @@ export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Even
   );
   const [salvare, setSalvare] = useState('');
   const [qr, setQr] = useState('');
+  const [galerie, setGalerie] = useState(galerieInitiala);
+  const [galerieIncarcare, setGalerieIncarcare] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const galerieFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://12rounds.ro'}/live`;
@@ -124,6 +135,37 @@ export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Even
     setSalvare('Salvat ✓');
     router.refresh();
     setTimeout(() => setSalvare(''), 2000);
+  }
+
+  async function incarcaGalerie(fisiere: FileList) {
+    setGalerieIncarcare(true);
+    const sb = supabaseBrowser();
+    const adaugate: PozaGalerie[] = [];
+    for (const fisier of Array.from(fisiere)) {
+      const extensie = fisier.name.split('.').pop() ?? 'jpg';
+      const cale = `${event.id}/${crypto.randomUUID()}.${extensie}`;
+      const { error } = await sb.storage.from('galerie').upload(cale, fisier);
+      if (error) {
+        alert(`Încărcarea „${fisier.name}" a eșuat: ${error.message}`);
+        continue;
+      }
+      const { data } = await sb
+        .from('galerie')
+        .insert({ event_id: event.id, path: cale, ordine: galerie.length + adaugate.length })
+        .select()
+        .single();
+      if (data) adaugate.push(data as PozaGalerie);
+    }
+    setGalerie((prev) => [...prev, ...adaugate]);
+    setGalerieIncarcare(false);
+  }
+
+  async function stergeDinGalerie(poza: PozaGalerie) {
+    if (!window.confirm('Ștergi această poză din galerie?')) return;
+    const sb = supabaseBrowser();
+    await sb.storage.from('galerie').remove([poza.path]);
+    await sb.from('galerie').delete().eq('id', poza.id);
+    setGalerie((prev) => prev.filter((p) => p.id !== poza.id));
   }
 
   async function schimbaStatus(nou: Event['status']) {
@@ -249,6 +291,41 @@ export function EvenimentEditor({ event, tarife: tarifeInitiale }: { event: Even
         <input id="spectatori" type="number" min={0} value={spectatori} onChange={(e) => setSpectatori(e.target.value)} placeholder="ex. 2400" />
         <label htmlFor="momenteLive">Momente live</label>
         <input id="momenteLive" type="number" min={0} value={momenteLive} onChange={(e) => setMomenteLive(e.target.value)} placeholder="ex. 13" />
+      </div>
+
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>Galerie foto</h2>
+        <p className="sub" style={{ margin: '0 0 4px', textAlign: 'left' }}>
+          Apare pe pagina publică a ediției, după ce e marcată „încheiat".
+        </p>
+        {galerie.length > 0 && (
+          <div className="gal" style={{ marginBottom: 12 }}>
+            {galerie.map((p) => (
+              <div key={p.id} style={{ position: 'relative' }}>
+                <div className="gal-item" style={{ backgroundImage: `url(${urlGalerie(p.path)})`, cursor: 'default' }} />
+                <button
+                  type="button"
+                  className="btn danger mic"
+                  style={{ position: 'absolute', top: 6, right: 6, padding: '4px 10px' }}
+                  onClick={() => stergeDinGalerie(p)}
+                >
+                  Șterge
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <input
+          ref={galerieFileRef}
+          type="file"
+          accept="image/*"
+          multiple
+          style={{ display: 'none' }}
+          onChange={(e) => e.target.files && e.target.files.length > 0 && incarcaGalerie(e.target.files)}
+        />
+        <button type="button" className="btn secondary mic" disabled={galerieIncarcare} onClick={() => galerieFileRef.current?.click()}>
+          {galerieIncarcare ? 'Se încarcă…' : '+ Adaugă poze'}
+        </button>
       </div>
 
       <div className="card">

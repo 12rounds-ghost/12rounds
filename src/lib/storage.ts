@@ -16,3 +16,8 @@ export function urlPozaAprobata(pozaPath: string): string {
 export function urlSponsorLogo(logoPath: string): string {
   return `${SUPABASE_URL}/storage/v1/object/public/sponsori/${logoPath}`;
 }
+
+// Poza din galeria unei editii incheiate (bucket public 'galerie', Sarcina C4).
+export function urlGalerie(path: string): string {
+  return `${SUPABASE_URL}/storage/v1/object/public/galerie/${path}`;
+}
