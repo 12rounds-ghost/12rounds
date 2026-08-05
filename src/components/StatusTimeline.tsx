@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { DedicatieStatusPublic } from '@/lib/types';
+import { esteStareFinala } from '@/lib/dedicatie-stare';
 
 // Sarcina E (IMPLEMENTARE-V3.md): polling explicit, nu Realtime — mai simplu
 // si mai robust. Cauza reala a bug-ului raportat nu era RLS (status API
@@ -11,14 +12,6 @@ import type { DedicatieStatusPublic } from '@/lib/types';
 const INTERVAL_MS = 4000;
 const INTERVAL_LENT_MS = 15000;
 const PRAG_LENT_MS = 30 * 60 * 1000; // 30 minute fara schimbare -> polling mai rar
-
-function esteStareFinala(d: DedicatieStatusPublic): boolean {
-  return (
-    d.status_difuzare === 'difuzat' ||
-    d.status_moderare === 'respins' ||
-    d.status_plata === 'refunded'
-  );
-}
 
 const PASI = [
   { cheie: 'plata', titlu: 'Plata confirmată', detaliu: 'Am primit plata ta.' },
