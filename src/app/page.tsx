@@ -100,7 +100,7 @@ export default async function Home() {
         <section className="shead" style={{ marginTop: 40 }}>
           <div>
             <div className="kicker">Formatul</div>
-            <h2>Nu este un concert dublu.<br />Este un show cu mecanism.</h2>
+            <h2>12 ROUNDS îi separă.<br />Ultima piesă îi aduce împreună.</h2>
           </div>
           <p>Doi artiști, aceleași șase provocări, răspunsuri complet diferite. Fără juriu, fără eliminări, fără învinși.</p>
         </section>
