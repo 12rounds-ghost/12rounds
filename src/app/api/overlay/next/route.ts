@@ -2,24 +2,22 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { Dedicatie } from '@/lib/types';
 
-// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
-// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
-// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
 export const dynamic = 'force-dynamic';
 
 const DURATA_FARA_EVENIMENT_SECUNDE = 15;
 
-// Sarcina V4-G4 (IMPLEMENTARE-V4.md): overlay-ul se reconstruieste pentru
-// tipul 'stream' — aceeasi logica de revendicare ca la ecranele din sala
-// (FOR UPDATE SKIP LOCKED), dar cu propria coada (tip='stream', niciodata
-// 'ecran'), propriul token (OVERLAY_SECRET) si propriul interval configurabil
-// (event.durata_stream_secunde). Spre deosebire de ecran, nu reciclam — un
-// overlay transparent peste un stream deja in direct nu are nevoie sa ramana
-// mereu ocupat, ca un ecran fizic care altfel ar ramane negru.
-export async function GET(req: Request, { params }: { params: { slug: string } }) {
+// POST cu {slug, key} in body, NU GET /api/overlay/[slug]/next — acelasi
+// motiv ca la /api/ecran/next: in productie, Route Handler-ele GET cu
+// segment dinamic au ramas inghetate la primul raspuns calculat, in ciuda
+// export const dynamic = 'force-dynamic'. Fara segment dinamic + POST s-a
+// dovedit intotdeauna proaspat.
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => null);
+  const slug = body?.slug;
+  const key = body?.key;
+
   const secret = process.env.OVERLAY_SECRET;
-  const key = new URL(req.url).searchParams.get('key');
-  if (!secret || key !== secret) {
+  if (!secret || key !== secret || typeof slug !== 'string' || !slug) {
     return NextResponse.json({ error: 'Acces refuzat.' }, { status: 401 });
   }
 
@@ -27,7 +25,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
   const { data: event } = await sb
     .from('events')
     .select('id, durata_stream_secunde')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .maybeSingle();
 
   if (!event) {

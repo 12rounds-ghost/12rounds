@@ -37,7 +37,12 @@ export function EcranClient({ id, apiKey }: { id: string; apiKey: string }) {
     async function urmatorul() {
       if (anulatRef.current) return;
       try {
-        const res = await fetch(`/api/ecran/${id}/next?key=${encodeURIComponent(apiKey)}`, { cache: 'no-store' });
+        const res = await fetch('/api/ecran/next', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, key: apiKey }),
+          cache: 'no-store',
+        });
         if (!res.ok) throw new Error('raspuns invalid');
         const data = await res.json();
         if (anulatRef.current) return;

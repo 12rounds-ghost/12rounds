@@ -27,7 +27,12 @@ export function OverlayClient({ slug, apiKey }: { slug: string; apiKey: string }
     async function urmatorul() {
       if (anulatRef.current) return;
       try {
-        const res = await fetch(`/api/overlay/${slug}/next?key=${encodeURIComponent(apiKey)}`, { cache: 'no-store' });
+        const res = await fetch('/api/overlay/next', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug, key: apiKey }),
+          cache: 'no-store',
+        });
         if (!res.ok) throw new Error('raspuns invalid');
         const data = await res.json();
         if (anulatRef.current) return;

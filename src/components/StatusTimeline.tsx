@@ -44,9 +44,23 @@ export function StatusTimeline({ initial }: { initial: DedicatieStatusPublic }) 
     async function verifica() {
       if (anulat || document.visibilityState === 'hidden') return;
       try {
-        const res = await fetch(`/api/status/${initial.id}`, { cache: 'no-store' });
+        // Foloseste /api/status-batch (POST), nu GET /api/status/[id]: in
+        // productie, acel Route Handler GET cu segment dinamic [id] a ramas
+        // inghetat la primul raspuns calculat, in ciuda export const dynamic
+        // = 'force-dynamic' — un comportament de cache la nivel de platforma,
+        // dovedit direct (acelasi id, acelasi raspuns invechit la infinit pe
+        // GET, dar mereu proaspat pe POST). /dedicatiile-mele (Sarcina V4-B)
+        // foloseste deja exclusiv batch-ul, de-asta nu a avut aceasta problema.
+        const res = await fetch('/api/status-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: [initial.id] }),
+          cache: 'no-store',
+        });
         if (!res.ok || anulat) return;
-        const proaspat = (await res.json()) as DedicatieStatusPublic;
+        const rezultate = (await res.json()) as DedicatieStatusPublic[];
+        const proaspat = rezultate[0];
+        if (!proaspat) return;
         if (JSON.stringify(proaspat) !== JSON.stringify(dedRef.current)) {
           setDed(proaspat);
           ultimaSchimbareRef.current = Date.now();

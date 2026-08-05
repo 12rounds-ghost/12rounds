@@ -4,9 +4,6 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { urlPozaAprobata, urlSponsorLogo } from '@/lib/storage';
 import type { Dedicatie, Ecran, Sponsor } from '@/lib/types';
 
-// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
-// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
-// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
 export const dynamic = 'force-dynamic';
 
 const DURATA_IMPLICITA_SECUNDE = 12;
@@ -21,21 +18,24 @@ type Filler =
   | { tip: 'branding' }
   | { tip: 'inactiv' };
 
-// Endpoint apelat de fiecare ecran fizic din sala dupa ce termina de aratat
-// continutul curent (Sarcina F, IMPLEMENTARE-V3.md). Sarcina V4-C: [id] e
-// acum uuid-ul randului din tabela ecrane, iar tokenul verificat e cel
-// propriu al ecranului (ecrane.token), nu unul global — daca unul e
-// compromis, il regenerezi individual din /admin/ecrane fara sa afectezi
-// celelalte. ECRAN_SECRET ramane valabil ca cheie universala de rezerva.
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const key = new URL(req.url).searchParams.get('key');
-  if (!key) {
+// POST cu {id, key} in body, NU GET /api/ecran/[id]/next — in productie, un
+// Route Handler GET cu segment dinamic [id] a ramas inghetat la primul
+// raspuns calculat pentru fiecare id, in ciuda export const dynamic =
+// 'force-dynamic' (comportament de cache la nivel de platforma, dovedit
+// direct: acelasi ecran, acelasi token din DB, dar "Acces refuzat" pentru ca
+// randul din Storage era cache-uit cu tokenul dinaintea unei regenerari).
+// Ruta fara segment dinamic + POST s-a dovedit intotdeauna proaspata.
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => null);
+  const id = body?.id;
+  const key = body?.key;
+  if (typeof id !== 'string' || typeof key !== 'string' || !key) {
     return NextResponse.json({ error: 'Acces refuzat.' }, { status: 401 });
   }
 
   const sb = supabaseAdmin();
 
-  const { data: ecranData } = await sb.from('ecrane').select('*').eq('id', params.id).maybeSingle();
+  const { data: ecranData } = await sb.from('ecrane').select('*').eq('id', id).maybeSingle();
   const ecran = ecranData as Ecran | null;
   if (!ecran) {
     return NextResponse.json({ error: 'Ecran inexistent.' }, { status: 404 });
