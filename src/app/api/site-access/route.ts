@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 const COOKIE = '12rounds_access';
 
 // Deblocheaza site-ul "revenim in curand" (vezi src/middleware.ts). Parola

@@ -3,6 +3,11 @@ import { obtineModeratorApi } from '@/lib/auth-admin';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { TipDedicatie } from '@/lib/types';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Cifrele financiare sunt doar pentru rolul 'admin' (Sarcina D,
 // IMPLEMENTARE-V2.md) — verificat aici, server-side, nu doar prin
 // ascunderea paginii in navigare.

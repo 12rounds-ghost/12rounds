@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Singurul loc de unde clientul (anon) poate afla statusul unei dedicatii.
 // Foloseste service role (ocoleste RLS) dar returneaza doar campurile necesare
 // paginii de status — niciodata stripe_* sau suma_bani.

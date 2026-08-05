@@ -3,6 +3,11 @@ import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { obtineModeratorApi } from '@/lib/auth-admin';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Refund inițiat din panoul de moderare. Doar rolul 'admin' — moderatorii pot
 // aproba/respinge, dar rambursarea (bani reali) rămâne exclusiv admin
 // (Sarcina D, IMPLEMENTARE-V2.md: "moderator | ... (fără refund, fără sume)").

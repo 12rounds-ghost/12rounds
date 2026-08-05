@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { obtineModeratorApi } from '@/lib/auth-admin';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 const DOUA_ZILE_MS = 48 * 60 * 60 * 1000;
 
 // Sarcina B (IMPLEMENTARE-V2.md): sterge din poze-in-verificare fisierele mai

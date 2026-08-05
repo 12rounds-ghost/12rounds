@@ -5,6 +5,11 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { NUME_TIP } from '@/lib/types';
 import { pregatesteDedicatie, type CorpDedicatie } from '@/lib/dedicatie-checkout';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 interface DateFacturareBody {
   name?: string;
   email?: string;

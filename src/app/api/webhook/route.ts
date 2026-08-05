@@ -4,6 +4,11 @@ import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { trimiteEmailConfirmare } from '@/lib/email';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Stripe.Address (citit de pe PaymentMethod) are campuri nullable; Stripe.AddressParam
 // (folosit la Customer.update) le vrea undefined — de-a lungul webhook-ului convertim intre ele.
 function laAdresaParam(a: Stripe.Address | null): Stripe.AddressParam | undefined {

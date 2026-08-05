@@ -3,6 +3,11 @@ import sharp from 'sharp';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { verificaRateLimit, ipDinRequest } from '@/lib/rate-limit';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Sarcina B (IMPLEMENTARE-V2.md): pozele urcate de public sunt cel mai mare
 // risc de continut al proiectului — validare completa, server-side, inainte
 // sa ajunga in bucket-ul privat poze-in-verificare. Clientul nu urca

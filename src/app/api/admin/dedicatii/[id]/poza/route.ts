@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { obtineModeratorApi } from '@/lib/auth-admin';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Aprobarea textului NU aproba automat poza (Sarcina B, IMPLEMENTARE-V2.md)
 // — sunt doua decizii separate. 'aproba' copiaza fisierul in bucket-ul
 // public poze-aprobate (de-abia atunci ajunge vizibil in overlay) si sterge

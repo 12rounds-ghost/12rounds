@@ -3,6 +3,11 @@ import { obtineModeratorApi } from '@/lib/auth-admin';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { trimiteEmailConfirmare } from '@/lib/email';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Sarcina G (IMPLEMENTARE-V3.md): reincearca trimiterea emailului de
 // confirmare pentru o dedicatie din filtrul "Emailuri nereusite".
 export async function POST(_req: Request, { params }: { params: { id: string } }) {

@@ -3,6 +3,11 @@ import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { obtineModeratorApi } from '@/lib/auth-admin';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Sarcina E, Pasul 5: cazurile "manual" / "eroare" au nevoie de interventie
 // umana — admin-ul completeaza numele lipsa si semnaleaza ca poate fi
 // reincercata emiterea (efectiva se intampla in integrarea Stripe<->SmartBill,

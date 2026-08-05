@@ -3,6 +3,11 @@ import sharp from 'sharp';
 import { obtineModeratorApi } from '@/lib/auth-admin';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 // Sarcina V4-D (IMPLEMENTARE-V4.md): incarcarea logo-urilor de sponsor trece
 // exclusiv prin acest API route, la fel ca la pozele de dedicatii
 // (/api/upload-poza) — clientul nu mai scrie niciodata direct in Storage cu

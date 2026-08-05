@@ -4,6 +4,11 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { urlPozaAprobata, urlSponsorLogo } from '@/lib/storage';
 import type { Dedicatie, Ecran, Sponsor } from '@/lib/types';
 
+// Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
+// — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
+// mereu primul raspuns calculat, indiferent cate ori se cere din nou.
+export const dynamic = 'force-dynamic';
+
 const DURATA_IMPLICITA_SECUNDE = 12;
 const DURATA_INACTIV_SECUNDE = 20;
 
