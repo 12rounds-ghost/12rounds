@@ -43,21 +43,25 @@ export function SponsoriAdminClient({
     }
     setSeSalveaza(true);
     setEroare('');
-    const sb = supabaseBrowser();
 
+    // Uploadul trece prin API (Sarcina V4-D) — validare server-side de tip
+    // si marime, la fel ca la pozele de dedicatii. Clientul nu mai scrie
+    // niciodata direct in Storage cu sesiunea lui.
     let logoPath: string | null = null;
     if (fisier) {
-      const extensie = fisier.name.split('.').pop() ?? 'png';
-      const cale = `${crypto.randomUUID()}.${extensie}`;
-      const { error: uploadErr } = await sb.storage.from('sponsori').upload(cale, fisier, { upsert: true });
-      if (uploadErr) {
-        setEroare('Încărcarea logo-ului a eșuat: ' + uploadErr.message);
+      const fd = new FormData();
+      fd.append('fisier', fisier);
+      const res = await fetch('/api/admin/upload-sponsor-logo', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) {
+        setEroare('Încărcarea logo-ului a eșuat: ' + (data.error ?? 'eroare necunoscută.'));
         setSeSalveaza(false);
         return;
       }
-      logoPath = cale;
+      logoPath = data.logo_path;
     }
 
+    const sb = supabaseBrowser();
     const { error: insErr } = await sb.from('sponsori').insert({
       nume: form.nume.trim(),
       nivel: form.nivel,
