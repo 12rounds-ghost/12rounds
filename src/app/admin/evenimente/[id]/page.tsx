@@ -21,6 +21,8 @@ export default async function EvenimentAdminPage({ params }: { params: { id: str
       event={event as Event}
       tarife={(tarife ?? []) as Tarif[]}
       galerieInitiala={(galerie ?? []) as PozaGalerie[]}
+      overlaySecret={process.env.OVERLAY_SECRET ?? ''}
+      siteUrl={process.env.NEXT_PUBLIC_SITE_URL ?? ''}
     />
   );
 }

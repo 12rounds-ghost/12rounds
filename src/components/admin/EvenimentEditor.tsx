@@ -43,10 +43,14 @@ export function EvenimentEditor({
   event,
   tarife: tarifeInitiale,
   galerieInitiala,
+  overlaySecret,
+  siteUrl,
 }: {
   event: Event;
   tarife: Tarif[];
   galerieInitiala: PozaGalerie[];
+  overlaySecret: string;
+  siteUrl: string;
 }) {
   const router = useRouter();
   const [nume, setNume] = useState(event.nume);
@@ -78,6 +82,7 @@ export function EvenimentEditor({
   const [durataStream, setDurataStream] = useState(String(event.durata_stream_secunde ?? 12));
   const [salvare, setSalvare] = useState('');
   const [qr, setQr] = useState('');
+  const [copiatOverlay, setCopiatOverlay] = useState(false);
   const [galerie, setGalerie] = useState(galerieInitiala);
   const [galerieIncarcare, setGalerieIncarcare] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -87,6 +92,14 @@ export function EvenimentEditor({
     const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://12rounds.ro'}/live`;
     QRCode.toDataURL(url, { margin: 1, width: 320, color: { dark: '#0a0a0b', light: '#ffffff' } }).then(setQr);
   }, []);
+
+  const linkOverlay = `${siteUrl}/overlay/${slug}?key=${overlaySecret}`;
+
+  function copiazaOverlay() {
+    navigator.clipboard.writeText(linkOverlay);
+    setCopiatOverlay(true);
+    setTimeout(() => setCopiatOverlay(false), 2000);
+  }
 
   async function incarcaCoperta(fisier: File) {
     setCoverIncarcare(true);
@@ -402,6 +415,27 @@ export function EvenimentEditor({
 
       <button className="btn" onClick={salveaza}>Salvează</button>
       {salvare && <p className="sub" style={{ marginTop: 8 }}>{salvare}</p>}
+
+      <div className="card" style={{ marginTop: 24 }}>
+        <h2 style={{ marginTop: 0 }}>Overlay stream (OBS / vMix)</h2>
+        <p className="sub" style={{ margin: '0 0 8px', textAlign: 'left' }}>
+          Browser Source, fundal transparent — rotește automat dedicațiile plătite tip „stream" pentru această ediție.
+        </p>
+        {overlaySecret ? (
+          <>
+            <div className="sub" style={{ textAlign: 'left', wordBreak: 'break-all', margin: '6px 0' }}>
+              {linkOverlay}
+            </div>
+            <button type="button" className="btn secondary mic" onClick={copiazaOverlay}>
+              {copiatOverlay ? '✓ Copiat' : 'Copiază link'}
+            </button>
+          </>
+        ) : (
+          <p className="eroare" style={{ textAlign: 'left' }}>
+            Lipsește <code>OVERLAY_SECRET</code> din variabilele de mediu.
+          </p>
+        )}
+      </div>
 
       <div className="card" style={{ marginTop: 24, textAlign: 'center' }}>
         <h2 style={{ marginTop: 0 }}>Cod QR — 12rounds.ro/live</h2>
