@@ -112,6 +112,7 @@ function FormularPlata({
       }
 
       const emailFinal = billingDetails.email || email || '';
+      const numeFinal = billingDetails.name || numeComplet;
 
       const res = await fetch('/api/payment-intent', {
         method: 'POST',
@@ -137,9 +138,10 @@ function FormularPlata({
         confirmParams: {
           return_url: `${origin}/status/${data.dedicatie_id}`,
           // Payment Element are fields.billingDetails.email = 'never' (avem
-          // propriul camp de email deasupra) — Stripe cere explicit aceasta
-          // valoare aici, altfel arunca eroare la confirmare.
-          payment_method_data: { billing_details: { email: emailFinal } },
+          // propriul camp de email deasupra) si name = 'never' (Sarcina V4-F,
+          // avem propriul camp de nume) — Stripe cere explicit ambele valori
+          // aici, altfel arunca eroare la confirmare.
+          payment_method_data: { billing_details: { email: emailFinal, name: numeFinal } },
         },
       });
       if (confirmError) {
