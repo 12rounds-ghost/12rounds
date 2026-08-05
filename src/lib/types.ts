@@ -77,21 +77,26 @@ export interface Dedicatie {
   factura_eroare: string | null;
   email_trimis_la: string | null;
   email_eroare: string | null;
-  ecran_curent: number | null;
+  ecran_id: string | null;
   nr_difuzari: number;
   ultima_difuzare: string | null;
   created_at: string;
 }
 
-// Configurarea unui ecran fizic din sala (Sarcina F, IMPLEMENTARE-V3.md) —
-// randul se creeaza singur la primul heartbeat trimis de kiosk.
-export interface EcranConfig {
-  nr: number;
-  nume: string | null;
+// Un ecran fizic din sala, ca entitate administrabila (Sarcina V4-C,
+// IMPLEMENTARE-V4.md) — inlocuieste rutele fixe /ecran/1, /ecran/2, /ecran/3
+// din V3. Fiecare ecran are propriul token, generat la creare din /admin/ecrane.
+export interface Ecran {
+  id: string;
+  nume: string;
+  token: string;
   activ: boolean;
-  ultima_conectare: string | null;
+  ordine: number;
+  ultima_cerere: string | null;
+  ultima_dedicatie_id: string | null;
   ultimul_tip: 'dedicatie' | 'umplere' | null;
   filler_index: number;
+  created_at: string;
 }
 
 // Subset public al unei dedicatii, expus de /api/status/[id] — niciodata

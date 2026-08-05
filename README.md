@@ -9,7 +9,7 @@ Aplicație Next.js completă pentru fluxul: **QR/link → dedicație → plată 
 | `/` | Pagina publică — formular dedicație când show-ul e live, mesaj „următorul show" când nu e |
 | `/status/[id]` | Pagina clientului — cele 5 stări, actualizate în timp real |
 | `/overlay` | Browser Source pentru OBS / vMix — afișează dedicația curentă (fundal transparent) |
-| `/ecran/[nr]` | Kiosk fullscreen pentru un ecran fizic din sală — rotește automat dedicațiile tip „ecran", fără operator |
+| `/ecran/[id]` | Kiosk fullscreen pentru un ecran fizic din sală — rotește automat dedicațiile tip „ecran", fără operator |
 | `/admin/moderare` | Coada de mesaje plătite: aprobă / respinge / refund |
 | `/admin/regie` | Coada prezentatorului — doar dedicațiile citite cu voce tare (tip „prezentator") |
 | `/admin/ecrane` | Vezi ecranele conectate, activează/dezactivează, copiază link-ul de kiosk |
@@ -63,37 +63,42 @@ Testează plata cu cardul de test Stripe: `4242 4242 4242 4242`, orice dată vii
 - În `/admin/event` completează linkurile de stream (JSON) și pornește LIVE înainte de show.
 - În OBS/vMix: **Add → Browser Source** cu `https://12rounds.ro/overlay`, 1920×1080. Aceeași scenă alimentează LED-urile din sală și transmisiile.
 
-### 6. Configurare ecrane fizice din sală (Sarcina F)
+### 6. Configurare ecrane fizice din sală (Sarcina F, V4-C)
 
 Dedicațiile tip „ecran" nu mai trec printr-un operator — fiecare ecran fizic din sală
 (TV, tabletă, monitor) cere singur, automat, următoarea dedicație disponibilă și o
 afișează câteva secunde, apoi trece la următoarea (sau, dacă nu mai e nimic nou, la
-un cod QR / logo sponsor / branding, rotite la întâmplare).
+un cod QR / logo sponsor / branding, rotite în ordine fixă).
 
-1. Setează `ECRAN_SECRET` în `.env.local` / Vercel (același mod ca `OVERLAY_SECRET`):
-   ```bash
-   node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
+Ecranele sunt entități administrabile — nu mai există o limită de trei, iar fiecare
+ecran are propriul token (nu unul global): dacă linkul unui ecran ajunge în mâini
+greșite, îi regenerezi tokenul din `/admin/ecrane` fără să afectezi celelalte.
+
+1. Din `/admin/ecrane` (cont admin) → **„+ Adaugă ecran"**. Se creează un rând nou,
+   cu token generat automat, și îți arată imediat linkul complet cu buton de copiere.
+2. Pe fiecare dispozitiv din sală, deschide linkul copiat într-un browser în mod
+   fullscreen/kiosk — arată așa:
    ```
-2. Pe fiecare dispozitiv din sală, deschide într-un browser în mod fullscreen/kiosk:
+   https://12rounds.ro/ecran/<id-ul ecranului>?key=<tokenul lui>
    ```
-   https://12rounds.ro/ecran/1?key=<ECRAN_SECRET>
-   ```
-   Numărul din URL (`1`, `2`, `3`...) e doar o etichetă — fiecare ecran cu un număr
-   diferit; poți vedea/gestiona ecranele conectate din `/admin/ecrane`.
 3. Dezactivează screensaver-ul și sleep-ul dispozitivului (pe tabletă: "Ghid de acces"/
    "Guided Access" pe iOS, "Screen Pinning" pe Android — ține browserul fullscreen și
    blochează ieșirea accidentală).
-4. Fără `?key=` corect, pagina rămâne complet neagră — nu există alt mesaj de eroare,
-   intenționat (nu vrei să confirmi unui necunoscut că URL-ul e valid).
+4. Fără `?key=` corect (sau pentru un ecran șters), pagina rămâne complet neagră — nu
+   există alt mesaj de eroare, intenționat (nu vrei să confirmi unui necunoscut că
+   URL-ul e valid).
 5. Ecranul nu ține nicio stare locală (fără `localStorage`) — poți reporni dispozitivul
    oricând în timpul show-ului, fără să rămână blocat într-o stare veche.
+6. Opțional, `ECRAN_SECRET` din `.env.local` / Vercel (generat la fel ca
+   `OVERLAY_SECRET`) mai funcționează ca o cheie universală de rezervă pe orice ecran —
+   util într-o urgență, dar tokenul propriu al fiecărui ecran e calea normală.
 
 ## Fluxul în timpul show-ului
 
 1. Spectatorul plătește → mesajul apare **instant** în `/admin/moderare`.
 2. Moderatorul aprobă:
    - tip **„ecran"** → intră direct în coada ecranelor fizice, fără operator; primul
-     ecran liber îl revendică și îl afișează automat (`/ecran/[nr]`).
+     ecran liber îl revendică și îl afișează automat (`/ecran/[id]`).
    - tip **„prezentator"** → apare în `/admin/regie`, unde prezentatorul/operatorul îl
      citește cu voce tare și îl marchează **„Citit"**.
 3. Respins → **Refund** dintr-un click (banii se întorc automat).

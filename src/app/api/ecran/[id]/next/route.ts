@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import QRCode from 'qrcode';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { urlPozaAprobata, urlSponsorLogo } from '@/lib/storage';
-import type { Dedicatie, EcranConfig, Sponsor } from '@/lib/types';
+import type { Dedicatie, Ecran, Sponsor } from '@/lib/types';
 
 const DURATA_IMPLICITA_SECUNDE = 12;
 const DURATA_INACTIV_SECUNDE = 20;
@@ -16,31 +16,33 @@ type Filler =
   | { tip: 'branding' }
   | { tip: 'inactiv' };
 
-// Endpoint token-protejat, apelat de fiecare ecran fizic din sala dupa ce
-// termina de aratat continutul curent (Sarcina F, IMPLEMENTARE-V3.md).
-// Fara ?key= corect, ecranul nu primeste niciodata date.
-export async function GET(req: Request, { params }: { params: { nr: string } }) {
-  const nr = Number(params.nr);
-  if (!Number.isInteger(nr) || nr <= 0) {
-    return NextResponse.json({ error: 'Ecran invalid.' }, { status: 400 });
-  }
-
-  const secret = process.env.ECRAN_SECRET;
+// Endpoint apelat de fiecare ecran fizic din sala dupa ce termina de aratat
+// continutul curent (Sarcina F, IMPLEMENTARE-V3.md). Sarcina V4-C: [id] e
+// acum uuid-ul randului din tabela ecrane, iar tokenul verificat e cel
+// propriu al ecranului (ecrane.token), nu unul global — daca unul e
+// compromis, il regenerezi individual din /admin/ecrane fara sa afectezi
+// celelalte. ECRAN_SECRET ramane valabil ca cheie universala de rezerva.
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   const key = new URL(req.url).searchParams.get('key');
-  if (!secret || key !== secret) {
+  if (!key) {
     return NextResponse.json({ error: 'Acces refuzat.' }, { status: 401 });
   }
 
   const sb = supabaseAdmin();
 
-  const { data: configData } = await sb
-    .from('ecrane_config')
-    .upsert({ nr, ultima_conectare: new Date().toISOString() }, { onConflict: 'nr' })
-    .select()
-    .single();
-  const config = configData as EcranConfig | null;
+  const { data: ecranData } = await sb.from('ecrane').select('*').eq('id', params.id).maybeSingle();
+  const ecran = ecranData as Ecran | null;
+  if (!ecran) {
+    return NextResponse.json({ error: 'Ecran inexistent.' }, { status: 404 });
+  }
 
-  if (config && config.activ === false) {
+  const secretGlobal = process.env.ECRAN_SECRET;
+  if (key !== ecran.token && !(secretGlobal && key === secretGlobal)) {
+    return NextResponse.json({ error: 'Acces refuzat.' }, { status: 401 });
+  }
+
+  if (!ecran.activ) {
+    await sb.from('ecrane').update({ ultima_cerere: new Date().toISOString() }).eq('id', ecran.id);
     return NextResponse.json({ durata_secunde: DURATA_INACTIV_SECUNDE, continut: { tip: 'inactiv' } as Filler });
   }
 
@@ -51,6 +53,7 @@ export async function GET(req: Request, { params }: { params: { nr: string } }) 
     .maybeSingle();
 
   if (!event) {
+    await sb.from('ecrane').update({ ultima_cerere: new Date().toISOString() }).eq('id', ecran.id);
     return NextResponse.json({
       durata_secunde: DURATA_INACTIV_SECUNDE,
       continut: { tip: 'branding' } as Filler,
@@ -62,17 +65,20 @@ export async function GET(req: Request, { params }: { params: { nr: string } }) 
   // A3: alternam strict dedicatie/umplere. Fara asta, reciclarea din
   // revendica_dedicatie gaseste mereu candidat (macar cel deja aratat) si
   // umplutura nu mai apare niciodata dupa prima dedicatie difuzata.
-  const incearcaDedicatie = config?.ultimul_tip !== 'dedicatie';
+  const incearcaDedicatie = ecran.ultimul_tip !== 'dedicatie';
 
   if (incearcaDedicatie) {
     const { data: revendicate } = await sb.rpc('revendica_dedicatie', {
       p_event_id: event.id,
-      p_ecran: nr,
+      p_ecran_id: ecran.id,
     });
     const ded = (revendicate as Dedicatie[] | null)?.[0] ?? null;
 
     if (ded) {
-      await sb.from('ecrane_config').update({ ultimul_tip: 'dedicatie' }).eq('nr', nr);
+      await sb
+        .from('ecrane')
+        .update({ ultima_cerere: new Date().toISOString(), ultimul_tip: 'dedicatie', ultima_dedicatie_id: ded.id })
+        .eq('id', ecran.id);
       return NextResponse.json({
         durata_secunde: durata,
         continut: {
@@ -90,15 +96,14 @@ export async function GET(req: Request, { params }: { params: { nr: string } }) 
     // trecem la umplutura mai jos, fara eroare si fara ecran negru.
   }
 
-  const filler = await alegeFiller(sb, nr, config?.filler_index ?? 0, event.id, event.slug);
-  await sb.from('ecrane_config').update({ ultimul_tip: 'umplere' }).eq('nr', nr);
+  const filler = await alegeFiller(sb, ecran, event.id, event.slug);
+  await sb.from('ecrane').update({ ultima_cerere: new Date().toISOString(), ultimul_tip: 'umplere' }).eq('id', ecran.id);
   return NextResponse.json({ durata_secunde: durata, continut: filler });
 }
 
 async function alegeFiller(
   sb: ReturnType<typeof supabaseAdmin>,
-  nr: number,
-  filler_index: number,
+  ecran: Ecran,
   eventId: string,
   slug: string
 ): Promise<Filler> {
@@ -111,11 +116,11 @@ async function alegeFiller(
 
   // Ordine de prioritate fixa: QR, apoi sponsor (daca exista), apoi branding.
   const variante: Filler['tip'][] = ['qr', ...(sponsoriCuLogo.length > 0 ? (['sponsor'] as const) : []), 'branding'];
-  const ales = variante[filler_index % variante.length];
+  const ales = variante[ecran.filler_index % variante.length];
   await sb
-    .from('ecrane_config')
-    .update({ filler_index: (filler_index + 1) % variante.length })
-    .eq('nr', nr);
+    .from('ecrane')
+    .update({ filler_index: (ecran.filler_index + 1) % variante.length })
+    .eq('id', ecran.id);
 
   if (ales === 'sponsor') {
     const sponsor = sponsoriCuLogo[Math.floor(Math.random() * sponsoriCuLogo.length)];

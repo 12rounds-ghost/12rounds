@@ -25,7 +25,7 @@ const DURATA_RETRY_MS = 5000;
 // scurs durata celui curent, fara sa se bazeze pe vizibilitate (ecranul e
 // mereu pe fullscreen). Serverul alterneaza deja dedicatie/umplere (V4-A3) —
 // clientul doar afiseaza necondiționat ce primeste, la fiecare interval.
-export function EcranClient({ nr, apiKey }: { nr: number; apiKey: string }) {
+export function EcranClient({ id, apiKey }: { id: string; apiKey: string }) {
   const [continut, setContinut] = useState<Continut | null>(null);
   const [cheieAnimatie, setCheieAnimatie] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,7 +37,7 @@ export function EcranClient({ nr, apiKey }: { nr: number; apiKey: string }) {
     async function urmatorul() {
       if (anulatRef.current) return;
       try {
-        const res = await fetch(`/api/ecran/${nr}/next?key=${encodeURIComponent(apiKey)}`, { cache: 'no-store' });
+        const res = await fetch(`/api/ecran/${id}/next?key=${encodeURIComponent(apiKey)}`, { cache: 'no-store' });
         if (!res.ok) throw new Error('raspuns invalid');
         const data = await res.json();
         if (anulatRef.current) return;
@@ -60,7 +60,7 @@ export function EcranClient({ nr, apiKey }: { nr: number; apiKey: string }) {
       anulatRef.current = true;
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [nr, apiKey]);
+  }, [id, apiKey]);
 
   return (
     <div
