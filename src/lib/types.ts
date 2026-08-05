@@ -1,4 +1,4 @@
-export type TipDedicatie = 'sustinere' | 'ecran' | 'prezentator';
+export type TipDedicatie = 'sustinere' | 'ecran' | 'stream' | 'prezentator';
 
 export interface Event {
   id: string;
@@ -9,6 +9,7 @@ export interface Event {
   mesaj_urmatorul_show: string | null;
   durata_afisare_secunde: number;
   disparitie_automata: boolean;
+  durata_stream_secunde: number;
   slug: string;
   subtitlu: string | null;
   descriere: string | null;
@@ -46,6 +47,8 @@ export interface Tarif {
   tip: TipDedicatie;
   pret_bani: number;
   activ: boolean;
+  descriere: string | null;
+  ordine: number;
 }
 
 export interface Dedicatie {
@@ -114,23 +117,19 @@ export interface DedicatieStatusPublic {
   sursa_platforma: string;
 }
 
-// Subset public, expus de RLS doar cat timp status_difuzare = 'programat'
-// (vezi migratia 0007_overlay_public.sql) — /overlay ruleaza neautentificat.
-export interface DedicatieOverlay {
-  id: string;
-  event_id: string;
-  mesaj: string | null;
-  de_la: string | null;
-  pentru: string | null;
-  artist_preferat: string | null;
-  poza_path: string | null;
-  poza_aprobata: boolean;
-}
-
 export const NUME_TIP: Record<TipDedicatie, string> = {
   sustinere: 'Susține show-ul',
-  ecran: 'Dedicație pe ecran',
+  ecran: 'Dedicație pe ecranele din sală',
+  stream: 'Dedicație în transmisiunea live',
   prezentator: 'Dedicație citită de prezentator',
+};
+
+// Descriere implicita, folosita cat timp Tarif.descriere e gol (Sarcina V4-G).
+export const DESCRIERE_IMPLICITA: Record<TipDedicatie, string> = {
+  sustinere: 'Fără mesaj afișat',
+  ecran: 'Mesaj + poză opțională, afișat în sală',
+  stream: 'Mesaj afișat peste stream, pe rețelele sociale',
+  prezentator: 'Citită live, în timpul show-ului',
 };
 
 export function lei(bani: number): string {

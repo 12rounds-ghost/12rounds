@@ -38,7 +38,7 @@ export default async function EvenimentPage({
       .select('*')
       .eq('event_id', event.id)
       .eq('activ', true)
-      .order('pret_bani');
+      .order('ordine');
     tarife = (tarifeData ?? []) as Tarif[];
   }
 

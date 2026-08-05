@@ -37,7 +37,7 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
 
   const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime, nume_facturare } = body;
 
-  if (!['sustinere', 'ecran', 'prezentator'].includes(tip)) {
+  if (!['sustinere', 'ecran', 'stream', 'prezentator'].includes(tip)) {
     return { eroare: NextResponse.json({ error: 'Tip de dedicație invalid.' }, { status: 400 }) };
   }
   if (typeof event_id !== 'string' || event_id.length === 0) {
@@ -97,9 +97,9 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
   }
 
   // Poza e permisa doar pentru dedicatiile de tip "ecran" (Sarcina D,
-  // IMPLEMENTARE-V3.md) — modelul de model-change al V3 elimina orice
-  // legatura intre dedicatii si transmisiuni online, iar poza citita de
-  // prezentator sau la sustinere nu are unde sa fie afisata.
+  // IMPLEMENTARE-V3.md, extinsa la V4-G3 si la noul tip "stream") — nici
+  // overlay-ul de stream, nici prezentatorul, nici sustinerea nu au unde
+  // sa afiseze o poza.
   if (typeof poza_path === 'string' && poza_path.length > 0 && tip !== 'ecran') {
     return { eroare: NextResponse.json({ error: 'Poza este permisă doar pentru dedicația pe ecran.' }, { status: 400 }) };
   }

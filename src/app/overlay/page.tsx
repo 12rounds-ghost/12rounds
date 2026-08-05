@@ -21,7 +21,7 @@ export default async function OverlayAutoLive({
   const sb = supabaseServer();
   const { data: live } = await sb
     .from('events')
-    .select('id')
+    .select('slug')
     .eq('status', 'live')
     .order('created_at', { ascending: false })
     .limit(1)
@@ -29,5 +29,5 @@ export default async function OverlayAutoLive({
 
   if (!live) return <div style={{ background: 'transparent', minHeight: '100vh' }} />;
 
-  return <OverlayClient eventId={live.id} />;
+  return <OverlayClient slug={live.slug} apiKey={secret} />;
 }

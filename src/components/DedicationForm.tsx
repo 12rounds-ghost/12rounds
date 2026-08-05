@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { NUME_TIP, lei, type Tarif, type TipDedicatie } from '@/lib/types';
+import { NUME_TIP, DESCRIERE_IMPLICITA, lei, type Tarif, type TipDedicatie } from '@/lib/types';
 import { PlataElements } from '@/components/PlataElements';
 import { salveazaDedicatieLocala } from '@/lib/dedicatii-locale';
 
@@ -32,7 +32,7 @@ export function DedicationForm({
   const [pozaInaltime, setPozaInaltime] = useState<number | null>(null);
   const [numeComplet, setNumeComplet] = useState('');
 
-  const esteDedicatie = tip === 'ecran' || tip === 'prezentator';
+  const esteDedicatie = tip === 'ecran' || tip === 'stream' || tip === 'prezentator';
   const tarifSelectat = tarife.find((t) => t.tip === tip) ?? null;
   const mesajValid = !esteDedicatie || mesaj.trim().length >= 2;
   // Sarcina V4-F: numele complet e obligatoriu pentru toate tipurile
@@ -129,7 +129,10 @@ export function DedicationForm({
           className={`tier${tip === t.tip ? ' selected' : ''}`}
           onClick={() => selecteazaTip(t.tip)}
         >
-          <span>{NUME_TIP[t.tip]}</span>
+          <span>
+            {NUME_TIP[t.tip]}
+            <span className="tier-descriere">{t.descriere || DESCRIERE_IMPLICITA[t.tip]}</span>
+          </span>
           <span className="pret">{lei(t.pret_bani)}</span>
         </button>
       ))}

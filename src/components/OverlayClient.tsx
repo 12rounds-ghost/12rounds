@@ -1,81 +1,56 @@
 'use client';
-import { useEffect, useState, useRef } from 'react';
-import { supabaseBrowser } from '@/lib/supabase/client';
-import { urlPozaAprobata } from '@/lib/storage';
-import type { DedicatieOverlay, Event } from '@/lib/types';
+import { useEffect, useRef, useState } from 'react';
 
-const CAMPURI_OVERLAY = 'id, event_id, mesaj, de_la, pentru, artist_preferat, poza_path, poza_aprobata';
+interface DedicatieStream {
+  mesaj: string | null;
+  de_la: string | null;
+  pentru: string | null;
+}
 
-// Randarea efectiva a overlay-ului (OBS/vMix), pentru un singur eveniment.
-// Token-ul de acces e verificat server-side, in pagina parinte — vezi
-// src/app/overlay/page.tsx si src/app/overlay/[slug]/page.tsx.
-// RLS (migratia 0007_overlay_public.sql) expune public DOAR randurile
-// 'programat' — de aceea selectam explicit un subset minim de coloane,
-// niciodata stripe_* sau suma_bani.
-export function OverlayClient({ eventId }: { eventId: string }) {
-  const [ded, setDed] = useState<DedicatieOverlay | null>(null);
-  const [ascunsLocal, setAscunsLocal] = useState(false);
+const DURATA_FALLBACK_MS = 12000;
+const DURATA_RETRY_MS = 5000;
+
+// Sarcina V4-G4: overlay-ul (OBS/vMix) afiseaza acum exclusiv dedicatiile
+// tip='stream', revendicate automat (fara operator), la fel ca ecranele din
+// sala — vezi /api/overlay/[slug]/next. Fundal transparent: cand nu e nimic
+// de aratat, ramane pur si simplu gol (nu are nevoie de umplutura, spre
+// deosebire de un ecran fizic — aici sub el ruleaza deja transmisiunea live).
+export function OverlayClient({ slug, apiKey }: { slug: string; apiKey: string }) {
+  const [ded, setDed] = useState<DedicatieStream | null>(null);
+  const [cheieAnimatie, setCheieAnimatie] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const anulatRef = useRef(false);
 
   useEffect(() => {
-    const sb = supabaseBrowser();
+    anulatRef.current = false;
 
-    async function incarca() {
-      const { data } = await sb
-        .from('dedicatii')
-        .select(CAMPURI_OVERLAY)
-        .eq('event_id', eventId)
-        .eq('status_difuzare', 'programat')
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      setDed((data as DedicatieOverlay) ?? null);
+    async function urmatorul() {
+      if (anulatRef.current) return;
+      try {
+        const res = await fetch(`/api/overlay/${slug}/next?key=${encodeURIComponent(apiKey)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('raspuns invalid');
+        const data = await res.json();
+        if (anulatRef.current) return;
+        setDed(data.dedicatie ?? null);
+        if (data.dedicatie) setCheieAnimatie((c) => c + 1);
+        programeaza(typeof data.durata_secunde === 'number' ? data.durata_secunde * 1000 : DURATA_FALLBACK_MS);
+      } catch {
+        if (!anulatRef.current) programeaza(DURATA_RETRY_MS);
+      }
     }
-    incarca();
 
-    const canal = sb
-      .channel(`overlay-${eventId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'dedicatii', filter: `event_id=eq.${eventId}` },
-        incarca
-      )
-      .subscribe();
-    return () => {
-      sb.removeChannel(canal);
-    };
-  }, [eventId]);
+    function programeaza(intarziereMs: number) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(urmatorul, intarziereMs);
+    }
 
-  // Durata de afisare si disparitia automata sunt setari per-eveniment
-  // (configurabile din /admin/event). "Difuzat" ramane in continuare
-  // deciza operatorului din /admin/regie — aici doar ascundem local cardul
-  // dupa interval, ca sa nu ramana blocat pe ecran daca operatorul intarzie.
-  useEffect(() => {
-    setAscunsLocal(false);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (!ded) return;
-
-    let anulat = false;
-    supabaseBrowser()
-      .from('events')
-      .select('durata_afisare_secunde, disparitie_automata')
-      .eq('id', ded.event_id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (anulat || !data) return;
-        const ev = data as Pick<Event, 'durata_afisare_secunde' | 'disparitie_automata'>;
-        if (ev.disparitie_automata) {
-          timerRef.current = setTimeout(() => setAscunsLocal(true), ev.durata_afisare_secunde * 1000);
-        }
-      });
+    urmatorul();
 
     return () => {
-      anulat = true;
+      anulatRef.current = true;
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [ded]);
-
-  const deAfisat = ded && !ascunsLocal;
+  }, [slug, apiKey]);
 
   return (
     <div
@@ -88,9 +63,9 @@ export function OverlayClient({ eventId }: { eventId: string }) {
         padding: 48,
       }}
     >
-      {deAfisat && ded && (
+      {ded && (
         <div
-          key={ded.id}
+          key={cheieAnimatie}
           style={{
             background: 'rgba(10,10,11,0.92)',
             border: '2px solid var(--accent)',
@@ -105,13 +80,8 @@ export function OverlayClient({ eventId }: { eventId: string }) {
           }}
         >
           <style>{`@keyframes intrare { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }`}</style>
-          {ded.poza_aprobata && ded.poza_path ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={urlPozaAprobata(ded.poza_path)} alt="" className="overlay-poza" />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src="/logo.jpeg" alt="" width={96} height={96} style={{ borderRadius: '50%', flexShrink: 0 }} />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.jpeg" alt="" width={96} height={96} style={{ borderRadius: '50%', flexShrink: 0 }} />
           <div>
             <div className="brand" style={{ textAlign: 'left', marginBottom: 6 }}>Dedicație</div>
             <div style={{ fontSize: 34, fontWeight: 600, lineHeight: 1.3, textAlign: 'left' }}>
@@ -120,7 +90,6 @@ export function OverlayClient({ eventId }: { eventId: string }) {
             <div style={{ marginTop: 10, color: 'var(--muted)', fontSize: 20, textAlign: 'left' }}>
               {ded.de_la && <>De la <strong style={{ color: 'var(--accent-hover)' }}>{ded.de_la}</strong></>}
               {ded.pentru && <> pentru <strong style={{ color: 'var(--accent-hover)' }}>{ded.pentru}</strong></>}
-              {ded.artist_preferat && <> · {ded.artist_preferat}</>}
             </div>
           </div>
         </div>

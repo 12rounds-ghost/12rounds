@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation';
 import QRCode from 'qrcode';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { urlCoperta, urlGalerie } from '@/lib/storage';
-import { NUME_TIP, type Event, type Tarif, type TipDedicatie, type PozaGalerie } from '@/lib/types';
+import { NUME_TIP, DESCRIERE_IMPLICITA, type Event, type Tarif, type TipDedicatie, type PozaGalerie } from '@/lib/types';
+
+const TOATE_TIPURILE: TipDedicatie[] = ['sustinere', 'ecran', 'stream', 'prezentator'];
 
 const PLATFORME_STREAM: { cheie: string; eticheta: string }[] = [
   { cheie: 'youtube', eticheta: 'YouTube' },
@@ -62,15 +64,18 @@ export function EvenimentEditor({
   const [coverPath, setCoverPath] = useState(event.cover_path);
   const [coverIncarcare, setCoverIncarcare] = useState(false);
   const [tarife, setTarife] = useState(() =>
-    (['sustinere', 'ecran', 'prezentator'] as TipDedicatie[]).map((tip) => {
+    TOATE_TIPURILE.map((tip, i) => {
       const existent = tarifeInitiale.find((t) => t.tip === tip);
       return {
         tip,
         pret: existent ? String(existent.pret_bani / 100) : '',
-        activ: existent?.activ ?? true,
+        activ: existent?.activ ?? tip !== 'stream',
+        descriere: existent?.descriere ?? '',
+        ordine: existent?.ordine ?? i,
       };
     })
   );
+  const [durataStream, setDurataStream] = useState(String(event.durata_stream_secunde ?? 12));
   const [salvare, setSalvare] = useState('');
   const [qr, setQr] = useState('');
   const [galerie, setGalerie] = useState(galerieInitiala);
@@ -116,6 +121,7 @@ export function EvenimentEditor({
         cover_path: coverPath,
         spectatori: spectatori.trim() ? Math.max(0, parseInt(spectatori, 10)) : null,
         momente_live: momenteLive.trim() ? Math.max(0, parseInt(momenteLive, 10)) : null,
+        durata_stream_secunde: Math.max(3, parseInt(durataStream, 10) || 12),
       })
       .eq('id', event.id);
 
@@ -127,9 +133,17 @@ export function EvenimentEditor({
     }
 
     for (const t of tarife) {
-      await sb
-        .from('tarife')
-        .upsert({ event_id: event.id, tip: t.tip, pret_bani: laBani(t.pret), activ: t.activ }, { onConflict: 'event_id,tip' });
+      await sb.from('tarife').upsert(
+        {
+          event_id: event.id,
+          tip: t.tip,
+          pret_bani: laBani(t.pret),
+          activ: t.activ,
+          descriere: t.descriere.trim() || null,
+          ordine: t.ordine,
+        },
+        { onConflict: 'event_id,tip' }
+      );
     }
 
     setSalvare('Salvat ✓');
@@ -169,6 +183,12 @@ export function EvenimentEditor({
   }
 
   async function schimbaStatus(nou: Event['status']) {
+    // Sarcina V4-G2: fara niciun tip de dedicatie activ, nu are ce sa vanda
+    // editia — blocam tranzitia la LIVE cu un mesaj explicit.
+    if (nou === 'live' && !tarife.some((t) => t.activ)) {
+      alert('Activează cel puțin un tip de dedicație în secțiunea „Tarife" înainte să pornești LIVE.');
+      return;
+    }
     const confirmari: Partial<Record<Event['status'], string>> = {
       live: 'Pornești LIVE? Din acest moment se acceptă plăți pentru această ediție.',
       ended: 'Încheii show-ul? Nu se vor mai accepta plăți pentru această ediție.',
@@ -254,32 +274,69 @@ export function EvenimentEditor({
 
       <div className="card">
         <h2 style={{ marginTop: 0 }}>Tarife</h2>
+        <p className="sub" style={{ margin: '0 0 10px', textAlign: 'left' }}>
+          Doar tipurile active apar pe pagina publică, în ordinea de mai jos. Un eveniment fără
+          niciun tip activ nu poate porni LIVE.
+        </p>
         {tarife.map((t, i) => (
-          <div key={t.tip} className="rand" style={{ marginBottom: 10 }}>
-            <span style={{ flex: 1 }}>{NUME_TIP[t.tip]}</span>
-            <input
-              type="number"
-              min={0}
-              step={1}
-              value={t.pret}
-              onChange={(e) =>
-                setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, pret: e.target.value } : x)))
-              }
-              style={{ width: 90 }}
-            />
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, margin: 0, width: 'auto' }}>
+          <div key={t.tip} style={{ borderTop: i > 0 ? '1px solid var(--border)' : undefined, paddingTop: i > 0 ? 12 : 0, marginTop: i > 0 ? 12 : 0 }}>
+            <div className="rand" style={{ marginBottom: 8 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0, width: 'auto', flex: 1 }}>
+                <input
+                  type="checkbox"
+                  checked={t.activ}
+                  onChange={(e) =>
+                    setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, activ: e.target.checked } : x)))
+                  }
+                  style={{ width: 'auto' }}
+                />
+                <strong>{NUME_TIP[t.tip]}</strong>
+              </label>
               <input
-                type="checkbox"
-                checked={t.activ}
+                type="number"
+                min={0}
+                step={1}
+                value={t.pret}
                 onChange={(e) =>
-                  setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, activ: e.target.checked } : x)))
+                  setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, pret: e.target.value } : x)))
                 }
-                style={{ width: 'auto' }}
+                style={{ width: 90 }}
+                placeholder="lei"
               />
-              activ
-            </label>
+            </div>
+            <div className="rand" style={{ gap: 8 }}>
+              <input
+                value={t.descriere}
+                onChange={(e) =>
+                  setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, descriere: e.target.value } : x)))
+                }
+                placeholder={DESCRIERE_IMPLICITA[t.tip]}
+                style={{ flex: 1 }}
+              />
+              <input
+                type="number"
+                value={t.ordine}
+                onChange={(e) =>
+                  setTarife((prev) => prev.map((x, j) => (j === i ? { ...x, ordine: parseInt(e.target.value, 10) || 0 } : x)))
+                }
+                style={{ width: 64 }}
+                title="Ordinea de afișare"
+              />
+            </div>
           </div>
         ))}
+
+        <label htmlFor="durataStream" style={{ marginTop: 16, display: 'block' }}>
+          Interval rotație overlay stream (secunde)
+        </label>
+        <input
+          id="durataStream"
+          type="number"
+          min={3}
+          value={durataStream}
+          onChange={(e) => setDurataStream(e.target.value)}
+          style={{ width: 90 }}
+        />
       </div>
 
       <div className="card">

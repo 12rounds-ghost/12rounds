@@ -20,9 +20,9 @@ export default async function OverlayEveniment({
   }
 
   const sb = supabaseServer();
-  const { data: event } = await sb.from('events').select('id').eq('slug', params.slug).maybeSingle();
+  const { data: event } = await sb.from('events').select('slug').eq('slug', params.slug).maybeSingle();
 
   if (!event) return <div style={{ background: 'transparent', minHeight: '100vh' }} />;
 
-  return <OverlayClient eventId={event.id} />;
+  return <OverlayClient slug={event.slug} apiKey={secret} />;
 }

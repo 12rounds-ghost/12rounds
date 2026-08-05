@@ -6,8 +6,18 @@ import { NextResponse, type NextRequest } from 'next/server';
 // /.well-known e pentru fisierul de verificare a domeniului pentru Apple Pay.
 // /ecran si /api/ecran raman libere de gate-ul "revenim in curand" — kiosk-urile
 // din sala nu au niciodata cookie-ul de acces, dar sunt oricum protejate separat
-// de ECRAN_SECRET (Sarcina F).
-const CALE_LIBERA = ['/coming-soon', '/api/site-access', '/api/webhook', '/.well-known', '/ecran', '/api/ecran'];
+// de ECRAN_SECRET (Sarcina F). La fel /overlay si /api/overlay — OBS/vMix
+// e un Browser Source fara cookie, protejat separat de OVERLAY_SECRET.
+const CALE_LIBERA = [
+  '/coming-soon',
+  '/api/site-access',
+  '/api/webhook',
+  '/.well-known',
+  '/ecran',
+  '/api/ecran',
+  '/overlay',
+  '/api/overlay',
+];
 
 const COOKIE = '12rounds_access';
 
