@@ -15,8 +15,13 @@ export async function POST(req: Request) {
 
     const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
 
+    // Numele e deja validat si salvat pe dedicatie in pregatesteDedicatie
+    // (Sarcina V4-F) — il trecem si pe Customer, la fel ca la fluxul rapid.
+    const customer = await stripe.customers.create({ name: ded.nume_facturare ?? undefined });
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      customer: customer.id,
       // 'card' activează automat și Apple Pay / Google Pay în Stripe Checkout
       payment_method_types: ['card'],
       line_items: [
@@ -37,7 +42,10 @@ export async function POST(req: Request) {
       cancel_url: `${origin}/eveniment/${event.slug}?anulat=1${body.src ? `&src=${encodeURIComponent(body.src)}` : ''}`,
     });
 
-    await supabaseAdmin().from('dedicatii').update({ stripe_session_id: session.id }).eq('id', ded.id);
+    await supabaseAdmin()
+      .from('dedicatii')
+      .update({ stripe_session_id: session.id, stripe_customer_id: customer.id })
+      .eq('id', ded.id);
 
     return NextResponse.json({ url: session.url });
   } catch (e) {

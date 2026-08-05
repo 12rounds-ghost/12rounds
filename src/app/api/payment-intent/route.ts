@@ -21,7 +21,10 @@ interface CorpPaymentIntent extends CorpDedicatie {
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as CorpPaymentIntent;
-    const rezultat = await pregatesteDedicatie(req, body);
+    const rezultat = await pregatesteDedicatie(req, {
+      ...body,
+      nume_facturare: body.billingDetails?.name,
+    });
     if (rezultat.eroare) return rezultat.eroare;
     const { event, tarif, ded } = rezultat;
 

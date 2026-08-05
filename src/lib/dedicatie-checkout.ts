@@ -15,6 +15,7 @@ export interface CorpDedicatie {
   poza_path?: string;
   poza_latime?: number;
   poza_inaltime?: number;
+  nume_facturare?: string;
 }
 
 type RezultatPregatire =
@@ -34,13 +35,26 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
     };
   }
 
-  const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime } = body;
+  const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime, nume_facturare } = body;
 
   if (!['sustinere', 'ecran', 'prezentator'].includes(tip)) {
     return { eroare: NextResponse.json({ error: 'Tip de dedicație invalid.' }, { status: 400 }) };
   }
   if (typeof event_id !== 'string' || event_id.length === 0) {
     return { eroare: NextResponse.json({ error: 'Ediția nu a fost specificată.' }, { status: 400 }) };
+  }
+  // Sarcina V4-F (IMPLEMENTARE-V4.md): numele nu mai e garantat de campul
+  // 'auto' al Payment Element-ului la cardul obisnuit — il cerem explicit,
+  // in formular, inainte de butoanele de plata. Validarea din interfata nu
+  // e suficienta, o repetam aici.
+  const numeCurat = typeof nume_facturare === 'string' ? nume_facturare.trim() : '';
+  if (numeCurat.length < 3 || !numeCurat.includes(' ')) {
+    return {
+      eroare: NextResponse.json(
+        { error: 'Numele complet este obligatoriu pentru factură (nume și prenume).' },
+        { status: 400 }
+      ),
+    };
   }
   if (tip !== 'sustinere' && (!mesaj || String(mesaj).trim().length < 2)) {
     return { eroare: NextResponse.json({ error: 'Mesajul dedicației este obligatoriu.' }, { status: 400 }) };
@@ -119,6 +133,7 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
       poza_path: pozaValidata,
       poza_latime: pozaLatimeValidata,
       poza_inaltime: pozaInaltimeValidata,
+      nume_facturare: numeCurat,
     })
     .select()
     .single();

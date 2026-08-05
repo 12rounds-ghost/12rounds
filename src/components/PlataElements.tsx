@@ -31,11 +31,17 @@ export function PlataElements({
   sumaBani,
   dateDedicatie,
   eventSlug,
+  numeComplet,
+  onNumeCompletChange,
+  numeValid,
   onEsuatEncarcare,
 }: {
   sumaBani: number;
   dateDedicatie: DateDedicatie;
   eventSlug: string;
+  numeComplet: string;
+  onNumeCompletChange: (v: string) => void;
+  numeValid: boolean;
   onEsuatEncarcare: () => void;
 }) {
   const [email, setEmail] = useState('');
@@ -55,6 +61,9 @@ export function PlataElements({
         eventSlug={eventSlug}
         email={email}
         onEmailChange={setEmail}
+        numeComplet={numeComplet}
+        onNumeCompletChange={onNumeCompletChange}
+        numeValid={numeValid}
         onEsuatEncarcare={onEsuatEncarcare}
       />
     </Elements>
@@ -66,6 +75,9 @@ function FormularPlata({
   eventSlug,
   email,
   onEmailChange,
+  numeComplet,
+  onNumeCompletChange,
+  numeValid,
   onEsuatEncarcare,
 }: {
   sumaBani: number;
@@ -73,6 +85,9 @@ function FormularPlata({
   eventSlug: string;
   email: string;
   onEmailChange: (v: string) => void;
+  numeComplet: string;
+  onNumeCompletChange: (v: string) => void;
+  numeValid: boolean;
   onEsuatEncarcare: () => void;
 }) {
   const stripe = useStripe();
@@ -146,9 +161,13 @@ function FormularPlata({
   }
 
   async function onConfirmExpressCheckout(event: StripeExpressCheckoutElementConfirmEvent) {
+    // Sarcina V4-F: portofelul (Apple Pay / Google Pay) intoarce numele
+    // singur — il folosim direct, fara sa cerem clientului sa il tasteze, si
+    // actualizam si campul vizibil din formular (ramane editabil ulterior).
     const detalii = event.billingDetails;
+    if (detalii?.name) onNumeCompletChange(detalii.name);
     await creeazaPaymentIntentSiConfirma({
-      name: detalii?.name,
+      name: detalii?.name || numeComplet,
       email: detalii?.email,
       address: detalii?.address as Record<string, unknown> | undefined,
     });
@@ -156,10 +175,11 @@ function FormularPlata({
 
   async function onSubmitCard(e: React.FormEvent) {
     e.preventDefault();
-    if (!elements) return;
-    // Numele e citit de Stripe direct din campul billingDetails.name al
-    // Payment Element-ului (fields.billingDetails.name: 'auto' mai jos).
-    await creeazaPaymentIntentSiConfirma({ email });
+    if (!elements || !numeValid) return;
+    // Numele vine acum din campul nostru propriu (Sarcina V4-F) — Payment
+    // Element are fields.billingDetails.name: 'never' mai jos, ca sa nu
+    // afiseze un al doilea camp de nume, redundant.
+    await creeazaPaymentIntentSiConfirma({ email, name: numeComplet });
   }
 
   return (
@@ -194,13 +214,14 @@ function FormularPlata({
       <form onSubmit={onSubmitCard}>
         <PaymentElement
           options={{
-            fields: { billingDetails: { name: 'auto', email: 'never' } },
+            fields: { billingDetails: { name: 'never', email: 'never' } },
           }}
           onLoadError={onEsuatEncarcare}
         />
-        <button className="btn" disabled={loading || !stripe} style={{ marginTop: 14 }}>
+        <button className="btn" disabled={loading || !stripe || !numeValid} style={{ marginTop: 14 }}>
           {loading ? 'Se procesează…' : 'Plătește'}
         </button>
+        {!numeValid && <p className="sub" style={{ margin: '6px 0 0' }}>Completează numele complet mai sus.</p>}
         {eroare && <p className="eroare">{eroare}</p>}
       </form>
     </div>

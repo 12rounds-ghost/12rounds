@@ -30,10 +30,14 @@ export function DedicationForm({
   const [pozaEroare, setPozaEroare] = useState('');
   const [pozaLatime, setPozaLatime] = useState<number | null>(null);
   const [pozaInaltime, setPozaInaltime] = useState<number | null>(null);
+  const [numeComplet, setNumeComplet] = useState('');
 
   const esteDedicatie = tip === 'ecran' || tip === 'prezentator';
   const tarifSelectat = tarife.find((t) => t.tip === tip) ?? null;
   const mesajValid = !esteDedicatie || mesaj.trim().length >= 2;
+  // Sarcina V4-F: numele complet e obligatoriu pentru toate tipurile
+  // (inclusiv sustinere) — factura are nevoie de el, nu doar dedicatia.
+  const numeValid = numeComplet.trim().length >= 3 && numeComplet.trim().includes(' ');
 
   async function incarcaPoza(fisier: File) {
     setPozaEroare('');
@@ -76,7 +80,7 @@ export function DedicationForm({
   // cand Express Checkout Element nu se încarcă sau clientul îl alege explicit.
   // Aici emailul e obligatoriu — acceptabil pentru un caz marginal.
   async function plateasteClasic() {
-    if (!tip || loadingClasic || pozaIncarcare) return;
+    if (!tip || loadingClasic || pozaIncarcare || !numeValid) return;
     setLoadingClasic(true);
     setEroareClasic('');
     try {
@@ -94,6 +98,7 @@ export function DedicationForm({
           poza_path: pozaPath,
           poza_latime: pozaLatime,
           poza_inaltime: pozaInaltime,
+          nume_facturare: numeComplet.trim(),
         }),
       });
       const data = await res.json();
@@ -186,9 +191,21 @@ export function DedicationForm({
 
       {tip && tarifSelectat && mesajValid && !pozaIncarcare && (
         <div className="card" style={{ marginTop: 16 }}>
+          <label htmlFor="nume-complet">Nume complet</label>
+          <input
+            id="nume-complet"
+            value={numeComplet}
+            onChange={(e) => setNumeComplet(e.target.value)}
+            placeholder="Maria Popescu"
+            maxLength={120}
+          />
+          <p className="sub" style={{ textAlign: 'left', margin: '4px 0 14px' }}>
+            Necesar pentru emiterea facturii.
+          </p>
+
           {modClasic ? (
             <>
-              <button className="btn" onClick={plateasteClasic} disabled={loadingClasic}>
+              <button className="btn" onClick={plateasteClasic} disabled={loadingClasic || !numeValid}>
                 {loadingClasic ? 'Se deschide plata…' : `Plătește ${lei(tarifSelectat.pret_bani)}`}
               </button>
               {eroareClasic && <p className="eroare">{eroareClasic}</p>}
@@ -197,6 +214,9 @@ export function DedicationForm({
             <PlataElements
               sumaBani={tarifSelectat.pret_bani}
               eventSlug={eventSlug}
+              numeComplet={numeComplet}
+              onNumeCompletChange={setNumeComplet}
+              numeValid={numeValid}
               dateDedicatie={{
                 tip,
                 de_la: deLa,
