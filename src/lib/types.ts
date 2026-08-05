@@ -67,6 +67,8 @@ export interface Dedicatie {
   email: string | null;
   poza_path: string | null;
   poza_aprobata: boolean;
+  poza_latime: number | null;
+  poza_inaltime: number | null;
   nume_facturare: string | null;
   adresa_facturare: Record<string, unknown> | null;
   stripe_customer_id: string | null;
@@ -88,6 +90,8 @@ export interface EcranConfig {
   nume: string | null;
   activ: boolean;
   ultima_conectare: string | null;
+  ultimul_tip: 'dedicatie' | 'umplere' | null;
+  filler_index: number;
 }
 
 // Subset public al unei dedicatii, expus de /api/status/[id] — niciodata

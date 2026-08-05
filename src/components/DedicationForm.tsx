@@ -28,6 +28,8 @@ export function DedicationForm({
   const [pozaPreview, setPozaPreview] = useState<string | null>(null);
   const [pozaIncarcare, setPozaIncarcare] = useState(false);
   const [pozaEroare, setPozaEroare] = useState('');
+  const [pozaLatime, setPozaLatime] = useState<number | null>(null);
+  const [pozaInaltime, setPozaInaltime] = useState<number | null>(null);
 
   const esteDedicatie = tip === 'ecran' || tip === 'prezentator';
   const tarifSelectat = tarife.find((t) => t.tip === tip) ?? null;
@@ -44,6 +46,8 @@ export function DedicationForm({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Încărcarea a eșuat.');
       setPozaPath(data.poza_path);
+      setPozaLatime(data.poza_latime ?? null);
+      setPozaInaltime(data.poza_inaltime ?? null);
     } catch (e) {
       setPozaEroare(e instanceof Error ? e.message : 'Încărcarea a eșuat.');
       setPozaPreview(null);
@@ -57,6 +61,8 @@ export function DedicationForm({
     setPozaPath(null);
     setPozaPreview(null);
     setPozaEroare('');
+    setPozaLatime(null);
+    setPozaInaltime(null);
   }
 
   // Poza e permisa doar la dedicatia pe ecran (Sarcina D) — daca userul schimba
@@ -86,6 +92,8 @@ export function DedicationForm({
           src,
           event_id: eventId,
           poza_path: pozaPath,
+          poza_latime: pozaLatime,
+          poza_inaltime: pozaInaltime,
         }),
       });
       const data = await res.json();
@@ -198,6 +206,8 @@ export function DedicationForm({
                 src,
                 event_id: eventId,
                 poza_path: pozaPath,
+                poza_latime: pozaLatime,
+                poza_inaltime: pozaInaltime,
               }}
               onEsuatEncarcare={() => setModClasic(true)}
             />

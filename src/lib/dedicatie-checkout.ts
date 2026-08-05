@@ -13,6 +13,8 @@ export interface CorpDedicatie {
   src?: string;
   event_id: string;
   poza_path?: string;
+  poza_latime?: number;
+  poza_inaltime?: number;
 }
 
 type RezultatPregatire =
@@ -32,7 +34,7 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
     };
   }
 
-  const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path } = body;
+  const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime } = body;
 
   if (!['sustinere', 'ecran', 'prezentator'].includes(tip)) {
     return { eroare: NextResponse.json({ error: 'Tip de dedicație invalid.' }, { status: 400 }) };
@@ -91,10 +93,14 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
   // O problema la poza nu trebuie sa blocheze plata (Sarcina B) — o ignoram
   // pur si simplu daca nu e valida.
   let pozaValidata: string | null = null;
+  let pozaLatimeValidata: number | null = null;
+  let pozaInaltimeValidata: number | null = null;
   if (typeof poza_path === 'string' && poza_path.length > 0 && tip === 'ecran') {
     const { data: fisiere } = await sb.storage.from('poze-in-verificare').list('', { search: poza_path });
     if (fisiere?.some((f) => f.name === poza_path)) {
       pozaValidata = poza_path;
+      pozaLatimeValidata = typeof poza_latime === 'number' && poza_latime > 0 ? Math.round(poza_latime) : null;
+      pozaInaltimeValidata = typeof poza_inaltime === 'number' && poza_inaltime > 0 ? Math.round(poza_inaltime) : null;
     }
   }
 
@@ -111,6 +117,8 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
       sursa_platforma: typeof src === 'string' ? src.slice(0, 30) : 'direct',
       este_rezervare: esteRezervare,
       poza_path: pozaValidata,
+      poza_latime: pozaLatimeValidata,
+      poza_inaltime: pozaInaltimeValidata,
     })
     .select()
     .single();

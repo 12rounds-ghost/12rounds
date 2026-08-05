@@ -54,12 +54,17 @@ export async function POST(req: Request) {
     }
 
     let bufProcesat: Buffer;
+    let latime: number | null = null;
+    let inaltime: number | null = null;
     try {
-      bufProcesat = await sharp(bufOriginal)
+      const rezultat = await sharp(bufOriginal)
         .rotate() // orientare corecta dupa EXIF (poze de telefon)
         .resize({ width: LATURA_MAXIMA, height: LATURA_MAXIMA, fit: 'inside', withoutEnlargement: true })
         .jpeg({ quality: 82 })
-        .toBuffer();
+        .toBuffer({ resolveWithObject: true });
+      bufProcesat = rezultat.data;
+      latime = rezultat.info.width;
+      inaltime = rezultat.info.height;
     } catch {
       return NextResponse.json({ error: 'Fișierul nu a putut fi procesat ca imagine.' }, { status: 400 });
     }
@@ -75,7 +80,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Încărcarea a eșuat.' }, { status: 500 });
     }
 
-    return NextResponse.json({ poza_path: numeFisier });
+    return NextResponse.json({ poza_path: numeFisier, poza_latime: latime, poza_inaltime: inaltime });
   } catch (e) {
     console.error('upload-poza error', e);
     return NextResponse.json({ error: 'A apărut o eroare. Încearcă din nou.' }, { status: 500 });

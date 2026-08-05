@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server';
 import QRCode from 'qrcode';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { urlPozaAprobata, urlSponsorLogo } from '@/lib/storage';
-import type { Dedicatie, Sponsor } from '@/lib/types';
+import type { Dedicatie, EcranConfig, Sponsor } from '@/lib/types';
 
 const DURATA_IMPLICITA_SECUNDE = 12;
 const DURATA_INACTIV_SECUNDE = 20;
 
-// Continutul afisat cand nu e nimic nou de aratat — se roteste intre QR
-// (cheama publicul sa trimita o dedicatie), un sponsor si branding simplu.
+// Continutul afisat cand e randul umpluturii — se roteste, in ordine de
+// prioritate, intre QR (cheama publicul sa trimita o dedicatie), un sponsor
+// si branding simplu (Sarcina V4-A3, IMPLEMENTARE-V4.md).
 type Filler =
   | { tip: 'qr'; url: string; qr_data_url: string }
   | { tip: 'sponsor'; nume: string; logo_url: string }
@@ -32,11 +33,12 @@ export async function GET(req: Request, { params }: { params: { nr: string } }) 
 
   const sb = supabaseAdmin();
 
-  const { data: config } = await sb
+  const { data: configData } = await sb
     .from('ecrane_config')
     .upsert({ nr, ultima_conectare: new Date().toISOString() }, { onConflict: 'nr' })
     .select()
     .single();
+  const config = configData as EcranConfig | null;
 
   if (config && config.activ === false) {
     return NextResponse.json({ durata_secunde: DURATA_INACTIV_SECUNDE, continut: { tip: 'inactiv' } as Filler });
@@ -57,32 +59,46 @@ export async function GET(req: Request, { params }: { params: { nr: string } }) 
 
   const durata = event.durata_afisare_secunde || DURATA_IMPLICITA_SECUNDE;
 
-  const { data: revendicate } = await sb.rpc('revendica_dedicatie', {
-    p_event_id: event.id,
-    p_ecran: nr,
-  });
-  const ded = (revendicate as Dedicatie[] | null)?.[0] ?? null;
+  // A3: alternam strict dedicatie/umplere. Fara asta, reciclarea din
+  // revendica_dedicatie gaseste mereu candidat (macar cel deja aratat) si
+  // umplutura nu mai apare niciodata dupa prima dedicatie difuzata.
+  const incearcaDedicatie = config?.ultimul_tip !== 'dedicatie';
 
-  if (ded) {
-    return NextResponse.json({
-      durata_secunde: durata,
-      continut: {
-        tip: 'dedicatie',
-        mesaj: ded.mesaj,
-        de_la: ded.de_la,
-        pentru: ded.pentru,
-        artist_preferat: ded.artist_preferat,
-        poza_url: ded.poza_aprobata && ded.poza_path ? urlPozaAprobata(ded.poza_path) : null,
-      },
+  if (incearcaDedicatie) {
+    const { data: revendicate } = await sb.rpc('revendica_dedicatie', {
+      p_event_id: event.id,
+      p_ecran: nr,
     });
+    const ded = (revendicate as Dedicatie[] | null)?.[0] ?? null;
+
+    if (ded) {
+      await sb.from('ecrane_config').update({ ultimul_tip: 'dedicatie' }).eq('nr', nr);
+      return NextResponse.json({
+        durata_secunde: durata,
+        continut: {
+          tip: 'dedicatie',
+          mesaj: ded.mesaj,
+          de_la: ded.de_la,
+          pentru: ded.pentru,
+          poza_url: ded.poza_aprobata && ded.poza_path ? urlPozaAprobata(ded.poza_path) : null,
+          poza_latime: ded.poza_latime,
+          poza_inaltime: ded.poza_inaltime,
+        },
+      });
+    }
+    // Zero dedicatii aprobate in tot sistemul — nu exista ce revendica,
+    // trecem la umplutura mai jos, fara eroare si fara ecran negru.
   }
 
-  const filler = await alegeFiller(sb, event.id, event.slug);
+  const filler = await alegeFiller(sb, nr, config?.filler_index ?? 0, event.id, event.slug);
+  await sb.from('ecrane_config').update({ ultimul_tip: 'umplere' }).eq('nr', nr);
   return NextResponse.json({ durata_secunde: durata, continut: filler });
 }
 
 async function alegeFiller(
   sb: ReturnType<typeof supabaseAdmin>,
+  nr: number,
+  filler_index: number,
   eventId: string,
   slug: string
 ): Promise<Filler> {
@@ -91,12 +107,15 @@ async function alegeFiller(
     .select('*')
     .eq('activ', true)
     .or(`event_id.eq.${eventId},event_id.is.null`);
-  const sponsori = (sponsoriData ?? []) as Sponsor[];
-  const sponsoriCuLogo = sponsori.filter((s) => s.logo_path);
+  const sponsoriCuLogo = ((sponsoriData ?? []) as Sponsor[]).filter((s) => s.logo_path);
 
-  const variante: Filler['tip'][] = ['qr', 'branding'];
-  if (sponsoriCuLogo.length > 0) variante.push('sponsor');
-  const ales = variante[Math.floor(Math.random() * variante.length)];
+  // Ordine de prioritate fixa: QR, apoi sponsor (daca exista), apoi branding.
+  const variante: Filler['tip'][] = ['qr', ...(sponsoriCuLogo.length > 0 ? (['sponsor'] as const) : []), 'branding'];
+  const ales = variante[filler_index % variante.length];
+  await sb
+    .from('ecrane_config')
+    .update({ filler_index: (filler_index + 1) % variante.length })
+    .eq('nr', nr);
 
   if (ales === 'sponsor') {
     const sponsor = sponsoriCuLogo[Math.floor(Math.random() * sponsoriCuLogo.length)];

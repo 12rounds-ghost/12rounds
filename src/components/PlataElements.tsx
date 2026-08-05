@@ -23,6 +23,8 @@ interface DateDedicatie {
   src: string;
   event_id: string;
   poza_path: string | null;
+  poza_latime: number | null;
+  poza_inaltime: number | null;
 }
 
 export function PlataElements({
