@@ -102,7 +102,6 @@ export default async function Home() {
             <div className="kicker">Formatul</div>
             <h2>12 ROUNDS îi separă.<br />Ultima piesă îi aduce împreună.</h2>
           </div>
-          <p>Doi artiști, aceleași șase provocări, răspunsuri complet diferite. Fără juriu, fără eliminări, fără învinși.</p>
         </section>
         <div className="formula">
           <div><b>2</b><span>Artiști</span></div>
@@ -116,10 +115,6 @@ export default async function Home() {
             <p>Signature, Exchange, Emotion, Roots, Freestyle și Power + Surprise — aceleași reguli pentru amândoi artiștii, răspunsuri complet diferite.</p>
           </div>
           <Link className="btn" href="/format">Despre format</Link>
-        </div>
-        <div className="quote">
-          <p>12 rounds îi separă. Ultima piesă îi aduce împreună.</p>
-          <span>1 prezentator · 1 DJ · 2 invitați-surpriză · ≈85 de minute, fără pauză</span>
         </div>
 
         {/* Editii viitoare */}
@@ -139,7 +134,6 @@ export default async function Home() {
               <div className="kicker">Dedicații · doar în sală</div>
               <h2>Mesajul tău, pe ecranele din sală</h2>
             </div>
-            <p>Dedicațiile se trimit din sală, în timpul show-ului, și apar pe ecranele din sală. Fără cont și fără aplicație — durează sub un minut, de pe telefon.</p>
           </div>
           <div className="steps">
             <div><h4>Scanezi codul QR</h4><p>De pe ecranele din sală, de pe masă sau de pe bilet.</p></div>
@@ -147,7 +141,6 @@ export default async function Home() {
             <div><h4>Plătești</h4><p>Apple Pay, Google Pay sau card. Un singur tap, fără cont.</p></div>
             <div><h4>Apare pe ecran</h4><p>După aprobarea moderatorului, pe ecranele din sală.</p></div>
           </div>
-          <p className="disclaimer">Dedicațiile sunt disponibile exclusiv pentru publicul prezent în sală și se afișează doar pe ecranele din sală — nu în transmisiunile online.</p>
         </section>
 
         {/* Editii incheiate */}

@@ -23,11 +23,10 @@ export default function FormatPage() {
         <section className="shead" style={{ marginTop: 40 }}>
           <div>
             <div className="kicker">Ideea centrală</div>
-            <h2>Nu este un concert dublu.<br />Este un show cu mecanism.</h2>
+            <h2>12 ROUNDS transformă întâlnirea dintre doi artiști<br />într-un duel muzical ușor de urmărit.</h2>
           </div>
           <p>
-            12 ROUNDS transformă întâlnirea dintre doi artiști într-un duel artistic ușor de urmărit,
-            construit pe aceleași șase provocări și pe răspunsuri complet diferite. Fără juriu. Fără
+            Construit pe aceleași șase provocări și pe răspunsuri complet diferite. Fără juriu. Fără
             eliminări. Fără învinși.
           </p>
         </section>
@@ -69,7 +68,6 @@ export default function FormatPage() {
             <div className="kicker">Momentul-surpriză</div>
             <h2>Round 11 și 12 schimbă miza</h2>
           </div>
-          <p>Invitatul apare în cea de-a șasea piesă a artistului. Nu adaugă o piesă suplimentară. Secret pentru public, planificat și repetat de producție.</p>
         </section>
         <div className="two-col">
           <div className="two-col-card">
@@ -88,9 +86,8 @@ export default function FormatPage() {
         <section className="shead" style={{ marginTop: 48 }}>
           <div>
             <div className="kicker">Motorul scenei</div>
-            <h2>Un prezentator și un DJ<br />mențin ritmul viu</h2>
+            <h2>Un prezentator și un DJ<br />completează experiența</h2>
           </div>
-          <p>Intervenții scurte. Tranziții controlate. O singură identitate de show.</p>
         </section>
         <div className="two-col">
           <div className="two-col-card">
@@ -121,7 +118,6 @@ export default function FormatPage() {
             <div className="kicker">Grand Finale</div>
             <h2>12 rounds îi separă.<br />Ultima piesă îi aduce împreună.</h2>
           </div>
-          <p>Duet · Mash-up · Piesă creată special pentru ediție. Din confruntare se naște colaborarea.</p>
         </section>
         <section className="shead" style={{ marginTop: 34 }}>
           <div>
@@ -135,42 +131,6 @@ export default function FormatPage() {
           <div><b>12</b><span>Rounds 11–12 + invitați</span></div>
           <div><b>17–19</b><span>Prezentări, aplauze, tranziții</span></div>
           <div><b>07</b><span>Grand Finale + închidere</span></div>
-        </div>
-        <p className="sub" style={{ marginTop: 12 }}>
-          Slot operațional rezervat: 90 de minute. Condiție de ritm: backline comun sau două setup-uri pre-patched.
-        </p>
-
-        {/* De ce functioneaza */}
-        <section className="shead" style={{ marginTop: 48 }}>
-          <div>
-            <div className="kicker">De ce funcționează</div>
-            <h2>Valoare pentru întregul ecosistem</h2>
-          </div>
-        </section>
-        <div className="grid3" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-          <div className="two-col-card" style={{ padding: 18 }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, textTransform: 'uppercase', margin: '0 0 6px' }}>Public</h3>
-            <p className="sub" style={{ margin: 0, textAlign: 'left', fontSize: 13.5 }}>Întâlniri muzicale și apariții-surpriză care nu există într-un concert obișnuit.</p>
-          </div>
-          <div className="two-col-card" style={{ padding: 18 }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, textTransform: 'uppercase', margin: '0 0 6px' }}>Artiști</h3>
-            <p className="sub" style={{ margin: 0, textAlign: 'left', fontSize: 13.5 }}>Versatilitate, acces la publicul celuilalt artist și conținut original.</p>
-          </div>
-          <div className="two-col-card" style={{ padding: 18 }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, textTransform: 'uppercase', margin: '0 0 6px' }}>Parteneri</h3>
-            <p className="sub" style={{ margin: 0, textAlign: 'left', fontSize: 13.5 }}>Inventar de comunicare înainte, în timpul și după show.</p>
-          </div>
-          <div className="two-col-card" style={{ padding: 18 }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, textTransform: 'uppercase', margin: '0 0 6px' }}>Media & Organizatori</h3>
-            <p className="sub" style={{ margin: 0, textAlign: 'left', fontSize: 13.5 }}>Durată predictibilă, mecanism repetabil, adaptare pentru orașe și festivaluri.</p>
-          </div>
-        </div>
-        <div className="tier-label">Scalabilitate</div>
-        <div className="sponsors" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-          <div className="sponsor-item" style={{ borderStyle: 'solid' }}><span>City Edition</span></div>
-          <div className="sponsor-item" style={{ borderStyle: 'solid' }}><span>Festival Special</span></div>
-          <div className="sponsor-item" style={{ borderStyle: 'solid' }}><span>TV / Streaming</span></div>
-          <div className="sponsor-item" style={{ borderStyle: 'solid' }}><span>Serie / Franciză</span></div>
         </div>
 
         {/* Banda finala */}

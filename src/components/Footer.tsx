@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { LinkDedicatiileMele } from '@/components/LinkDedicatiileMele';
 
 export function Footer() {
   return (
@@ -7,18 +6,12 @@ export function Footer() {
       <div className="site-footer-grid">
         <div className="site-footer-despre">
           <b>12 Rounds</b>
-          <p>The Battle of the Bands. Un format live: doi artiști, douăsprezece runde, un singur final.</p>
         </div>
         <div>
           <h5>Evenimente</h5>
           <Link href="/format">Despre format</Link>
           <Link href="/#viitoare">Calendar</Link>
           <Link href="/#trecute">Arhivă</Link>
-        </div>
-        <div>
-          <h5>Dedicații</h5>
-          <Link href="/live">Trimite o dedicație</Link>
-          <LinkDedicatiileMele />
         </div>
         <div>
           <h5>Legal</h5>
