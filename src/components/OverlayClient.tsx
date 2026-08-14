@@ -21,6 +21,20 @@ export function OverlayClient({ slug, apiKey }: { slug: string; apiKey: string }
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const anulatRef = useRef(false);
 
+  // globals.css pune fundal opac pe <body> pentru tot restul site-ului —
+  // wrapper-ul cu background:'transparent' de mai jos sta DEASUPRA acelui
+  // body opac, deci vizual tot opac ramane (gasit testand fluxul complet:
+  // in OBS/vMix ca Browser Source, pagina aparea ca un dreptunghi negru
+  // solid, nu transparenta). Suprascriem punctual doar aici, cat traieste
+  // pagina de overlay.
+  useEffect(() => {
+    const fundalOriginal = document.body.style.background;
+    document.body.style.background = 'transparent';
+    return () => {
+      document.body.style.background = fundalOriginal;
+    };
+  }, []);
+
   useEffect(() => {
     anulatRef.current = false;
 
