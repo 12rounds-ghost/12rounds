@@ -3,7 +3,12 @@
 // aplicatia ajunge sa ruleze pe mai multe noduri simultan, inlocuieste cu
 // Upstash Redis (acelasi API: verificaRateLimit(ip)).
 const FEREASTRA_MS = 10 * 60 * 1000; // 10 minute
-const LIMITA_CERERI = 10;
+// 10 era prea strict pentru o sala reala: mai multi spectatori pot iesi pe
+// acelasi IP (WiFi-ul salii, sau NAT-ul carrier-grade al operatorului mobil —
+// comun la 4G/5G), caz in care primul grup de 10 blocheaza pe toti ceilalti
+// de pe acelasi IP, desi nu au nicio legatura intre ei. 30 tot opreste un
+// abuz real (bot/spam), dar lasa loc unui grup legitim de pe acelasi IP.
+const LIMITA_CERERI = 30;
 
 interface Contor {
   numar: number;
