@@ -2,24 +2,37 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface DedicatieStream {
+  id: string;
   mesaj: string | null;
   de_la: string | null;
   pentru: string | null;
 }
 
-const DURATA_FALLBACK_MS = 12000;
-const DURATA_RETRY_MS = 5000;
+export type FormatOverlay = '16-9' | '9-16';
 
-// Sarcina V4-G4: overlay-ul (OBS/vMix) afiseaza acum exclusiv dedicatiile
-// tip='stream', revendicate automat (fara operator), la fel ca ecranele din
-// sala — vezi /api/overlay/[slug]/next. Fundal transparent: cand nu e nimic
-// de aratat, ramane pur si simplu gol (nu are nevoie de umplutura, spre
-// deosebire de un ecran fizic — aici sub el ruleaza deja transmisiunea live).
-export function OverlayClient({ slug, apiKey }: { slug: string; apiKey: string }) {
+const INTERVAL_SONDARE_MS = 3000;
+const INTERVAL_RETRY_MS = 5000;
+
+// Sarcina: overlay de streaming in doua formate (16:9 si 9:16), pe doua
+// pagini/linkuri separate, deschise simultan in doua Browser Source diferite
+// din OBS/vMix — cerinta explicita a echipei tehnice: "verticalul trebuie
+// facut separat, nu e orizontalul micsorat". Aceeasi componenta orchestreaza
+// sincronizarea (identica pentru ambele formate), dar randeaza un layout
+// distinct in functie de `format` — nu doar o scalare CSS a aceluiasi HTML.
+//
+// Sincronizare: ambele pagini sondeaza pe ritm propriu (nu mai depindem de
+// durata_secunde ca sa stim cand sa cerem urmatoarea) — serverul e sursa de
+// adevar pentru "ce ruleaza acum" (vezi /api/overlay/next +
+// avanseaza_overlay_stream), deci indiferent cand soseste cererea de la
+// fiecare pagina, ambele vad aceeasi dedicatie pana expira, apoi ambele trec
+// la urmatoarea in acelasi timp. Animatia de intrare se declanseaza doar cand
+// se schimba id-ul, nu la fiecare sondare.
+export function OverlayClient({ slug, apiKey, format }: { slug: string; apiKey: string; format: FormatOverlay }) {
   const [ded, setDed] = useState<DedicatieStream | null>(null);
   const [cheieAnimatie, setCheieAnimatie] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const anulatRef = useRef(false);
+  const ultimulIdRef = useRef<string | null>(null);
 
   // globals.css pune fundal opac pe <body> pentru tot restul site-ului —
   // wrapper-ul cu background:'transparent' de mai jos sta DEASUPRA acelui
@@ -38,7 +51,7 @@ export function OverlayClient({ slug, apiKey }: { slug: string; apiKey: string }
   useEffect(() => {
     anulatRef.current = false;
 
-    async function urmatorul() {
+    async function sondeaza() {
       if (anulatRef.current) return;
       try {
         const res = await fetch('/api/overlay/next', {
@@ -50,20 +63,24 @@ export function OverlayClient({ slug, apiKey }: { slug: string; apiKey: string }
         if (!res.ok) throw new Error('raspuns invalid');
         const data = await res.json();
         if (anulatRef.current) return;
-        setDed(data.dedicatie ?? null);
-        if (data.dedicatie) setCheieAnimatie((c) => c + 1);
-        programeaza(typeof data.durata_secunde === 'number' ? data.durata_secunde * 1000 : DURATA_FALLBACK_MS);
+        const nou: DedicatieStream | null = data.dedicatie ?? null;
+        setDed(nou);
+        if (nou && nou.id !== ultimulIdRef.current) {
+          setCheieAnimatie((c) => c + 1);
+        }
+        ultimulIdRef.current = nou?.id ?? null;
+        programeaza(INTERVAL_SONDARE_MS);
       } catch {
-        if (!anulatRef.current) programeaza(DURATA_RETRY_MS);
+        if (!anulatRef.current) programeaza(INTERVAL_RETRY_MS);
       }
     }
 
     function programeaza(intarziereMs: number) {
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(urmatorul, intarziereMs);
+      timerRef.current = setTimeout(sondeaza, intarziereMs);
     }
 
-    urmatorul();
+    sondeaza();
 
     return () => {
       anulatRef.current = true;
@@ -71,46 +88,97 @@ export function OverlayClient({ slug, apiKey }: { slug: string; apiKey: string }
     };
   }, [slug, apiKey]);
 
+  return format === '9-16' ? (
+    <OverlayVertical ded={ded} cheieAnimatie={cheieAnimatie} />
+  ) : (
+    <OverlayOrizontal ded={ded} cheieAnimatie={cheieAnimatie} />
+  );
+}
+
+// 16:9 (1920x1080) — bara jos, latime completa, stil "lower third" clasic
+// de emisie: mesajul citeste usor peste imaginea live din spate.
+function OverlayOrizontal({ ded, cheieAnimatie }: { ded: DedicatieStream | null; cheieAnimatie: number }) {
   return (
-    <div
-      style={{
-        background: 'transparent',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-        padding: 48,
-      }}
-    >
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <style>{`@keyframes bara-intrare { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }`}</style>
       {ded && (
         <div
           key={cheieAnimatie}
           style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            minHeight: '15.5vh',
             background: 'rgba(10,10,11,0.92)',
-            border: '2px solid var(--accent)',
-            borderRadius: 20,
-            padding: '24px 40px 28px',
-            maxWidth: 900,
-            textAlign: 'center',
-            animation: 'intrare 0.6s ease-out',
+            borderTop: '0.3vh solid var(--accent, #e21d1d)',
             display: 'flex',
             alignItems: 'center',
-            gap: 28,
+            gap: '2vw',
+            padding: '2vh 4vw',
+            animation: 'bara-intrare 0.5s cubic-bezier(0.2,0.8,0.2,1)',
           }}
         >
-          <style>{`@keyframes intrare { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }`}</style>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.jpeg" alt="" width={96} height={96} style={{ borderRadius: '50%', flexShrink: 0 }} />
-          <div>
-            <div className="brand" style={{ textAlign: 'left', marginBottom: 6 }}>Dedicație</div>
-            <div style={{ fontSize: 34, fontWeight: 600, lineHeight: 1.3, textAlign: 'left' }}>
+          <img src="/logo.jpeg" alt="" style={{ width: '6vh', height: '6vh', borderRadius: '50%', flexShrink: 0 }} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.6vh', marginBottom: '0.6vh' }}>
+              Dedicație
+            </div>
+            <div style={{ fontSize: '2.9vh', fontWeight: 700, color: '#fff', lineHeight: 1.25, maxWidth: '82vw' }}>
               {ded.mesaj}
             </div>
-            <div style={{ marginTop: 10, color: 'var(--muted)', fontSize: 20, textAlign: 'left' }}>
-              {ded.de_la && <>De la <strong style={{ color: 'var(--accent-hover)' }}>{ded.de_la}</strong></>}
-              {ded.pentru && <> pentru <strong style={{ color: 'var(--accent-hover)' }}>{ded.pentru}</strong></>}
-            </div>
+            {(ded.de_la || ded.pentru) && (
+              <div style={{ marginTop: '0.8vh', fontSize: '1.9vh', color: '#c8c8cc' }}>
+                {ded.de_la && <>De la <strong style={{ color: '#fff' }}>{ded.de_la}</strong></>}
+                {ded.pentru && <> pentru <strong style={{ color: '#fff' }}>{ded.pentru}</strong></>}
+              </div>
+            )}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 9:16 (1080x1920) — card in treimea inferioara, NU bara orizontala
+// micsorata: pe verticalul de telefon zona de sus e de obicei acoperita de
+// UI-ul platformei (nume cont, buton live) si cea de jos de comentarii/
+// reactii — cardul sta intr-o zona de siguranta intre cele doua.
+function OverlayVertical({ ded, cheieAnimatie }: { ded: DedicatieStream | null; cheieAnimatie: number }) {
+  return (
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <style>{`@keyframes card-intrare { from { transform: translateY(4vh); opacity: 0; } to { transform: none; opacity: 1; } }`}</style>
+      {ded && (
+        <div
+          key={cheieAnimatie}
+          style={{
+            position: 'absolute',
+            left: '6vw',
+            right: '6vw',
+            bottom: '20vh',
+            background: 'rgba(10,10,11,0.92)',
+            border: '0.25vh solid var(--accent, #e21d1d)',
+            borderRadius: '2.2vh',
+            padding: '3vh 5vw',
+            textAlign: 'center',
+            animation: 'card-intrare 0.5s cubic-bezier(0.2,0.8,0.2,1)',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.jpeg" alt="" style={{ width: '7vh', height: '7vh', borderRadius: '50%', margin: '0 auto 1.6vh' }} />
+          <div style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.9vh', marginBottom: '1.4vh' }}>
+            Dedicație
+          </div>
+          <div style={{ fontSize: '3.1vh', fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>
+            {ded.mesaj}
+          </div>
+          {(ded.de_la || ded.pentru) && (
+            <div style={{ marginTop: '1.6vh', fontSize: '2.1vh', color: '#c8c8cc' }}>
+              {ded.de_la && <>De la <strong style={{ color: '#fff' }}>{ded.de_la}</strong></>}
+              {ded.pentru && <> pentru <strong style={{ color: '#fff' }}>{ded.pentru}</strong></>}
+            </div>
+          )}
         </div>
       )}
     </div>

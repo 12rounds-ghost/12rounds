@@ -1,28 +1,15 @@
-import { supabaseServer } from '@/lib/supabase/server';
-import { OverlayClient } from '@/components/OverlayClient';
+import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-// Overlay legat de un eveniment specific — regia poate avea doua editii
-// configurate (ex. una live, una in pregatire) fara sa amestece cozile
-// (Sarcina C, IMPLEMENTARE-V2.md). Necesita ?key=... egal cu OVERLAY_SECRET;
-// fara token valid, pagina nu afiseaza nimic.
-export default async function OverlayEveniment({
+// Link vechi, dinainte de cele doua formate — redirectioneaza spre 16:9
+// ca sa nu ramana rupt un link deja distribuit echipei tehnice. Pentru
+// linkuri noi, foloseste direct /overlay/[slug]/16-9 sau /9-16.
+export default function OverlayEvenimentVechi({
   params,
   searchParams,
 }: {
   params: { slug: string };
   searchParams: { key?: string };
 }) {
-  const secret = process.env.OVERLAY_SECRET;
-  if (!secret || searchParams.key !== secret) {
-    return <div style={{ background: 'transparent', minHeight: '100vh' }} />;
-  }
-
-  const sb = supabaseServer();
-  const { data: event } = await sb.from('events').select('slug').eq('slug', params.slug).maybeSingle();
-
-  if (!event) return <div style={{ background: 'transparent', minHeight: '100vh' }} />;
-
-  return <OverlayClient slug={event.slug} apiKey={secret} />;
+  const query = searchParams.key ? `?key=${encodeURIComponent(searchParams.key)}` : '';
+  redirect(`/overlay/${params.slug}/16-9${query}`);
 }

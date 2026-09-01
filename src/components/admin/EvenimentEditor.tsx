@@ -82,7 +82,7 @@ export function EvenimentEditor({
   const [durataStream, setDurataStream] = useState(String(event.durata_stream_secunde ?? 12));
   const [salvare, setSalvare] = useState('');
   const [qr, setQr] = useState('');
-  const [copiatOverlay, setCopiatOverlay] = useState(false);
+  const [copiatOverlay, setCopiatOverlay] = useState<'16-9' | '9-16' | null>(null);
   const [galerie, setGalerie] = useState(galerieInitiala);
   const [galerieIncarcare, setGalerieIncarcare] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -93,12 +93,13 @@ export function EvenimentEditor({
     QRCode.toDataURL(url, { margin: 1, width: 320, color: { dark: '#0a0a0b', light: '#ffffff' } }).then(setQr);
   }, []);
 
-  const linkOverlay = `${siteUrl}/overlay/${slug}?key=${overlaySecret}`;
+  const linkOverlay16x9 = `${siteUrl}/overlay/${slug}/16-9?key=${overlaySecret}`;
+  const linkOverlay9x16 = `${siteUrl}/overlay/${slug}/9-16?key=${overlaySecret}`;
 
-  function copiazaOverlay() {
-    navigator.clipboard.writeText(linkOverlay);
-    setCopiatOverlay(true);
-    setTimeout(() => setCopiatOverlay(false), 2000);
+  function copiazaOverlay(format: '16-9' | '9-16', link: string) {
+    navigator.clipboard.writeText(link);
+    setCopiatOverlay(format);
+    setTimeout(() => setCopiatOverlay(null), 2000);
   }
 
   async function incarcaCoperta(fisier: File) {
@@ -420,14 +421,25 @@ export function EvenimentEditor({
         <h2 style={{ marginTop: 0 }}>Overlay stream (OBS / vMix)</h2>
         <p className="sub" style={{ margin: '0 0 8px', textAlign: 'left' }}>
           Browser Source, fundal transparent — rotește automat dedicațiile plătite tip „stream" pentru această ediție.
+          Cele două linkuri arată aceeași dedicație în același moment — deschide-le simultan, în două Browser Source
+          separate, dimensionate exact la 1920×1080 și 1080×1920.
         </p>
         {overlaySecret ? (
           <>
-            <div className="sub" style={{ textAlign: 'left', wordBreak: 'break-all', margin: '6px 0' }}>
-              {linkOverlay}
+            <div className="sub" style={{ textAlign: 'left', margin: '14px 0 4px', fontWeight: 600, color: 'var(--text)' }}>16:9 — 1920×1080</div>
+            <div className="sub" style={{ textAlign: 'left', wordBreak: 'break-all', margin: '0 0 6px' }}>
+              {linkOverlay16x9}
             </div>
-            <button type="button" className="btn secondary mic" onClick={copiazaOverlay}>
-              {copiatOverlay ? '✓ Copiat' : 'Copiază link'}
+            <button type="button" className="btn secondary mic" onClick={() => copiazaOverlay('16-9', linkOverlay16x9)}>
+              {copiatOverlay === '16-9' ? '✓ Copiat' : 'Copiază link 16:9'}
+            </button>
+
+            <div className="sub" style={{ textAlign: 'left', margin: '18px 0 4px', fontWeight: 600, color: 'var(--text)' }}>9:16 — 1080×1920</div>
+            <div className="sub" style={{ textAlign: 'left', wordBreak: 'break-all', margin: '0 0 6px' }}>
+              {linkOverlay9x16}
+            </div>
+            <button type="button" className="btn secondary mic" onClick={() => copiazaOverlay('9-16', linkOverlay9x16)}>
+              {copiatOverlay === '9-16' ? '✓ Copiat' : 'Copiază link 9:16'}
             </button>
           </>
         ) : (
