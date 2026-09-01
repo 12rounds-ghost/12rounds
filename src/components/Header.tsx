@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { SocialLinks } from '@/components/SocialLinks';
 
 // Nav public, sticky — Sarcina A. Nu apare in /admin (are propriul header,
 // vezi src/app/admin/layout.tsx) sau in /coming-soon.
@@ -17,6 +18,7 @@ export function Header() {
           <Link href="/#trecute">Arhivă</Link>
           <Link href="/#sponsori">Parteneri</Link>
         </nav>
+        <SocialLinks />
         <Link href="/live" className="site-header-cta">Trimite o dedicație</Link>
       </div>
     </header>

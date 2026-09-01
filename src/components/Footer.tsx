@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SocialLinks } from '@/components/SocialLinks';
 
 export function Footer() {
   return (
@@ -19,6 +20,10 @@ export function Footer() {
           <Link href="/confidentialitate">Confidențialitate</Link>
           <Link href="/rambursare">Politica de rambursare</Link>
           <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer">ANPC</a>
+        </div>
+        <div>
+          <h5>Social</h5>
+          <SocialLinks />
         </div>
       </div>
       <div className="site-footer-bot">
