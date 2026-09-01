@@ -1,5 +1,6 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { OverlayClient } from '@/components/OverlayClient';
+import { genereazaQrOverlay } from '@/lib/overlay-qr';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,5 +30,7 @@ export default async function OverlayAutoLive({
 
   if (!live) return <div style={{ background: 'transparent', minHeight: '100vh' }} />;
 
-  return <OverlayClient slug={live.slug} apiKey={secret} format="16-9" />;
+  const qrDataUrl = await genereazaQrOverlay(live.slug);
+
+  return <OverlayClient slug={live.slug} apiKey={secret} format="16-9" qrDataUrl={qrDataUrl} />;
 }

@@ -27,7 +27,22 @@ const INTERVAL_RETRY_MS = 5000;
 // fiecare pagina, ambele vad aceeasi dedicatie pana expira, apoi ambele trec
 // la urmatoarea in acelasi timp. Animatia de intrare se declanseaza doar cand
 // se schimba id-ul, nu la fiecare sondare.
-export function OverlayClient({ slug, apiKey, format }: { slug: string; apiKey: string; format: FormatOverlay }) {
+//
+// QR permanent (Sarcina: "sa nu avem timpi morti"): codul QR sta intr-un colt
+// tot timpul, indiferent daca ruleaza sau nu o dedicatie — cand coada e goala,
+// ecranul nu ramane niciodata complet gol, iar publicul are mereu o cale de a
+// trimite o dedicatie, nu doar in ferestrele cu mesaje afisate.
+export function OverlayClient({
+  slug,
+  apiKey,
+  format,
+  qrDataUrl,
+}: {
+  slug: string;
+  apiKey: string;
+  format: FormatOverlay;
+  qrDataUrl: string;
+}) {
   const [ded, setDed] = useState<DedicatieStream | null>(null);
   const [cheieAnimatie, setCheieAnimatie] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -89,18 +104,73 @@ export function OverlayClient({ slug, apiKey, format }: { slug: string; apiKey: 
   }, [slug, apiKey]);
 
   return format === '9-16' ? (
-    <OverlayVertical ded={ded} cheieAnimatie={cheieAnimatie} />
+    <OverlayVertical ded={ded} cheieAnimatie={cheieAnimatie} qrDataUrl={qrDataUrl} />
   ) : (
-    <OverlayOrizontal ded={ded} cheieAnimatie={cheieAnimatie} />
+    <OverlayOrizontal ded={ded} cheieAnimatie={cheieAnimatie} qrDataUrl={qrDataUrl} />
+  );
+}
+
+// Colt fix, mereu vizibil — nu concureaza pozitional cu bara/cardul de
+// dedicatie (care stau jos), asa ca nu se suprapun niciodata intre ele.
+function QrBadge({
+  qrDataUrl,
+  marimeQr,
+  top,
+  right,
+  padding,
+  fontSize,
+}: {
+  qrDataUrl: string;
+  marimeQr: string;
+  top: string;
+  right: string;
+  padding: string;
+  fontSize: string;
+}) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top,
+        right,
+        background: 'rgba(10,10,11,0.85)',
+        border: '0.15vh solid var(--accent, #e21d1d)',
+        borderRadius: '1.4vh',
+        padding,
+        textAlign: 'center',
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={qrDataUrl}
+        alt=""
+        style={{ width: marimeQr, height: marimeQr, display: 'block', borderRadius: '0.6vh' }}
+      />
+      <div style={{ marginTop: '0.7vh', fontSize, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>
+        Trimite o dedicație
+      </div>
+    </div>
   );
 }
 
 // 16:9 (1920x1080) — bara jos, latime completa, stil "lower third" clasic
-// de emisie: mesajul citeste usor peste imaginea live din spate.
-function OverlayOrizontal({ ded, cheieAnimatie }: { ded: DedicatieStream | null; cheieAnimatie: number }) {
+// de emisie: mesajul citeste usor peste imaginea live din spate. QR-ul sta
+// sus-dreapta, in afara zonei barei, ca sa nu se suprapuna niciodata cu ea.
+function OverlayOrizontal({
+  ded,
+  cheieAnimatie,
+  qrDataUrl,
+}: {
+  ded: DedicatieStream | null;
+  cheieAnimatie: number;
+  qrDataUrl: string;
+}) {
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
       <style>{`@keyframes bara-intrare { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }`}</style>
+
+      <QrBadge qrDataUrl={qrDataUrl} marimeQr="11vh" top="3vh" right="3vw" padding="1.2vh" fontSize="1.4vh" />
+
       {ded && (
         <div
           key={cheieAnimatie}
@@ -144,11 +214,23 @@ function OverlayOrizontal({ ded, cheieAnimatie }: { ded: DedicatieStream | null;
 // 9:16 (1080x1920) — card in treimea inferioara, NU bara orizontala
 // micsorata: pe verticalul de telefon zona de sus e de obicei acoperita de
 // UI-ul platformei (nume cont, buton live) si cea de jos de comentarii/
-// reactii — cardul sta intr-o zona de siguranta intre cele doua.
-function OverlayVertical({ ded, cheieAnimatie }: { ded: DedicatieStream | null; cheieAnimatie: number }) {
+// reactii — cardul sta intr-o zona de siguranta intre cele doua. QR-ul sta
+// sus-dreapta, sub zona tipica de titlu a platformei, deasupra cardului.
+function OverlayVertical({
+  ded,
+  cheieAnimatie,
+  qrDataUrl,
+}: {
+  ded: DedicatieStream | null;
+  cheieAnimatie: number;
+  qrDataUrl: string;
+}) {
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
       <style>{`@keyframes card-intrare { from { transform: translateY(4vh); opacity: 0; } to { transform: none; opacity: 1; } }`}</style>
+
+      <QrBadge qrDataUrl={qrDataUrl} marimeQr="12vh" top="9vh" right="5vw" padding="1.4vh" fontSize="1.5vh" />
+
       {ded && (
         <div
           key={cheieAnimatie}
