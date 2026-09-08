@@ -71,8 +71,8 @@ export default async function Home() {
     <>
       <a className="skip-link" href="#concept">Sari la conținut</a>
       <Header />
-      <main className="container wide">
-        {/* ============ HERO ============ */}
+      <main>
+        {/* ============ HERO — full-bleed, gutter proprie ============ */}
         {hero && (
           <section className="hero" id="next-show">
             <div className="hero-meta">
@@ -154,179 +154,201 @@ export default async function Home() {
         )}
 
         {!hero && (
-          <div className="card" style={{ textAlign: 'center', marginTop: 24 }}>Nicio ediție anunțată încă.</div>
+          <div className="section-inner" style={{ marginTop: 24 }}>
+            <div className="card" style={{ textAlign: 'center' }}>Nicio ediție anunțată încă.</div>
+          </div>
         )}
 
         {/* ============ CONCEPT ============ */}
-        <section id="concept" style={{ marginTop: 64 }}>
-          <div className="section-label">
-            <span>01 / Conceptul</span>
-            <span>About and beyond the music</span>
-          </div>
-          <div className="shead">
-            <h2>Nu este un concert dublu.<br />Este un show cu mecanism.</h2>
-          </div>
-          <p className="sub" style={{ textAlign: 'left', margin: '0 0 4px', maxWidth: '60ch' }}>
-            Doi artiști cu identități muzicale diferite. Aceleași șase provocări. Răspunsuri complet diferite.
-          </p>
-          <p className="sub" style={{ textAlign: 'left', margin: '0 0 18px' }}>
-            Diferența creează tensiunea. Muzica produce întâlnirea.
-          </p>
-          <div className="formula">
-            <div><b>2</b><span>Artiști</span></div>
-            <div><b>×6</b><span>Provocări</span></div>
-            <div><b>12</b><span>Rounds</span></div>
-            <div><b>+1</b><span>Grand Finale</span></div>
+        <section id="concept" className="section-band panel-1">
+          <div className="section-inner">
+            <div className="section-label">
+              <span>01 / Conceptul</span>
+              <span>About and beyond the music</span>
+            </div>
+            <div className="shead">
+              <h2>Nu este un concert dublu.<br />Este un show cu mecanism.</h2>
+            </div>
+            <p className="sub" style={{ textAlign: 'left', margin: '0 0 4px', maxWidth: '60ch' }}>
+              Doi artiști cu identități muzicale diferite. Aceleași șase provocări. Răspunsuri complet diferite.
+            </p>
+            <p className="sub" style={{ textAlign: 'left', margin: '0 0 18px' }}>
+              Diferența creează tensiunea. Muzica produce întâlnirea.
+            </p>
+            <div className="formula">
+              <div><b>2</b><span>Artiști</span></div>
+              <div><b>×6</b><span>Provocări</span></div>
+              <div><b>12</b><span>Rounds</span></div>
+              <div><b>+1</b><span>Grand Finale</span></div>
+            </div>
           </div>
         </section>
 
         {/* ============ CELE ȘASE PROVOCĂRI ============ */}
-        <section id="rounds" style={{ marginTop: 56 }}>
-          <div className="section-label">
-            <span>02 / The six challenges</span>
-            <span>Aceleași reguli. Două interpretări.</span>
-          </div>
-          <div className="shead">
-            <h2>Six challenges.<br /><span style={{ color: 'var(--muted)' }}>Twelve stories.</span></h2>
-          </div>
-          <p className="sub" style={{ textAlign: 'left', margin: '0 0 20px' }}>
-            Fiecare provocare produce două interpretări. De la identitate la explozie.
-          </p>
-          <div className="challenge-list">
-            {PROVOCARI.map((p) => (
-              <div key={p.nr} className="challenge-row">
-                <span className="round-index">{p.nr}</span>
-                <h3>{p.nume}</h3>
-                <p>{p.text}</p>
-                <span className="challenge-feeling">
-                  {p.simte}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M13 5H19V11" /><path d="M19 5L5 19" />
-                  </svg>
-                </span>
-              </div>
-            ))}
+        <section id="rounds" className="section-band">
+          <div className="section-inner">
+            <div className="section-label">
+              <span>02 / The six challenges</span>
+              <span>Aceleași reguli. Două interpretări.</span>
+            </div>
+            <div className="shead">
+              <h2>Six challenges.<br /><span style={{ color: 'var(--muted)' }}>Twelve stories.</span></h2>
+            </div>
+            <p className="sub" style={{ textAlign: 'left', margin: '0 0 20px' }}>
+              Fiecare provocare produce două interpretări. De la identitate la explozie.
+            </p>
+            <div className="challenge-list">
+              {PROVOCARI.map((p) => (
+                <div key={p.nr} className="challenge-row">
+                  <span className="round-index">{p.nr}</span>
+                  <h3>{p.nume}</h3>
+                  <p>{p.text}</p>
+                  <span className="challenge-feeling">
+                    {p.simte}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M13 5H19V11" /><path d="M19 5L5 19" />
+                    </svg>
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* ============ GRAND FINALE ============ */}
-        <section style={{ marginTop: 56, textAlign: 'center' }}>
-          <p className="section-label" style={{ justifyContent: 'center' }}>
-            <span>03 / One grand finale</span>
-          </p>
-          <h2>12 Rounds îi separă.<br />Ultima piesă îi aduce împreună.</h2>
-          <Wave />
-          <p className="sub" style={{ marginTop: 20, marginBottom: 4 }}>
-            Duet. Mash-up. Sau o piesă creată special pentru această ediție.
-          </p>
-          <p className="sub" style={{ fontSize: 12.5 }}>
-            Grand Finale urmează celor 12 rounds. Un moment separat. O singură întâlnire.
-          </p>
+        <section className="section-band">
+          <div className="section-inner" style={{ textAlign: 'center' }}>
+            <p className="section-label" style={{ justifyContent: 'center' }}>
+              <span>03 / One grand finale</span>
+            </p>
+            <h2>12 Rounds îi separă.<br />Ultima piesă îi aduce împreună.</h2>
+            <Wave />
+            <p className="sub" style={{ marginTop: 20, marginBottom: 4 }}>
+              Duet. Mash-up. Sau o piesă creată special pentru această ediție.
+            </p>
+            <p className="sub" style={{ fontSize: 12.5 }}>
+              Grand Finale urmează celor 12 rounds. Un moment separat. O singură întâlnire.
+            </p>
+          </div>
         </section>
 
         {/* ============ BEYOND THE STAGE ============ */}
-        <section id="live" style={{ marginTop: 56 }}>
-          <div className="section-label">
-            <span>04 / Beyond the stage</span>
-            <span>O noapte. Mai mult decât un moment.</span>
-          </div>
-          <div className="shead">
-            <h2>Show-ul nu se termină<br /><span style={{ color: 'var(--muted)' }}>la ultimul acord.</span></h2>
-          </div>
-          <div className="phases">
-            {FAZE.map((f) => (
-              <article key={f.nr}>
-                <span>{f.eticheta}</span>
-                <h3>{f.titlu}<span>{f.nr}</span></h3>
-                <p>{f.text}</p>
-              </article>
-            ))}
+        <section id="live" className="section-band">
+          <div className="section-inner">
+            <div className="section-label">
+              <span>04 / Beyond the stage</span>
+              <span>O noapte. Mai mult decât un moment.</span>
+            </div>
+            <div className="shead">
+              <h2>Show-ul nu se termină<br /><span style={{ color: 'var(--muted)' }}>la ultimul acord.</span></h2>
+            </div>
+            <div className="phases">
+              {FAZE.map((f) => (
+                <article key={f.nr}>
+                  <span>{f.eticheta}</span>
+                  <h3>{f.titlu}<span>{f.nr}</span></h3>
+                  <p>{f.text}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* ============ CREATOR LEAGUE ============ */}
-        <section id="creators" style={{ marginTop: 56 }}>
-          <div className="section-label"><span>05 / Creator league</span></div>
-          <div className="creator-section">
-            <h2>Don&rsquo;t just post.<br /><span style={{ color: 'var(--muted)' }}>Be part of<br />the story.</span></h2>
-            <div>
-              <p>
-                Creatorii sunt parteneri de distribuție. Recompensa lor reflectă valoarea verificabilă
-                creată: audiență, trafic, fani, vânzări și conținut care merge mai departe.
-              </p>
-              <p style={{ color: 'var(--muted)' }}>
-                Contribuție măsurată. Formulă transparentă. Rezultate proprii, accesibile în portal.
-              </p>
-              <Link className="btn secondary" href="/creator-league">Devino creator</Link>
+        <section id="creators" className="section-band panel-2">
+          <div className="section-inner">
+            <div className="section-label"><span>05 / Creator league</span></div>
+            <div className="creator-section">
+              <h2>Don&rsquo;t just post.<br /><span style={{ color: 'var(--muted)' }}>Be part of<br />the story.</span></h2>
+              <div>
+                <p>
+                  Creatorii sunt parteneri de distribuție. Recompensa lor reflectă valoarea verificabilă
+                  creată: audiență, trafic, fani, vânzări și conținut care merge mai departe.
+                </p>
+                <p style={{ color: 'var(--muted)' }}>
+                  Contribuție măsurată. Formulă transparentă. Rezultate proprii, accesibile în portal.
+                </p>
+                <Link className="btn secondary" href="/creator-league">Devino creator</Link>
+              </div>
             </div>
           </div>
         </section>
 
         {/* ============ CUM TRIMIȚI O DEDICAȚIE ============ */}
-        <section style={{ marginTop: 56 }}>
-          <div className="shead">
-            <div>
-              <div className="kicker">Dedicații · doar în sală</div>
-              <h2>Mesajul tău, pe ecranele din sală</h2>
+        <section className="section-band">
+          <div className="section-inner">
+            <div className="shead">
+              <div>
+                <div className="kicker">Dedicații · doar în sală</div>
+                <h2>Mesajul tău, pe ecranele din sală</h2>
+              </div>
             </div>
-          </div>
-          <div className="steps">
-            <div><h4>Scanezi codul QR</h4><p>De pe ecranele din sală, de pe masă sau de pe bilet.</p></div>
-            <div><h4>Scrii mesajul</h4><p>De la cine, pentru cine, artistul preferat. Opțional, o poză.</p></div>
-            <div><h4>Plătești</h4><p>Apple Pay, Google Pay sau card. Un singur tap, fără cont.</p></div>
-            <div><h4>Apare pe ecran</h4><p>După aprobarea moderatorului, pe ecranele din sală.</p></div>
+            <div className="steps">
+              <div><h4>Scanezi codul QR</h4><p>De pe ecranele din sală, de pe masă sau de pe bilet.</p></div>
+              <div><h4>Scrii mesajul</h4><p>De la cine, pentru cine, artistul preferat. Opțional, o poză.</p></div>
+              <div><h4>Plătești</h4><p>Apple Pay, Google Pay sau card. Un singur tap, fără cont.</p></div>
+              <div><h4>Apare pe ecran</h4><p>După aprobarea moderatorului, pe ecranele din sală.</p></div>
+            </div>
           </div>
         </section>
 
         {/* ============ EDIȚII VIITOARE ============ */}
         {railViitoare.length > 0 && (
-          <section id="viitoare" style={{ marginTop: 56 }}>
-            <div className="shead">
-              <div><div className="kicker">Calendar</div><h2>Ediții care urmează</h2></div>
+          <section id="viitoare" className="section-band panel-1">
+            <div className="section-inner">
+              <div className="shead">
+                <div><div className="kicker">Calendar</div><h2>Ediții care urmează</h2></div>
+              </div>
+              <EditiiUrmeaza evenimente={railViitoare} />
             </div>
-            <EditiiUrmeaza evenimente={railViitoare} />
           </section>
         )}
 
         {/* ============ ARHIVĂ ============ */}
         {incheiate.length > 0 && (
-          <section id="trecute" style={{ marginTop: 56 }}>
-            <div className="shead">
-              <div><div className="kicker">Arhivă</div><h2>Ediții încheiate</h2></div>
+          <section id="trecute" className="section-band">
+            <div className="section-inner">
+              <div className="shead">
+                <div><div className="kicker">Arhivă</div><h2>Ediții încheiate</h2></div>
+              </div>
+              <EditiiIncheiate evenimente={incheiate} difuzatePerEveniment={difuzatePerEveniment} />
             </div>
-            <EditiiIncheiate evenimente={incheiate} difuzatePerEveniment={difuzatePerEveniment} />
           </section>
         )}
 
         {/* ============ PARTENERI ============ */}
         {sponsori.length > 0 && (
-          <section id="sponsori" style={{ marginTop: 56 }}>
-            <div className="shead">
-              <div><div className="kicker">Parteneri</div><h2>Cei care fac show-ul posibil</h2></div>
+          <section id="sponsori" className="section-band panel-2">
+            <div className="section-inner">
+              <div className="shead">
+                <div><div className="kicker">Parteneri</div><h2>Cei care fac show-ul posibil</h2></div>
+              </div>
+              <SponsoriSection sponsori={sponsori} />
             </div>
-            <SponsoriSection sponsori={sponsori} />
           </section>
         )}
 
         {/* ============ BANDA FINALĂ DE DEDICAȚII ============ */}
-        <section style={{ marginTop: 56, marginBottom: 24 }}>
-          <div className="dedication-teaser">
-            <div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
-                <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
-                <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
-                <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
-                <circle cx="12" cy="12" r="2" />
-              </svg>
+        <section className="section-band tight">
+          <div className="section-inner">
+            <div className="dedication-teaser">
               <div>
-                <p>Oamenii fac povestea.</p>
-                <h3>Mesajul tău. În 12 Rounds.</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+                  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+                  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+                  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+                  <circle cx="12" cy="12" r="2" />
+                </svg>
+                <div>
+                  <p>Oamenii fac povestea.</p>
+                  <h3>Mesajul tău. În 12 Rounds.</h3>
+                </div>
               </div>
+              <Link className="btn" style={{ width: 'auto', margin: 0 }} href={hero ? `/eveniment/${hero.slug}` : '/live'}>
+                Trimite o dedicație
+              </Link>
             </div>
-            <Link className="btn" style={{ width: 'auto', margin: 0 }} href={hero ? `/eveniment/${hero.slug}` : '/live'}>
-              Trimite o dedicație
-            </Link>
           </div>
         </section>
 
