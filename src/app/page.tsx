@@ -125,13 +125,15 @@ export default async function Home() {
                   <div className="poster-caption">
                     {hero.artist_a && (
                       <span>
-                        <span className="side-dot white" /> <b>{hero.artist_a}</b>
+                        <span className="side-dot white" /> White side
+                        <b>{hero.artist_a}</b>
                       </span>
                     )}
                     {hero.artist_a && hero.artist_b && <i>vs</i>}
                     {hero.artist_b && (
                       <span>
-                        <span className="side-dot black" /> <b>{hero.artist_b}</b>
+                        <span className="side-dot black" /> Black side
+                        <b>{hero.artist_b}</b>
                       </span>
                     )}
                   </div>
@@ -175,11 +177,22 @@ export default async function Home() {
             <p className="sub" style={{ textAlign: 'left', margin: '0 0 18px' }}>
               Diferența creează tensiunea. Muzica produce întâlnirea.
             </p>
-            <div className="formula">
-              <div><b>2</b><span>Artiști</span></div>
-              <div><b>×6</b><span>Provocări</span></div>
-              <div><b>12</b><span>Rounds</span></div>
-              <div><b>+1</b><span>Grand Finale</span></div>
+            <div className="formula-big">
+              <div className="formula-big-piece">
+                <div><strong>2</strong><span>Artiști</span></div>
+                <i>×</i>
+              </div>
+              <div className="formula-big-piece">
+                <div><strong>6</strong><span>Provocări</span></div>
+                <i>=</i>
+              </div>
+              <div className="formula-big-piece">
+                <div><strong>12</strong><span>Rounds</span></div>
+                <i>+</i>
+              </div>
+              <div className="formula-big-piece">
+                <div><strong>1</strong><span>Grand Finale</span></div>
+              </div>
             </div>
           </div>
         </section>

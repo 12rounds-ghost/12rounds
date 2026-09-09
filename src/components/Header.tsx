@@ -13,8 +13,11 @@ export function Header() {
     <header className="site-header">
       <div className="site-header-inner">
         <Link href="/" className="site-header-logo">
-          <Image src="/logo.jpeg" alt="" width={40} height={40} />
-          <b>12 Rounds</b>
+          <Image src="/logo.jpeg" alt="" width={55} height={55} />
+          <span>
+            <b>12 Rounds</b>
+            <small>The Battle of the Bands</small>
+          </span>
         </Link>
         <nav className="site-header-nav">
           <Link href="/#concept">Concept</Link>

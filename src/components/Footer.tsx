@@ -8,6 +8,7 @@ export function Footer() {
         <div className="site-footer-grid">
           <div className="site-footer-despre">
             <b>12 Rounds</b>
+            <p>The Battle of the Bands</p>
           </div>
           <div>
             <h5>Evenimente</h5>
