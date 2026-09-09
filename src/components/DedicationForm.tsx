@@ -122,20 +122,20 @@ export function DedicationForm({
 
   return (
     <div>
-      {tarife.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          className={`tier${tip === t.tip ? ' selected' : ''}`}
-          onClick={() => selecteazaTip(t.tip)}
-        >
-          <span>
-            {NUME_TIP[t.tip]}
+      <div className="tarife-grid">
+        {tarife.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className={`tier${tip === t.tip ? ' selected' : ''}`}
+            onClick={() => selecteazaTip(t.tip)}
+          >
+            <span className="tier-nume">{NUME_TIP[t.tip]}</span>
+            <span className="pret">{lei(t.pret_bani)}</span>
             <span className="tier-descriere">{t.descriere || DESCRIERE_IMPLICITA[t.tip]}</span>
-          </span>
-          <span className="pret">{lei(t.pret_bani)}</span>
-        </button>
-      ))}
+          </button>
+        ))}
+      </div>
 
       {esteDedicatie && (
         <div className="card">
@@ -145,15 +145,17 @@ export function DedicationForm({
           <input id="pentru" value={pentru} onChange={(e) => setPentru(e.target.value)} placeholder="Maria" maxLength={80} />
           <label htmlFor="artist">Artist preferat (opțional)</label>
           <input id="artist" value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="Luis Gabriel" maxLength={80} />
-          <label htmlFor="mesaj">Mesajul tău</label>
-          <textarea
-            id="mesaj"
-            value={mesaj}
-            onChange={(e) => setMesaj(e.target.value)}
-            placeholder="La mulți ani, Maria! Să avem o seară extraordinară împreună!"
-            maxLength={300}
-          />
-          <div className="contor-caractere">{mesaj.length} / 300</div>
+          <label htmlFor="mesaj" className="camp-mesaj-label">Mesajul tău</label>
+          <div className="camp-mesaj">
+            <textarea
+              id="mesaj"
+              value={mesaj}
+              onChange={(e) => setMesaj(e.target.value)}
+              placeholder="La mulți ani, Maria! Să avem o seară extraordinară împreună!"
+              maxLength={300}
+            />
+            <div className="contor-caractere">{mesaj.length} / 300</div>
+          </div>
 
           {tip === 'ecran' && (
             <>

@@ -17,8 +17,6 @@ const NUME_PLATFORMA: Record<string, string> = {
   youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook', instagram: 'Instagram', telegram: 'Telegram',
 };
 
-const PROVOCARI = ['Signature', 'Exchange', 'Emotion', 'Roots', 'Freestyle', 'Power + Surprise'];
-
 export default async function EvenimentPage({
   params,
   searchParams,
@@ -129,48 +127,40 @@ export default async function EvenimentPage({
         </div>
       </div>
 
-      <main className="container wide">
+      <main>
+        <div className="section-inner">
         {event.status !== 'ended' ? (
-          <div className="eveniment-doua-coloane" style={{ marginTop: 32 }}>
-            <div className="prose">
-              {event.descriere &&
-                event.descriere.split('\n').filter(Boolean).map((par, i) => <p key={i}>{par}</p>)}
-              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 20, textTransform: 'uppercase', marginTop: event.descriere ? 26 : 0 }}>
-                Cele șase provocări
-              </h3>
-              <p className="eveniment-provocari-mini">
-                {PROVOCARI.join(' · ')}. Aceleași reguli pentru amândoi artiștii, răspunsuri complet diferite.{' '}
-                <Link href="/format">Vezi formatul complet →</Link>
-              </p>
-            </div>
-
-            <aside className="eveniment-panel-sticky">
-              {event.status === 'live' && (
-                <div className="card">
-                  <h3 style={{ marginTop: 0, textAlign: 'center' }}>Trimite o dedicație</h3>
-                  <p className="sub">Doar pentru publicul din sală. Mesajul apare pe ecranele din sală, după aprobarea moderatorului.</p>
-                  {tarife.length > 0 ? (
-                    <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
-                  ) : (
-                    <div className="card">Momentan nu sunt tarife active pentru această ediție.</div>
-                  )}
-                </div>
-              )}
-              {event.status === 'upcoming' && (
-                <div className="card">
-                  <h3 style={{ marginTop: 0, textAlign: 'center' }}>Rezervă o dedicație</h3>
-                  <p className="sub">
-                    Plătești acum, mesajul intră în coadă imediat ce ediția devine live. Dacă ediția se anulează,
-                    primești rambursare integrală.
-                  </p>
-                  {tarife.length > 0 ? (
-                    <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
-                  ) : (
-                    <div className="card">Rezervările pentru această ediție nu sunt încă deschise.</div>
-                  )}
-                </div>
-              )}
-            </aside>
+          <div className="eveniment-dedicatii-centrat" style={{ marginTop: 32 }}>
+            {event.descriere && (
+              <div className="prose" style={{ textAlign: 'center', marginBottom: 28 }}>
+                {event.descriere.split('\n').filter(Boolean).map((par, i) => <p key={i}>{par}</p>)}
+              </div>
+            )}
+            {event.status === 'live' && (
+              <div className="card">
+                <h3 style={{ marginTop: 0, textAlign: 'center' }}>Trimite o dedicație</h3>
+                <p className="sub">Mesajul apare acolo unde ai ales mai jos — pe ecran, pe stream sau citit de prezentator — după aprobarea moderatorului.</p>
+                {tarife.length > 0 ? (
+                  <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
+                ) : (
+                  <div className="card">Momentan nu sunt tarife active pentru această ediție.</div>
+                )}
+              </div>
+            )}
+            {event.status === 'upcoming' && (
+              <div className="card">
+                <h3 style={{ marginTop: 0, textAlign: 'center' }}>Rezervă o dedicație</h3>
+                <p className="sub">
+                  Plătești acum, mesajul intră în coadă imediat ce ediția devine live. Dacă ediția se anulează,
+                  primești rambursare integrală.
+                </p>
+                {tarife.length > 0 ? (
+                  <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
+                ) : (
+                  <div className="card">Rezervările pentru această ediție nu sunt încă deschise.</div>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -226,6 +216,7 @@ export default async function EvenimentPage({
             )}
           </>
         )}
+        </div>
 
         <Footer />
       </main>
