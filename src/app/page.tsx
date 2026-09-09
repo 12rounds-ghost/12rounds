@@ -228,21 +228,13 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ============ GRAND FINALE ============ */}
-        <section className="section-band">
-          <div className="section-inner" style={{ textAlign: 'center' }}>
-            <p className="section-label" style={{ justifyContent: 'center' }}>
-              <span>03 / One grand finale</span>
-            </p>
-            <h2>12 Rounds îi separă.<br />Ultima piesă îi aduce împreună.</h2>
-            <Wave />
-            <p className="sub" style={{ marginTop: 20, marginBottom: 4 }}>
-              Duet. Mash-up. Sau o piesă creată special pentru această ediție.
-            </p>
-            <p className="sub" style={{ fontSize: 12.5 }}>
-              Grand Finale urmează celor 12 rounds. Un moment separat. O singură întâlnire.
-            </p>
-          </div>
+        {/* ============ GRAND FINALE — sectiune dedicata, ca in referinta ============ */}
+        <section className="finale">
+          <p className="eyebrow">03 / One grand finale</p>
+          <h2>12 Rounds îi separă.<br /><span>Ultima piesă îi aduce împreună.</span></h2>
+          <Wave />
+          <p>Duet. Mash-up. Sau o piesă creată special pentru această ediție.</p>
+          <small>Grand Finale urmează celor 12 rounds. Un moment separat. O singură întâlnire.</small>
         </section>
 
         {/* ============ BEYOND THE STAGE ============ */}
