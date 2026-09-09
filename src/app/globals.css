@@ -71,25 +71,31 @@ h3 { font-family: var(--font-display); font-weight: 800; text-transform: upperca
   margin-bottom: 12px;
 }
 
-/* selector pachet */
+/* selector pachet — carduri pe grid 2 coloane, ca .channel-options din
+   referinta (nume mare Barlow Condensed, pret sub el, descriere jos) */
+.tarife-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 10px; }
+@media (max-width: 480px) { .tarife-grid { grid-template-columns: 1fr; } }
 .tier {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
   width: 100%; text-align: left;
-  background: var(--panel); color: var(--text);
-  border: 1px solid var(--border); border-radius: 3px; /* forma exacta din referinta */
-  padding: 18px 20px; margin-bottom: 10px; cursor: pointer; font-size: 15px;
-  font-family: inherit;
+  background: #121111; color: var(--text);
+  border: 1px solid #35302f; border-radius: 3px;
+  padding: 22px 17px; margin-bottom: 0; cursor: pointer; font-size: 15px;
+  font-family: inherit; transition: border-color 0.15s, background 0.15s;
 }
 .tier:active { transform: scale(0.99); }
-.tier.selected { border-color: var(--accent); background: var(--panel-2); box-shadow: 0 0 0 1px var(--accent); }
+.tier.selected { border-color: #b9281f; background: #23110d; }
+.tier-nume {
+  font-family: var(--font-display); font-size: 20px; font-weight: 700; line-height: 1.1;
+}
 .tier .pret {
   font-family: var(--font-display);
-  font-size: 17px; letter-spacing: 0.03em;
-  color: var(--accent); white-space: nowrap; margin-left: 12px;
+  font-size: 15px; letter-spacing: 0.03em;
+  color: var(--accent); white-space: nowrap; margin-left: auto;
 }
 .tier-descriere {
-  display: block; font-size: 12.5px; color: var(--muted); font-weight: 400;
-  margin-top: 3px;
+  display: block; flex-basis: 100%; font-size: 11px; color: #747474; font-weight: 400;
+  letter-spacing: 0.03em; margin-top: 2px;
 }
 
 label {
@@ -97,11 +103,19 @@ label {
   letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin: 22px 0 10px;
 }
 input, textarea {
-  width: 100%; background: var(--panel-2); color: var(--text);
-  border: 1px solid var(--input-border); border-radius: 3px; /* forma exacta din referinta */
+  width: 100%; background: #111; color: var(--text);
+  border: 1px solid #38302f; border-radius: 3px; /* forma exacta din referinta */
   padding: 13px 14px; font-size: 15px; font-family: inherit;
 }
 input::placeholder, textarea::placeholder { color: #626262; }
+
+/* mesajul — contorul suprapus in coltul textarea-ului, ca in referinta */
+.camp-mesaj { position: relative; }
+.camp-mesaj textarea { padding-bottom: 30px; }
+.camp-mesaj .contor-caractere {
+  position: absolute; bottom: 12px; right: 14px; margin-top: 0;
+  font-size: 11px; color: #787878;
+}
 input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
 textarea { min-height: 90px; resize: vertical; }
 .contor-caractere { text-align: right; font-size: 12px; color: var(--muted); margin-top: 4px; }
