@@ -1,6 +1,17 @@
 import { supabaseAdmin } from './supabase/admin';
 import { NUME_TIP, type TipDedicatie } from './types';
 
+// Unde apare efectiv mesajul, per tip — textul vechi era fix ("apare pe
+// ecranele din sala... nu in transmisiunile online"), gresit pentru
+// stream/prezentator si, de cand ecran apare si el pe stream (Sarcina:
+// unificare canale), gresit si pentru ecran.
+const UNDE_APARE: Record<TipDedicatie, string> = {
+  sustinere: 'Nu are mesaj afișat — mulțumim pentru susținere!',
+  ecran: 'Mesajul apare pe ecranele din sală și în transmisiunea live, după aprobarea moderatorului.',
+  stream: 'Mesajul apare doar în transmisiunea live, după aprobarea moderatorului.',
+  prezentator: 'Mesajul este citit live de prezentator, în timpul show-ului, după aprobarea moderatorului.',
+};
+
 // Trimite emailul de confirmare cu linkul de status, dupa ce plata a fost
 // marcata 'paid'. Foloseste Resend prin fetch direct (fara SDK, o dependenta
 // in plus nu e necesara pentru un singur apel POST).
@@ -50,7 +61,7 @@ export async function trimiteEmailConfirmare(params: {
             ${params.deLa ? `<p>De la: ${params.deLa}</p>` : ''}
             ${params.mesaj ? `<p>Mesajul tău: „${params.mesaj}”</p>` : ''}
             <p>Urmărește statusul dedicației tale aici: <a href="${link}">${link}</a></p>
-            <p style="color:#6b6b73;font-size:13px">Mesajul apare pe ecranele din sală, după aprobarea moderatorului — nu în transmisiunile online.</p>
+            <p style="color:#6b6b73;font-size:13px">${UNDE_APARE[params.tip]}</p>
             <p>12 ROUNDS — The Battle of the Bands</p>
           </div>
         `,
@@ -60,7 +71,7 @@ export async function trimiteEmailConfirmare(params: {
           params.deLa ? `De la: ${params.deLa}` : null,
           params.mesaj ? `Mesajul tău: „${params.mesaj}”` : null,
           `Urmărește statusul dedicației tale aici: ${link}`,
-          'Mesajul apare pe ecranele din sală, după aprobarea moderatorului — nu în transmisiunile online.',
+          UNDE_APARE[params.tip],
           '12 ROUNDS — The Battle of the Bands',
         ]
           .filter(Boolean)

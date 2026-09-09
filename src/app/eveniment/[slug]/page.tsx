@@ -139,7 +139,7 @@ export default async function EvenimentPage({
             {event.status === 'live' && (
               <div className="card">
                 <h3 style={{ marginTop: 0, textAlign: 'center' }}>Trimite o dedicație</h3>
-                <p className="sub">Doar pentru publicul din sală. Mesajul apare pe ecranele din sală, după aprobarea moderatorului.</p>
+                <p className="sub">Mesajul apare acolo unde ai ales mai jos — pe ecran, pe stream sau citit de prezentator — după aprobarea moderatorului.</p>
                 {tarife.length > 0 ? (
                   <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
                 ) : (
