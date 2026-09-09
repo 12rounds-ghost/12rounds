@@ -73,7 +73,7 @@ h3 { font-family: var(--font-display); font-weight: 800; text-transform: upperca
 
 /* selector pachet — carduri pe grid 2 coloane, ca .channel-options din
    referinta (nume mare Barlow Condensed, pret sub el, descriere jos) */
-.tarife-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 10px; }
+.tarife-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 13px; margin-bottom: 10px; }
 @media (max-width: 480px) { .tarife-grid { grid-template-columns: 1fr; } }
 .tier {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
@@ -779,3 +779,8 @@ section[id] { scroll-margin-top: 104px; }
   .finale p:not(.eyebrow) { font-size: 15px; }
   .finale small { font-size: 12px; }
 }
+
+/* dedicatii centrate pe pagina de eveniment (live/upcoming) — feedback:
+   fara coloana de text lateral, formularul devine coloana centrala unica,
+   suficient de lata cat selectorul de tipuri sa incapa pe un singur rand */
+.eveniment-dedicatii-centrat { max-width: 760px; margin: 0 auto; }

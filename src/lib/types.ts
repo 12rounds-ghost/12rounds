@@ -125,10 +125,12 @@ export const NUME_TIP: Record<TipDedicatie, string> = {
 };
 
 // Descriere implicita, folosita cat timp Tarif.descriere e gol (Sarcina V4-G).
+// ecran si stream actualizate — dedicatia "in sala" apare acum si pe
+// overlay-ul de streaming (migratia 0021_unificare_ecran_stream.sql).
 export const DESCRIERE_IMPLICITA: Record<TipDedicatie, string> = {
   sustinere: 'Fără mesaj afișat',
-  ecran: 'Mesaj + poză opțională, afișat în sală',
-  stream: 'Mesaj afișat peste stream, pe rețelele sociale',
+  ecran: 'Apare pe ecranele din sală și în transmisiunea live',
+  stream: 'Apare doar pe transmisiunea live',
   prezentator: 'Citită live, în timpul show-ului',
 };
 
