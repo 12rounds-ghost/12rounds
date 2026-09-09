@@ -9,6 +9,18 @@ import { trimiteEmailConfirmare } from '@/lib/email';
 // mereu primul raspuns calculat, indiferent cate ori se cere din nou.
 export const dynamic = 'force-dynamic';
 
+// Linkul de YouTube al evenimentului, pentru emailul de confirmare (Sarcina:
+// link live in email) — citit direct din events.linkuri_stream, cheia
+// folosita de admin (EvenimentEditor.tsx) pentru platforma YouTube.
+async function linkYoutubeEveniment(
+  sb: ReturnType<typeof supabaseAdmin>,
+  eventId: string | null | undefined
+): Promise<string | null> {
+  if (!eventId) return null;
+  const { data } = await sb.from('events').select('linkuri_stream').eq('id', eventId).maybeSingle();
+  return (data?.linkuri_stream as Record<string, string> | null)?.youtube ?? null;
+}
+
 // Stripe.Address (citit de pe PaymentMethod) are campuri nullable; Stripe.AddressParam
 // (folosit la Customer.update) le vrea undefined — de-a lungul webhook-ului convertim intre ele.
 function laAdresaParam(a: Stripe.Address | null): Stripe.AddressParam | undefined {
@@ -65,7 +77,7 @@ export async function POST(req: Request) {
           })
           .eq('id', dedicatieId)
           .eq('status_plata', 'pending')
-          .select('id, tip, pentru, de_la, mesaj')
+          .select('id, tip, pentru, de_la, mesaj, event_id')
           .maybeSingle();
 
         if (actualizate && email) {
@@ -76,6 +88,7 @@ export async function POST(req: Request) {
             pentru: actualizate.pentru,
             deLa: actualizate.de_la,
             mesaj: actualizate.mesaj,
+            linkYoutube: await linkYoutubeEveniment(sb, actualizate.event_id),
           });
         }
       }
@@ -126,7 +139,7 @@ export async function POST(req: Request) {
         })
         .eq('id', dedicatieId)
         .eq('status_plata', 'pending')
-        .select('id, tip, pentru, de_la, mesaj, stripe_customer_id')
+        .select('id, tip, pentru, de_la, mesaj, stripe_customer_id, event_id')
         .maybeSingle();
 
       if (actualizate) {
@@ -152,6 +165,7 @@ export async function POST(req: Request) {
             pentru: actualizate.pentru,
             deLa: actualizate.de_la,
             mesaj: actualizate.mesaj,
+            linkYoutube: await linkYoutubeEveniment(sb, actualizate.event_id),
           });
         }
       }

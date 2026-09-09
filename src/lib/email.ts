@@ -26,6 +26,7 @@ export async function trimiteEmailConfirmare(params: {
   pentru: string | null;
   deLa: string | null;
   mesaj: string | null;
+  linkYoutube?: string | null;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return;
@@ -36,6 +37,12 @@ export async function trimiteEmailConfirmare(params: {
   const rezumat = params.pentru
     ? `${NUME_TIP[params.tip]} pentru ${params.pentru}`
     : NUME_TIP[params.tip];
+
+  // Linkul de YouTube are sens doar pentru tipurile care ajung efectiv pe
+  // transmisiunea live (stream si, de la unificarea canalelor, ecran) — si
+  // doar daca evenimentul are un link setat (Sarcina: link YouTube in email).
+  const areSensPeStream = params.tip === 'stream' || params.tip === 'ecran';
+  const linkYoutube = areSensPeStream ? params.linkYoutube : null;
 
   const sb = supabaseAdmin();
 
@@ -62,6 +69,7 @@ export async function trimiteEmailConfirmare(params: {
             ${params.mesaj ? `<p>Mesajul tău: „${params.mesaj}”</p>` : ''}
             <p>Urmărește statusul dedicației tale aici: <a href="${link}">${link}</a></p>
             <p style="color:#6b6b73;font-size:13px">${UNDE_APARE[params.tip]}</p>
+            ${linkYoutube ? `<p>Urmărește transmisiunea live pe YouTube: <a href="${linkYoutube}">${linkYoutube}</a></p>` : ''}
             <p>12 ROUNDS — The Battle of the Bands</p>
           </div>
         `,
@@ -72,6 +80,7 @@ export async function trimiteEmailConfirmare(params: {
           params.mesaj ? `Mesajul tău: „${params.mesaj}”` : null,
           `Urmărește statusul dedicației tale aici: ${link}`,
           UNDE_APARE[params.tip],
+          linkYoutube ? `Urmărește transmisiunea live pe YouTube: ${linkYoutube}` : null,
           '12 ROUNDS — The Battle of the Bands',
         ]
           .filter(Boolean)
