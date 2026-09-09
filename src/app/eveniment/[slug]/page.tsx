@@ -129,7 +129,8 @@ export default async function EvenimentPage({
         </div>
       </div>
 
-      <main className="container wide">
+      <main>
+        <div className="section-inner">
         {event.status !== 'ended' ? (
           <div className="eveniment-doua-coloane" style={{ marginTop: 32 }}>
             <div className="prose">
@@ -226,6 +227,7 @@ export default async function EvenimentPage({
             )}
           </>
         )}
+        </div>
 
         <Footer />
       </main>
