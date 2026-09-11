@@ -94,6 +94,11 @@ export async function POST(req: Request) {
           poza_url: ded.poza_aprobata && ded.poza_path ? urlPozaAprobata(ded.poza_path) : null,
           poza_latime: ded.poza_latime,
           poza_inaltime: ded.poza_inaltime,
+          // nr_difuzari a fost tocmai incrementat de revendica_dedicatie — 1
+          // inseamna ca aceasta e prima oara, pe orice ecran, cand dedicatia
+          // asta e aratata (Sarcina: zoom la prima difuzare). Nu are nevoie
+          // de o coloana noua, e derivat direct din contorul existent.
+          prima_difuzare: ded.nr_difuzari === 1,
         },
       });
     }
