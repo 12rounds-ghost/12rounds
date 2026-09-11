@@ -167,7 +167,23 @@ function OverlayOrizontal({
 }) {
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
-      <style>{`@keyframes bara-intrare { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }`}</style>
+      <style>{`
+        /* Bara intra din jos si "sare" usor la asezare (scale 0.96 -> 1.015
+           -> 1) — fiecare dedicatie pe stream e prin definitie noua (nu se
+           reciclieaza niciodata, avanseaza_overlay_stream o marcheaza o
+           singura data), deci acelasi accent ca la prima difuzare pe
+           ecranele fizice se aplica aici la FIECARE intrare. */
+        @keyframes bara-intrare {
+          0% { transform: translateY(100%) scale(0.96); opacity: 0; }
+          70% { transform: translateY(0) scale(1.015); opacity: 1; }
+          100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes insigna-nou-overlay {
+          0%, 100% { opacity: 0; }
+          8%, 75% { opacity: 1; }
+        }
+        .insigna-nou-overlay { animation: insigna-nou-overlay 5s ease forwards; }
+      `}</style>
 
       <QrBadge qrDataUrl={qrDataUrl} marimeQr="11vh" top="3vh" right="3vw" padding="1.2vh" fontSize="1.4vh" />
 
@@ -186,14 +202,31 @@ function OverlayOrizontal({
             alignItems: 'center',
             gap: '2vw',
             padding: '2vh 4vw',
-            animation: 'bara-intrare 0.5s cubic-bezier(0.2,0.8,0.2,1)',
+            animation: 'bara-intrare 0.6s cubic-bezier(0.2,0.8,0.2,1)',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.jpeg" alt="" style={{ width: '6vh', height: '6vh', borderRadius: '50%', flexShrink: 0 }} />
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.6vh', marginBottom: '0.6vh' }}>
-              Dedicație
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8vh', marginBottom: '0.6vh' }}>
+              <span style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.6vh' }}>
+                Dedicație
+              </span>
+              <span
+                className="insigna-nou-overlay"
+                style={{
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  fontSize: '1.2vh',
+                  fontWeight: 800,
+                  color: '#0a0a0b',
+                  background: 'var(--accent, #e21d1d)',
+                  borderRadius: 999,
+                  padding: '0.2vh 0.9vh',
+                }}
+              >
+                Nou
+              </span>
             </div>
             <div style={{ fontSize: '2.9vh', fontWeight: 700, color: '#fff', lineHeight: 1.25, maxWidth: '82vw' }}>
               {ded.mesaj}
@@ -227,7 +260,22 @@ function OverlayVertical({
 }) {
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
-      <style>{`@keyframes card-intrare { from { transform: translateY(4vh); opacity: 0; } to { transform: none; opacity: 1; } }`}</style>
+      <style>{`
+        /* Card centrat, plutitor — acelasi tratament de zoom cu bounce ca
+           dedicatia noua de pe ecranele fizice, aplicat aici la FIECARE
+           intrare (fiecare dedicatie pe stream e prin definitie noua, nu
+           se reciclieaza niciodata — avanseaza_overlay_stream). */
+        @keyframes card-intrare {
+          0% { transform: translateY(2vh) scale(0.9); opacity: 0; }
+          60% { transform: translateY(0) scale(1.03); opacity: 1; }
+          100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes insigna-nou-overlay {
+          0%, 100% { opacity: 0; }
+          8%, 75% { opacity: 1; }
+        }
+        .insigna-nou-overlay { animation: insigna-nou-overlay 5s ease forwards; }
+      `}</style>
 
       <QrBadge qrDataUrl={qrDataUrl} marimeQr="12vh" top="9vh" right="5vw" padding="1.4vh" fontSize="1.5vh" />
 
@@ -244,13 +292,30 @@ function OverlayVertical({
             borderRadius: '2.2vh',
             padding: '3vh 5vw',
             textAlign: 'center',
-            animation: 'card-intrare 0.5s cubic-bezier(0.2,0.8,0.2,1)',
+            animation: 'card-intrare 0.7s cubic-bezier(0.22,0.9,0.2,1)',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.jpeg" alt="" style={{ width: '7vh', height: '7vh', borderRadius: '50%', margin: '0 auto 1.6vh' }} />
-          <div style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.9vh', marginBottom: '1.4vh' }}>
-            Dedicație
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8vh', marginBottom: '1.4vh' }}>
+            <span style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.9vh' }}>
+              Dedicație
+            </span>
+            <span
+              className="insigna-nou-overlay"
+              style={{
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                fontSize: '1.4vh',
+                fontWeight: 800,
+                color: '#0a0a0b',
+                background: 'var(--accent, #e21d1d)',
+                borderRadius: 999,
+                padding: '0.2vh 0.9vh',
+              }}
+            >
+              Nou
+            </span>
           </div>
           <div style={{ fontSize: '3.1vh', fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>
             {ded.mesaj}
