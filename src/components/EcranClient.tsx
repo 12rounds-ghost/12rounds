@@ -10,6 +10,7 @@ type Continut =
       poza_url: string | null;
       poza_latime: number | null;
       poza_inaltime: number | null;
+      prima_difuzare: boolean;
     }
   | { tip: 'qr'; url: string; qr_data_url: string }
   | { tip: 'sponsor'; nume: string; logo_url: string }
@@ -83,6 +84,22 @@ export function EcranClient({ id, apiKey }: { id: string; apiKey: string }) {
       <style>{`
         @keyframes ecran-intrare { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: none; } }
         .ecran-continut { animation: ecran-intrare 0.7s ease-out; }
+
+        /* Prima difuzare a unei dedicatii noi (Sarcina: zoom la intrare) —
+           iese vizibil in evidenta fata de intrarea discreta de mai sus,
+           folosita si pentru reciclarea normala si pentru umplere. */
+        @keyframes ecran-intrare-nou {
+          0% { opacity: 0; transform: scale(1.3); }
+          55% { opacity: 1; transform: scale(0.96); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        .ecran-continut--nou { animation: ecran-intrare-nou 0.9s cubic-bezier(0.22, 0.9, 0.2, 1); }
+
+        @keyframes insigna-nou {
+          0%, 100% { opacity: 0; }
+          8%, 75% { opacity: 1; }
+        }
+        .insigna-nou { animation: insigna-nou 5s ease forwards; }
       `}</style>
       {continut && <ContinutEcran key={cheieAnimatie} continut={continut} />}
     </div>
@@ -169,7 +186,7 @@ function DedicatieCard({
 
   return (
     <div
-      className="ecran-continut"
+      className={continut.prima_difuzare ? 'ecran-continut--nou' : 'ecran-continut'}
       style={{
         maxWidth: '80vw',
         display: 'flex',
@@ -220,8 +237,27 @@ function DedicatieCard({
           alt=""
           style={{ width: '4.7vw', height: '4.7vw', borderRadius: '50%', marginBottom: 14, display: esteLayoutPeisaj ? 'inline-block' : 'block' }}
         />
-        <div style={{ textTransform: 'uppercase', letterSpacing: 2, color: 'var(--accent, #e11d2e)', fontSize: '1.4vw', fontWeight: 700, marginBottom: 18 }}>
-          Dedicație
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+          <span style={{ textTransform: 'uppercase', letterSpacing: 2, color: 'var(--accent, #e11d2e)', fontSize: '1.4vw', fontWeight: 700 }}>
+            Dedicație
+          </span>
+          {continut.prima_difuzare && (
+            <span
+              className="insigna-nou"
+              style={{
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                fontSize: '1vw',
+                fontWeight: 800,
+                color: '#0a0a0b',
+                background: 'var(--accent, #e11d2e)',
+                borderRadius: 999,
+                padding: '0.2vw 0.9vw',
+              }}
+            >
+              Nou
+            </span>
+          )}
         </div>
         <div style={{ fontSize: `${fontMesajVw}vw`, fontWeight: 600, lineHeight: 1.3 }}>„{continut.mesaj}”</div>
         <div style={{ marginTop: 28, fontSize: '1.6vw', color: '#b8b8bc' }}>
