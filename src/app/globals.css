@@ -504,6 +504,116 @@ a { color: var(--accent-hover); }
   background: rgba(10,10,11,0.75); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 13px;
 }
 
+/* ============================================================
+   /admin — restilizare vizuala (Sarcina: interfata de operare, ca
+   in referinta chatgpt-site — sidebar + carduri, aceeasi paleta).
+   Shell nou (sidebar+topbar) definit direct aici; clasele
+   PARTAJATE cu site-ul public (.card, .btn, .badge, .badge-eveniment,
+   .rand, .sub, .eroare, h1-h3) sunt suprascrise DOAR sub .ops-shell,
+   ca sa nu schimbe aspectul lor pe paginile publice care le folosesc
+   deja cu alt design. Componentele admin (*Client.tsx) nu au fost
+   modificate — folosesc exact aceleasi clase, doar CSS-ul e nou.
+   ============================================================ */
+.ops-shell { display: flex; min-height: 100vh; background: #0b0b0b; align-items: stretch; }
+
+.ops-sidebar {
+  width: 230px; flex-shrink: 0; background: #101010; border-right: 1px solid #232323;
+  display: flex; flex-direction: column; position: sticky; top: 0; align-self: flex-start;
+  height: 100vh; overflow-y: auto;
+}
+.ops-sidebar-brand { padding: 22px 18px 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid #1c1c1c; }
+.ops-sidebar-brand img { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+.ops-sidebar-brand span { display: flex; flex-direction: column; font-family: var(--font-display); font-size: 19px; line-height: 1.05; letter-spacing: .02em; }
+.ops-sidebar-brand small { font: 600 8px/2.2 var(--font-display); letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+.ops-nav-label { font-family: var(--font-display); font-size: 11px; letter-spacing: .14em; color: #777; padding: 18px 18px 8px; text-transform: uppercase; margin: 0; }
+.ops-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 10px; }
+.ops-nav a {
+  display: block; font-size: 13px; letter-spacing: .02em; padding: 9px 11px;
+  color: #a7a7a7; border-radius: 3px; text-decoration: none; border-left: 2px solid transparent;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.ops-nav a:hover { color: #fff; background: #161616; }
+.ops-nav a.activ { background: #291210; color: #ff6a61; border-left-color: var(--accent); }
+.ops-sidebar-footer { margin-top: auto; border-top: 1px solid #1c1c1c; padding: 14px 18px 16px; }
+.ops-user-block { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; }
+.ops-user-block > span {
+  width: 30px; height: 30px; background: #2b2b2b; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #ddd;
+}
+.ops-user-block > div { min-width: 0; flex: 1; }
+.ops-user-block b { font-size: 12px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.ops-user-block small { font-size: 10px; color: #828282; letter-spacing: .05em; }
+.ops-sidebar-footer > a { display: block; font-size: 11px; color: #9c9c9c; text-decoration: none; letter-spacing: .04em; padding: 6px 0 0; }
+.ops-sidebar-footer > a:hover { color: #fff; }
+
+.ops-content { flex: 1; min-width: 0; }
+.ops-header {
+  min-height: 60px; border-bottom: 1px solid #232323; display: flex; align-items: center;
+  gap: 18px; padding: 14px 30px; position: sticky; top: 0; z-index: 5; background: #0b0b0b;
+}
+.ops-breadcrumb { display: flex; align-items: center; gap: 10px; color: #8b8b8b; font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; font-family: Arial, Helvetica, sans-serif; }
+.ops-breadcrumb span:last-child { color: #e2e2e2; }
+.ops-top-date { margin-left: auto; color: #767676; font-size: 12px; }
+.ops-main { padding: 30px 35px 60px; min-width: 0; }
+
+@media (max-width: 860px) {
+  .ops-shell { flex-direction: column; }
+  .ops-sidebar { width: 100%; height: auto; position: static; border-right: 0; border-bottom: 1px solid #232323; }
+  .ops-nav { flex-direction: row; flex-wrap: wrap; padding: 0 14px 12px; }
+  .ops-nav a.activ { border-left: 0; border-bottom: 2px solid var(--accent); }
+  .ops-sidebar-footer { display: flex; align-items: center; justify-content: space-between; border-top: 0; }
+  .ops-main { padding: 22px 18px 44px; }
+  .ops-header { padding: 12px 18px; }
+}
+
+/* Elemente partajate cu site-ul public, suprascrise DOAR aici. */
+.ops-shell h1 { text-align: left; font-size: 30px; letter-spacing: .01em; margin: 0 0 4px; }
+.ops-shell h2 { text-align: left; font-size: 22px; }
+.ops-shell .sub { text-align: left; color: #8b8b8b; font-size: 13px; margin-bottom: 20px; }
+
+.ops-shell .card {
+  background: #121212; border: 1px solid #2a2a2a; border-radius: 4px; padding: 22px; margin-bottom: 18px;
+}
+.ops-shell .card.mesaj-card { background: #151515; border-color: #303030; padding: 20px; }
+.ops-shell .card.rand-eveniment-dashboard:hover { border-color: var(--accent); background: #151515; }
+
+.ops-shell .btn {
+  width: auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 3px; font-family: Arial, Helvetica, sans-serif; font-weight: 700;
+  font-size: 13px; letter-spacing: .02em; text-transform: none; padding: 10px 16px; margin-top: 0;
+  min-height: 38px;
+}
+.ops-shell .btn.mic { font-size: 12px; padding: 7px 12px; min-height: 34px; }
+.ops-shell .btn.touch { font-size: 15px; padding: 13px 22px; min-height: 46px; }
+.ops-shell .btn:hover { transform: none; }
+
+.ops-shell .badge, .ops-shell .badge-eveniment {
+  border-radius: 3px; font-size: 10px; letter-spacing: .05em; padding: 4px 8px;
+  background: #1b1b1b; border: 1px solid #343434; color: #b0b0b0; text-transform: uppercase; font-weight: 700;
+}
+.ops-shell .badge.gold { color: #ff8377; border-color: #4a2420; background: #24110e; }
+.ops-shell .badge.warn { color: #d8b878; border-color: #433a29; background: #231e14; }
+.ops-shell .badge.ok, .ops-shell .badge-eveniment.live { color: #aad8be; border-color: #294536; background: #12221a; }
+.ops-shell .badge.danger { color: #ff8377; border-color: #4a2420; background: #24110e; }
+.ops-shell .badge-eveniment.live.pulsand { animation: pulseLive 1.6s ease-in-out infinite; }
+.ops-shell .badge-eveniment.upcoming { background: #1b1b1b; border-color: #343434; color: #b0b0b0; }
+.ops-shell .badge-eveniment.ended { background: #161616; color: #6e6e6e; border-color: #292929; }
+
+.ops-shell .eroare { background: #30110e; border: 1px solid #6a2823; color: #ffb1a9; padding: 10px 14px; border-radius: 3px; font-size: 13px; margin-top: 10px; }
+
+/* /admin dashboard — statistici + lista editii */
+.ops-shell .grid-statistici-dashboard {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 14px; margin-top: 4px;
+}
+.ops-shell .grid-statistici-dashboard > div { background: #131313; border: 1px solid #262626; padding: 14px 16px; }
+.ops-shell .grid-statistici-dashboard .sub { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: #a3a3a3; margin: 0; }
+.ops-shell .grid-statistici-dashboard strong { font-family: var(--font-display); font-size: 26px; font-weight: 600; }
+
+/* /admin/dedicatii — filtre */
+.ops-shell .grid-filtre-dedicatii select, .ops-shell .grid-filtre-dedicatii input {
+  border-radius: 3px; background: #111; border: 1px solid #333;
+}
+
 /* pagina de detaliu eveniment (/eveniment/[slug]) */
 .eveniment-cover {
   border-radius: 18px; overflow: hidden; min-height: 200px;
