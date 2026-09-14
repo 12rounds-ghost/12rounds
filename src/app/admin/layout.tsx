@@ -25,11 +25,15 @@ const LINKURI_PE_ROL: Record<RolModerator, { href: string; eticheta: string }[]>
   operator: [{ href: '/admin/regie', eticheta: 'Regie' }],
 };
 
+const DATA_AZI = new Date().toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [gata, setGata] = useState(false);
   const [linkuri, setLinkuri] = useState<{ href: string; eticheta: string }[]>([]);
+  const [email, setEmail] = useState('');
+  const [rol, setRol] = useState<RolModerator | null>(null);
 
   useEffect(() => {
     if (pathname === '/admin/login') {
@@ -43,39 +47,83 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return;
       }
       setGata(true);
+      setEmail(data.session.user.email ?? '');
       sb.from('moderatori')
         .select('rol')
         .eq('id', data.session!.user.id)
         .maybeSingle()
         .then(({ data: mod }) => {
-          if (mod?.rol) setLinkuri(LINKURI_PE_ROL[mod.rol as RolModerator] ?? []);
+          if (mod?.rol) {
+            setRol(mod.rol as RolModerator);
+            setLinkuri(LINKURI_PE_ROL[mod.rol as RolModerator] ?? []);
+          }
         });
     });
   }, [pathname, router]);
 
   if (!gata) return null;
 
+  // /admin/login e o pagina de autentificare de sine statatoare — nu face
+  // parte din interfata de operare (fara sidebar/breadcrumb).
+  if (pathname === '/admin/login') {
+    return <main className="container wide">{children}</main>;
+  }
+
+  async function iesire() {
+    await supabaseBrowser().auth.signOut();
+    window.location.href = '/admin/login';
+  }
+
+  const eticheta = linkuri.find((l) => pathname === l.href || (l.href !== '/admin' && pathname.startsWith(l.href)))?.eticheta;
+
   return (
-    <main className="container wide">
-      <div className="brand">12 Rounds · Backstage</div>
-      {pathname !== '/admin/login' && (
-        <nav className="adminnav" style={{ marginTop: 12 }}>
-          {linkuri.map((l) => (
-            <Link key={l.href} href={l.href}>{l.eticheta}</Link>
-          ))}
-          <a
-            href="/admin/login"
-            onClick={async (e) => {
-              e.preventDefault();
-              await supabaseBrowser().auth.signOut();
-              window.location.href = '/admin/login';
-            }}
-          >
+    <div className="ops-shell">
+      <aside className="ops-sidebar">
+        <div className="ops-sidebar-brand">
+          <img src="/logo.jpeg" alt="" />
+          <span>
+            12 ROUNDS
+            <small>The Battle of the Bands</small>
+          </span>
+        </div>
+
+        <p className="ops-nav-label">Show operations</p>
+        <nav className="ops-nav">
+          {linkuri.map((l) => {
+            const activ = pathname === l.href || (l.href !== '/admin' && pathname.startsWith(l.href));
+            return (
+              <Link key={l.href} href={l.href} className={activ ? 'activ' : ''}>
+                {l.eticheta}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="ops-sidebar-footer">
+          <div className="ops-user-block">
+            <span>{(email || '?')[0].toUpperCase()}</span>
+            <div>
+              <b>{email || 'Cont'}</b>
+              <small>{rol?.toUpperCase() ?? ''}</small>
+            </div>
+          </div>
+          <a href="/admin/login" onClick={(e) => { e.preventDefault(); iesire(); }}>
             Ieșire
           </a>
-        </nav>
-      )}
-      {children}
-    </main>
+        </div>
+      </aside>
+
+      <div className="ops-content">
+        <header className="ops-header">
+          <div className="ops-breadcrumb">
+            <span>12 Rounds</span>
+            <span>›</span>
+            <span>{eticheta ?? 'Admin'}</span>
+          </div>
+          <span className="ops-top-date">{DATA_AZI}</span>
+        </header>
+        <main className="ops-main">{children}</main>
+      </div>
+    </div>
   );
 }
