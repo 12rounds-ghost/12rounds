@@ -615,6 +615,23 @@ a { color: var(--accent-hover); }
   border-radius: 3px; background: #111; border: 1px solid #333;
 }
 
+/* /admin/dedicatii — tab-uri pe status_difuzare (Sarcina: separare pe
+   statusuri, ca sa fie clar dintr-o privire ce mai e de difuzat). */
+.ops-shell .tab-bar {
+  display: flex; gap: 0; border-bottom: 1px solid #292929; margin-bottom: 18px; overflow-x: auto;
+}
+.ops-shell .tab-bar button {
+  background: none; border: none; color: #8b8b8b; font: 600 12px/1.2 Arial, Helvetica, sans-serif;
+  letter-spacing: .02em; padding: 12px 16px; cursor: pointer;
+  border-bottom: 2px solid transparent; white-space: nowrap; margin: 0;
+}
+.ops-shell .tab-bar button:hover { color: #ddd; }
+.ops-shell .tab-bar button.activ { color: #ff6a61; border-bottom-color: var(--accent); }
+.ops-shell .tab-bar button .numar {
+  margin-left: 6px; font-size: 10px; color: #767676; font-weight: 700;
+}
+.ops-shell .tab-bar button.activ .numar { color: #ff6a61; }
+
 /* pagina de detaliu eveniment (/eveniment/[slug]) */
 .eveniment-cover {
   border-radius: 18px; overflow: hidden; min-height: 200px;
