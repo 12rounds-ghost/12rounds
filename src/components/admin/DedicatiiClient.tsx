@@ -11,6 +11,16 @@ const OPTIUNI_STATUS_PLATA = ['pending', 'paid', 'refunded', 'expired'] as const
 const OPTIUNI_STATUS_MODERARE = ['in_verificare', 'aprobat', 'respins'] as const;
 const OPTIUNI_STATUS_DIFUZARE = ['in_asteptare', 'programat', 'difuzat'] as const;
 
+// Sarcina: tab-uri pe status_difuzare, in loc de un dropdown ingropat in
+// mijlocul filtrelor — mult mai clar la o privire cate sunt de difuzat vs.
+// deja difuzate, mai ales cand lista devine lunga.
+const TABURI_DIFUZARE: { cheie: '' | (typeof OPTIUNI_STATUS_DIFUZARE)[number]; eticheta: string }[] = [
+  { cheie: '', eticheta: 'Toate' },
+  { cheie: 'in_asteptare', eticheta: 'În așteptare' },
+  { cheie: 'programat', eticheta: 'Programat' },
+  { cheie: 'difuzat', eticheta: 'Difuzat' },
+];
+
 interface Filtre {
   eventId: string;
   statusPlata: string;
@@ -84,6 +94,7 @@ export function DedicatiiClient({
   const [pagina, setPagina] = useState(0);
   const [lista, setLista] = useState<Dedicatie[]>([]);
   const [total, setTotal] = useState(0);
+  const [numarPeTab, setNumarPeTab] = useState<Record<string, number>>({});
   const [incarcare, setIncarcare] = useState(true);
   const [expandat, setExpandat] = useState<string | null>(null);
   const [numeFacturaEdit, setNumeFacturaEdit] = useState<Record<string, string>>({});
@@ -106,6 +117,22 @@ export function DedicatiiClient({
     setLista((data ?? []) as Dedicatie[]);
     setTotal(count ?? 0);
     setIncarcare(false);
+
+    // Numarul de pe fiecare tab tine cont de restul filtrelor active
+    // (editie, cautare etc.) dar ignora tab-ul insusi — altfel tab-urile
+    // nealese ar arata mereu 0, fiindca filtrul lor pe statusDifuzare nu s-ar
+    // mai potrivi cu el insusi.
+    const filtreFaraTab = { ...filtre, statusDifuzare: '' };
+    const sbNumaratoare = supabaseBrowser();
+    const rezultate = await Promise.all(
+      TABURI_DIFUZARE.map((t) =>
+        aplicaFiltre(
+          sbNumaratoare.from('dedicatii').select('id', { count: 'exact', head: true }),
+          { ...filtreFaraTab, statusDifuzare: t.cheie }
+        )
+      )
+    );
+    setNumarPeTab(Object.fromEntries(TABURI_DIFUZARE.map((t, i) => [t.cheie, rezultate[i].count ?? 0])));
   }, [filtre, pagina]);
 
   useEffect(() => {
@@ -223,6 +250,19 @@ export function DedicatiiClient({
       <h1>Dedicații</h1>
       <p className="sub">Toate dedicațiile, din toate edițiile — {total} rezultate.</p>
 
+      <div className="tab-bar">
+        {TABURI_DIFUZARE.map((t) => (
+          <button
+            key={t.cheie}
+            type="button"
+            className={filtre.statusDifuzare === t.cheie ? 'activ' : ''}
+            onClick={() => actualizeazaFiltru('statusDifuzare', t.cheie)}
+          >
+            {t.eticheta} <span className="numar">{numarPeTab[t.cheie] ?? 0}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="card">
         <div className="grid-filtre-dedicatii">
           <select value={filtre.eventId} onChange={(e) => actualizeazaFiltru('eventId', e.target.value)}>
@@ -238,10 +278,6 @@ export function DedicatiiClient({
           <select value={filtre.statusModerare} onChange={(e) => actualizeazaFiltru('statusModerare', e.target.value)}>
             <option value="">Moderare — toate</option>
             {OPTIUNI_STATUS_MODERARE.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select value={filtre.statusDifuzare} onChange={(e) => actualizeazaFiltru('statusDifuzare', e.target.value)}>
-            <option value="">Difuzare — toate</option>
-            {OPTIUNI_STATUS_DIFUZARE.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <input
             placeholder="Sursă (qr, tiktok...)"
