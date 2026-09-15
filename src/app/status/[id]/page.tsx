@@ -8,7 +8,7 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 const CAMPURI_PUBLICE =
-  'id, tip, pentru, de_la, status_plata, status_moderare, status_difuzare, motiv_respingere, event_id, sursa_platforma';
+  'id, tip, pentru, de_la, status_plata, status_moderare, status_difuzare, motiv_respingere, event_id, sursa_platforma, created_at, platit_la, moderat_la, difuzat_la';
 
 export default async function StatusPage({ params }: { params: { id: string } }) {
   // Randarea initiala citeste direct prin service role (server-side, nu expune

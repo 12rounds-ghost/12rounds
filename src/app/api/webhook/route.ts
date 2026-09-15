@@ -69,6 +69,7 @@ export async function POST(req: Request) {
           .from('dedicatii')
           .update({
             status_plata: 'paid',
+            platit_la: new Date().toISOString(),
             email,
             stripe_payment_intent:
               typeof session.payment_intent === 'string'
@@ -126,6 +127,7 @@ export async function POST(req: Request) {
         .from('dedicatii')
         .update({
           status_plata: 'paid',
+          platit_la: new Date().toISOString(),
           email,
           nume_facturare: numeFacturare,
           adresa_facturare: adresaFacturare,

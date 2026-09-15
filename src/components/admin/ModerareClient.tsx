@@ -135,7 +135,7 @@ export function ModerareClient() {
     const { data: sesiune } = await sb.auth.getUser();
     await sb
       .from('dedicatii')
-      .update({ status_moderare: 'aprobat', moderator_id: sesiune.user?.id })
+      .update({ status_moderare: 'aprobat', moderator_id: sesiune.user?.id, moderat_la: new Date().toISOString() })
       .eq('id', d.id);
     if (d.poza_path) await decidePoza(d, cuPoza ? 'aproba' : 'exclude');
   }
@@ -146,7 +146,7 @@ export function ModerareClient() {
     const motiv = window.prompt('Motivul respingerii (îl vede clientul):') ?? '';
     await sb
       .from('dedicatii')
-      .update({ status_moderare: 'respins', motiv_respingere: motiv, moderator_id: sesiune.user?.id })
+      .update({ status_moderare: 'respins', motiv_respingere: motiv, moderator_id: sesiune.user?.id, moderat_la: new Date().toISOString() })
       .eq('id', d.id);
     if (d.poza_path) await decidePoza(d, 'exclude');
     if (window.confirm('Trimiți și rambursarea acum?')) {

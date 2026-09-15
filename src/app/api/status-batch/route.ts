@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 // /dedicatiile-mele, in loc de un fetch per dedicatie. Aceleasi campuri
 // publice ca /api/status/[id] — niciodata stripe_* sau suma_bani.
 const CAMPURI_PUBLICE =
-  'id, tip, pentru, de_la, status_plata, status_moderare, status_difuzare, motiv_respingere, event_id, sursa_platforma';
+  'id, tip, pentru, de_la, status_plata, status_moderare, status_difuzare, motiv_respingere, event_id, sursa_platforma, created_at, platit_la, moderat_la, difuzat_la';
 const LIMITA_ID_URI = 20;
 
 export async function POST(req: Request) {

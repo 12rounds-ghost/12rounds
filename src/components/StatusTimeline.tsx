@@ -21,6 +21,20 @@ const PASI = [
   { cheie: 'difuzat', titlu: 'Difuzat', detaliu: 'Mesajul a apărut pe ecranele din sală.' },
 ] as const;
 
+// Doar pasii cu un moment propriu, real, in baza de date — "verificare" si
+// "programat" sunt stari de asteptare tranzitorii, fara un instant unic care
+// sa merite afisat (Sarcina: orizont de timp pentru client pe fiecare pas).
+const CAMP_TIMP_PAS: Partial<Record<(typeof PASI)[number]['cheie'], 'platit_la' | 'moderat_la' | 'difuzat_la'>> = {
+  plata: 'platit_la',
+  aprobat: 'moderat_la',
+  difuzat: 'difuzat_la',
+};
+
+function formateazaTimp(iso: string | null): string | null {
+  if (!iso) return null;
+  return new Date(iso).toLocaleString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
 function pasCurent(d: DedicatieStatusPublic): number {
   if (d.status_plata !== 'paid' && d.status_plata !== 'refunded') return 0;
   if (d.status_moderare === 'in_verificare') return 1;
@@ -123,6 +137,15 @@ export function StatusTimeline({ initial }: { initial: DedicatieStatusPublic }) 
     <div className="card">
       {PASI.map((p, i) => {
         const stare = i < curent ? 'trecut' : i === curent ? 'activ' : '';
+        const campTimp = CAMP_TIMP_PAS[p.cheie];
+        // "plata" arata platit_la, dar la randurile vechi (dinainte de
+        // migratia care a adaugat coloana) ar putea fi gol — created_at
+        // ramane un fallback rezonabil doar pentru pasul asta, fiindca
+        // dedicatia e creata practic in acelasi moment cu plata.
+        const timp =
+          stare && campTimp
+            ? formateazaTimp(ded[campTimp] ?? (p.cheie === 'plata' ? ded.created_at : null))
+            : null;
         return (
           <div key={p.cheie} className={`pas ${stare}`}>
             <div key={curent} className={`bulina${i === curent ? ' bulina-noua' : ''}`}>
@@ -131,6 +154,7 @@ export function StatusTimeline({ initial }: { initial: DedicatieStatusPublic }) 
             <div>
               <div className="titlu">{p.titlu}</div>
               <div className="detaliu">{p.detaliu}</div>
+              {timp && <div className="timp-pas">{timp}</div>}
             </div>
           </div>
         );

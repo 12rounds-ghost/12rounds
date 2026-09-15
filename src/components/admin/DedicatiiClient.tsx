@@ -120,13 +120,17 @@ export function DedicatiiClient({
   async function aprobaRespinge(d: Dedicatie, aprobat: boolean) {
     const sb = supabaseBrowser();
     const { data: sesiune } = await sb.auth.getUser();
+    const moderatLa = new Date().toISOString();
     if (aprobat) {
-      await sb.from('dedicatii').update({ status_moderare: 'aprobat', moderator_id: sesiune.user?.id }).eq('id', d.id);
+      await sb
+        .from('dedicatii')
+        .update({ status_moderare: 'aprobat', moderator_id: sesiune.user?.id, moderat_la: moderatLa })
+        .eq('id', d.id);
     } else {
       const motiv = window.prompt('Motivul respingerii (îl vede clientul):') ?? '';
       await sb
         .from('dedicatii')
-        .update({ status_moderare: 'respins', motiv_respingere: motiv, moderator_id: sesiune.user?.id })
+        .update({ status_moderare: 'respins', motiv_respingere: motiv, moderator_id: sesiune.user?.id, moderat_la: moderatLa })
         .eq('id', d.id);
     }
     incarca();
