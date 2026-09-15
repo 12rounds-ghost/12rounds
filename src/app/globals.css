@@ -153,6 +153,7 @@ textarea { min-height: 90px; resize: vertical; }
 .pas.trecut .bulina { border-color: var(--ok); background: var(--ok); color: #06281a; font-weight: 900; }
 .pas .titlu { font-weight: 600; font-size: 15px; }
 .pas .detaliu { color: var(--muted); font-size: 13px; }
+.pas .timp-pas { color: var(--muted); font-size: 12px; margin-top: 2px; opacity: 0.75; }
 .bulina-noua { animation: aparBulina .3s ease; }
 @keyframes aparBulina { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
 

@@ -83,6 +83,9 @@ export interface Dedicatie {
   ecran_id: string | null;
   nr_difuzari: number;
   ultima_difuzare: string | null;
+  difuzat_la: string | null;
+  platit_la: string | null;
+  moderat_la: string | null;
   created_at: string;
 }
 
@@ -104,6 +107,8 @@ export interface Ecran {
 
 // Subset public al unei dedicatii, expus de /api/status/[id] — niciodata
 // stripe_* sau suma_bani.
+// platit_la/moderat_la/difuzat_la: momentul fiecarei tranzitii, pentru
+// timeline-ul din StatusTimeline (Sarcina: orizont de timp pentru client).
 export interface DedicatieStatusPublic {
   id: string;
   tip: TipDedicatie;
@@ -115,6 +120,10 @@ export interface DedicatieStatusPublic {
   motiv_respingere: string | null;
   event_id: string;
   sursa_platforma: string;
+  created_at: string;
+  platit_la: string | null;
+  moderat_la: string | null;
+  difuzat_la: string | null;
 }
 
 export const NUME_TIP: Record<TipDedicatie, string> = {
