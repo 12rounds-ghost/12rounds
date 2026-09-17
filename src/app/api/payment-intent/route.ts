@@ -49,7 +49,10 @@ export async function POST(req: Request) {
       customer: customer.id,
       metadata: { dedicatie_id: ded.id, event_id: event.id },
       automatic_payment_methods: { enabled: true },
-      description: `12 ROUNDS — ${NUME_TIP[ded.tip]} — ${event.nume}`,
+      // "Servicii dedicații" in loc de "12 ROUNDS" — SmartBill citeste exact
+      // acest camp, verbatim, pe linia facturii (confirmat empiric pe o
+      // factura reala).
+      description: `Servicii dedicații — ${NUME_TIP[ded.tip]} — ${event.nume}`,
     });
 
     await supabaseAdmin()
