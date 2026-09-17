@@ -1,5 +1,29 @@
 export type TipDedicatie = 'sustinere' | 'ecran' | 'stream' | 'prezentator';
 
+// Cadourile din kit-ul RoundsAnimation (12_ROUNDS_Development_Kit_v2) — un
+// clip animat prerandat, cu propria paleta/caption, ales de user ca la
+// cadourile TikTok. Obligatoriu doar pentru tip 'ecran'/'stream'.
+export type CadouDedicatie =
+  | 'crown' | 'heart' | 'trophy' | 'bolt' | 'diamond'
+  | 'star' | 'fire' | 'rocket' | 'rose' | 'champagne';
+
+export const CADOURI: CadouDedicatie[] = [
+  'crown', 'heart', 'trophy', 'bolt', 'diamond', 'star', 'fire', 'rocket', 'rose', 'champagne',
+];
+
+export const NUME_CADOU: Record<CadouDedicatie, string> = {
+  crown: 'Coroană — respect',
+  heart: 'Inimă — dragoste',
+  trophy: 'Trofeu — sărbătoare',
+  bolt: 'Fulger — energie',
+  diamond: 'Diamant — strălucire',
+  star: 'Stea — ești vedeta',
+  fire: 'Flacără — e seara ta',
+  rocket: 'Rachetă — la înălțime',
+  rose: 'Trandafir — pentru tine',
+  champagne: 'Șampanie — sărbătorim',
+};
+
 export interface Event {
   id: string;
   nume: string;
@@ -86,6 +110,7 @@ export interface Dedicatie {
   difuzat_la: string | null;
   platit_la: string | null;
   moderat_la: string | null;
+  cadou: CadouDedicatie | null;
   created_at: string;
 }
 

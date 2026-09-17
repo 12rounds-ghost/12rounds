@@ -8,6 +8,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 // din sala nu au niciodata cookie-ul de acces, dar sunt oricum protejate separat
 // de ECRAN_SECRET (Sarcina F). La fel /overlay si /api/overlay — OBS/vMix
 // e un Browser Source fara cookie, protejat separat de OVERLAY_SECRET.
+// /rounds-kit e playerul de animatii (fisiere statice din public/), incarcat
+// intr-un iframe chiar din /ecran si /overlay — daca ar ramane in spatele
+// gate-ului, iframe-ul ar arata "revenim in curand" pe un kiosk real, care
+// nu are niciodata cookie-ul de acces.
 const CALE_LIBERA = [
   '/coming-soon',
   '/api/site-access',
@@ -17,6 +21,7 @@ const CALE_LIBERA = [
   '/api/ecran',
   '/overlay',
   '/api/overlay',
+  '/rounds-kit',
 ];
 
 const COOKIE = '12rounds_access';

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { verificaMesaj } from '@/lib/filtru';
 import { verificaRateLimit, ipDinRequest } from '@/lib/rate-limit';
-import type { TipDedicatie, Event, Tarif, Dedicatie } from '@/lib/types';
+import { CADOURI, type TipDedicatie, type Event, type Tarif, type Dedicatie } from '@/lib/types';
 
 export interface CorpDedicatie {
   tip: TipDedicatie;
@@ -16,6 +16,7 @@ export interface CorpDedicatie {
   poza_latime?: number;
   poza_inaltime?: number;
   nume_facturare?: string;
+  cadou?: string;
 }
 
 type RezultatPregatire =
@@ -35,7 +36,7 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
     };
   }
 
-  const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime, nume_facturare } = body;
+  const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime, nume_facturare, cadou } = body;
 
   if (!['sustinere', 'ecran', 'stream', 'prezentator'].includes(tip)) {
     return { eroare: NextResponse.json({ error: 'Tip de dedicație invalid.' }, { status: 400 }) };
@@ -66,6 +67,13 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
         { status: 400 }
       ),
     };
+  }
+  // Cadoul (kit RoundsAnimation) e obligatoriu doar pentru tipurile afisate
+  // vizual cu playerul — ecran si stream. Prezentator/sustinere nu au unde
+  // sa-l arate, deci il ignoram pentru ele, indiferent ce trimite clientul.
+  const areNevoieDeCadou = tip === 'ecran' || tip === 'stream';
+  if (areNevoieDeCadou && (typeof cadou !== 'string' || !CADOURI.includes(cadou as (typeof CADOURI)[number]))) {
+    return { eroare: NextResponse.json({ error: 'Alege un cadou pentru dedicație.' }, { status: 400 }) };
   }
 
   const sb = supabaseAdmin();
@@ -134,6 +142,7 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
       poza_latime: pozaLatimeValidata,
       poza_inaltime: pozaInaltimeValidata,
       nume_facturare: numeCurat,
+      cadou: areNevoieDeCadou ? cadou : null,
     })
     .select()
     .single();

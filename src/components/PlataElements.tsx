@@ -25,6 +25,7 @@ interface DateDedicatie {
   poza_path: string | null;
   poza_latime: number | null;
   poza_inaltime: number | null;
+  cadou?: string | null;
 }
 
 export function PlataElements({

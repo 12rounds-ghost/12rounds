@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { NUME_TIP, DESCRIERE_IMPLICITA, lei, type Tarif, type TipDedicatie } from '@/lib/types';
+import { NUME_TIP, DESCRIERE_IMPLICITA, CADOURI, NUME_CADOU, lei, type Tarif, type TipDedicatie, type CadouDedicatie } from '@/lib/types';
 import { PlataElements } from '@/components/PlataElements';
 import { salveazaDedicatieLocala } from '@/lib/dedicatii-locale';
 
@@ -20,6 +20,7 @@ export function DedicationForm({
   const [pentru, setPentru] = useState('');
   const [artist, setArtist] = useState('');
   const [mesaj, setMesaj] = useState('');
+  const [cadou, setCadou] = useState<CadouDedicatie | null>(null);
   const [modClasic, setModClasic] = useState(false);
   const [loadingClasic, setLoadingClasic] = useState(false);
   const [eroareClasic, setEroareClasic] = useState('');
@@ -33,6 +34,10 @@ export function DedicationForm({
   const [numeComplet, setNumeComplet] = useState('');
 
   const esteDedicatie = tip === 'ecran' || tip === 'stream' || tip === 'prezentator';
+  // Cadoul (kit RoundsAnimation) e afisat vizual doar pe ecran/stream —
+  // prezentatorul e doar audio, nu are unde sa-l arate.
+  const areNevoieDeCadou = tip === 'ecran' || tip === 'stream';
+  const cadouValid = !areNevoieDeCadou || !!cadou;
   const tarifSelectat = tarife.find((t) => t.tip === tip) ?? null;
   const mesajValid = !esteDedicatie || mesaj.trim().length >= 2;
   // Sarcina V4-F: numele complet e obligatoriu pentru toate tipurile
@@ -74,6 +79,7 @@ export function DedicationForm({
   function selecteazaTip(nou: TipDedicatie) {
     setTip(nou);
     if (nou !== 'ecran') eliminaPoza();
+    if (nou !== 'ecran' && nou !== 'stream') setCadou(null);
   }
 
   // Fluxul de rezervă (Sarcina E, Pasul 7): Stripe Checkout găzduit, folosit
@@ -99,6 +105,7 @@ export function DedicationForm({
           poza_latime: pozaLatime,
           poza_inaltime: pozaInaltime,
           nume_facturare: numeComplet.trim(),
+          cadou,
         }),
       });
       const data = await res.json();
@@ -157,6 +164,26 @@ export function DedicationForm({
             <div className="contor-caractere">{mesaj.length} / 300</div>
           </div>
 
+          {areNevoieDeCadou && (
+            <>
+              <label>Alege un cadou</label>
+              <div className="cadouri-grid">
+                {CADOURI.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className={`cadou-item${cadou === c ? ' selected' : ''}`}
+                    onClick={() => setCadou(c)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/rounds-kit/assets/gifts/${c}/poster.png`} alt="" />
+                    <span>{NUME_CADOU[c]}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
           {tip === 'ecran' && (
             <>
               <label>Adaugă o poză (opțional)</label>
@@ -194,7 +221,7 @@ export function DedicationForm({
         </div>
       )}
 
-      {tip && tarifSelectat && mesajValid && !pozaIncarcare && (
+      {tip && tarifSelectat && mesajValid && cadouValid && !pozaIncarcare && (
         <div className="card" style={{ marginTop: 16 }}>
           <label htmlFor="nume-complet">Nume complet</label>
           <input
@@ -233,6 +260,7 @@ export function DedicationForm({
                 poza_path: pozaPath,
                 poza_latime: pozaLatime,
                 poza_inaltime: pozaInaltime,
+                cadou,
               }}
               onEsuatEncarcare={() => setModClasic(true)}
             />

@@ -1,0 +1,166 @@
+{
+  "version": "1.0.0",
+  "fps": 30,
+  "width": 512,
+  "height": 512,
+  "codec": "VP9",
+  "alpha": true,
+  "audio": false,
+  "phases": {
+    "intro": 2.4,
+    "loop": 3.2,
+    "outro": 0.7
+  },
+  "gifts": {
+    "crown": {
+      "intro": "crown/intro.webm",
+      "loop": "crown/loop.webm",
+      "outro": "crown/outro.webm",
+      "poster": "crown/poster.png",
+      "palette": {
+        "sender": "#9af5ff",
+        "recipient": "#ffe094",
+        "nameLight": "#fff5db",
+        "energyRGB": "83,225,255",
+        "rgb": "255,190,77",
+        "accent": "#ffcc76",
+        "caption": "RESPECT!"
+      }
+    },
+    "heart": {
+      "intro": "heart/intro.webm",
+      "loop": "heart/loop.webm",
+      "outro": "heart/outro.webm",
+      "poster": "heart/poster.png",
+      "palette": {
+        "sender": "#91f5ff",
+        "recipient": "#ffb1d6",
+        "nameLight": "#fff3f7",
+        "energyRGB": "82,226,255",
+        "rgb": "255,61,120",
+        "accent": "#ff507f",
+        "caption": "MOMENTUL TĂU."
+      }
+    },
+    "trophy": {
+      "intro": "trophy/intro.webm",
+      "loop": "trophy/loop.webm",
+      "outro": "trophy/outro.webm",
+      "poster": "trophy/poster.png",
+      "palette": {
+        "sender": "#9af5ff",
+        "recipient": "#ffe3a2",
+        "nameLight": "#fff8e2",
+        "energyRGB": "91,225,255",
+        "rgb": "245,201,117",
+        "accent": "#ffe2a1",
+        "caption": "SĂRBĂTORIM!"
+      }
+    },
+    "bolt": {
+      "intro": "bolt/intro.webm",
+      "loop": "bolt/loop.webm",
+      "outro": "bolt/outro.webm",
+      "poster": "bolt/poster.png",
+      "palette": {
+        "sender": "#ffdf9b",
+        "recipient": "#a7f0ff",
+        "nameLight": "#f1fdff",
+        "energyRGB": "207,144,255",
+        "rgb": "95,222,255",
+        "accent": "#7debff",
+        "caption": "ENERGIE!"
+      }
+    },
+    "diamond": {
+      "intro": "diamond/intro.webm",
+      "loop": "diamond/loop.webm",
+      "outro": "diamond/outro.webm",
+      "poster": "diamond/poster.png",
+      "palette": {
+        "sender": "#ffd99a",
+        "recipient": "#9fefff",
+        "nameLight": "#f1fdff",
+        "energyRGB": "175,128,255",
+        "rgb": "73,215,255",
+        "accent": "#16aafa",
+        "caption": "STRĂLUCEȘTI!"
+      }
+    },
+    "star": {
+      "intro": "star/intro.webm",
+      "loop": "star/loop.webm",
+      "outro": "star/outro.webm",
+      "poster": "star/poster.png",
+      "palette": {
+        "sender": "#96f3ff",
+        "recipient": "#ffe796",
+        "nameLight": "#fff9da",
+        "energyRGB": "86,225,255",
+        "rgb": "255,214,75",
+        "accent": "#ffb300",
+        "caption": "EȘTI VEDETA!"
+      }
+    },
+    "fire": {
+      "intro": "fire/intro.webm",
+      "loop": "fire/loop.webm",
+      "outro": "fire/outro.webm",
+      "poster": "fire/poster.png",
+      "palette": {
+        "sender": "#96f3ff",
+        "recipient": "#ffc384",
+        "nameLight": "#fff0db",
+        "energyRGB": "94,216,255",
+        "rgb": "255,137,44",
+        "accent": "#ff510d",
+        "caption": "SEARA TA!"
+      }
+    },
+    "rocket": {
+      "intro": "rocket/intro.webm",
+      "loop": "rocket/loop.webm",
+      "outro": "rocket/outro.webm",
+      "poster": "rocket/poster.png",
+      "palette": {
+        "sender": "#94f7dc",
+        "recipient": "#d4baff",
+        "nameLight": "#f6edff",
+        "energyRGB": "85,239,211",
+        "rgb": "193,144,255",
+        "accent": "#864aff",
+        "caption": "LA ÎNĂLȚIME!"
+      }
+    },
+    "rose": {
+      "intro": "rose/intro.webm",
+      "loop": "rose/loop.webm",
+      "outro": "rose/outro.webm",
+      "poster": "rose/poster.png",
+      "palette": {
+        "sender": "#91f5ff",
+        "recipient": "#ffb9d4",
+        "nameLight": "#fff1f6",
+        "energyRGB": "101,230,255",
+        "rgb": "255,88,150",
+        "accent": "#e52172",
+        "caption": "PENTRU TINE!"
+      }
+    },
+    "champagne": {
+      "intro": "champagne/intro.webm",
+      "loop": "champagne/loop.webm",
+      "outro": "champagne/outro.webm",
+      "poster": "champagne/poster.png",
+      "palette": {
+        "sender": "#ffe3a8",
+        "recipient": "#b2ffdb",
+        "nameLight": "#edfff6",
+        "energyRGB": "255,204,109",
+        "rgb": "142,244,170",
+        "accent": "#30bb8c",
+        "caption": "SĂ SĂRBĂTORIM!"
+      }
+    }
+  }
+}

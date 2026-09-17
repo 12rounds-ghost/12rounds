@@ -43,10 +43,12 @@ export async function POST(req: Request) {
     p_event_id: event.id,
     p_durata_secunde: durata,
   });
-  const ded = (rezultat as { id: string; mesaj: string | null; de_la: string | null; pentru: string | null }[] | null)?.[0] ?? null;
+  const ded =
+    (rezultat as { id: string; mesaj: string | null; de_la: string | null; pentru: string | null; cadou: string | null }[] | null)?.[0] ??
+    null;
 
   return NextResponse.json({
     durata_secunde: durata,
-    dedicatie: ded ? { id: ded.id, mesaj: ded.mesaj, de_la: ded.de_la, pentru: ded.pentru } : null,
+    dedicatie: ded ? { id: ded.id, mesaj: ded.mesaj, de_la: ded.de_la, pentru: ded.pentru, cadou: ded.cadou } : null,
   });
 }

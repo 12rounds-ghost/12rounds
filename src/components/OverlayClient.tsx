@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { RoundsPlayer, type RoundsPlayerHandle } from '@/components/RoundsPlayer';
 
 interface DedicatieStream {
   id: string;
   mesaj: string | null;
   de_la: string | null;
   pentru: string | null;
+  cadou: string | null;
 }
 
 export type FormatOverlay = '16-9' | '9-16';
@@ -16,22 +18,23 @@ const INTERVAL_RETRY_MS = 5000;
 // Sarcina: overlay de streaming in doua formate (16:9 si 9:16), pe doua
 // pagini/linkuri separate, deschise simultan in doua Browser Source diferite
 // din OBS/vMix — cerinta explicita a echipei tehnice: "verticalul trebuie
-// facut separat, nu e orizontalul micsorat". Aceeasi componenta orchestreaza
-// sincronizarea (identica pentru ambele formate), dar randeaza un layout
-// distinct in functie de `format` — nu doar o scalare CSS a aceluiasi HTML.
+// facut separat, nu e orizontalul micsorat".
 //
-// Sincronizare: ambele pagini sondeaza pe ritm propriu (nu mai depindem de
-// durata_secunde ca sa stim cand sa cerem urmatoarea) — serverul e sursa de
-// adevar pentru "ce ruleaza acum" (vezi /api/overlay/next +
-// avanseaza_overlay_stream), deci indiferent cand soseste cererea de la
-// fiecare pagina, ambele vad aceeasi dedicatie pana expira, apoi ambele trec
-// la urmatoarea in acelasi timp. Animatia de intrare se declanseaza doar cand
-// se schimba id-ul, nu la fiecare sondare.
+// Sincronizare: ambele pagini sondeaza pe ritm propriu, dar serverul e sursa
+// de adevar pentru "ce ruleaza acum" (vezi /api/overlay/next +
+// avanseaza_overlay_stream) — asta NU s-a schimbat cu grafica noua. Am ales
+// deliberat sa NU trecem avansarea pe finalizarea locala a playerului (cum
+// am facut la /ecran, unde fiecare ecran fizic e independent): daca fiecare
+// pagina ar decide singura cand trece la urmatoarea, cele doua iesiri
+// (16:9/9:16, sau acelasi output deschis pe doua calculatoare) ar putea
+// incepe sa arate dedicatii diferite in momente diferite — exact ce
+// sincronizarea server-side de la 0020_overlay_sincronizat.sql a fost gandita
+// sa previna. Deci: serverul decide TOT cand trecem la urmatoarea (neschimbat);
+// playerul primeste durata_secunde ca hint, dar poate creste intern pentru
+// texte lungi (comportament normal al kit-ului), fara sa afecteze avansarea.
 //
-// QR permanent (Sarcina: "sa nu avem timpi morti"): codul QR sta intr-un colt
-// tot timpul, indiferent daca ruleaza sau nu o dedicatie — cand coada e goala,
-// ecranul nu ramane niciodata complet gol, iar publicul are mereu o cale de a
-// trimite o dedicatie, nu doar in ferestrele cu mesaje afisate.
+// QR permanent (Sarcina: "sa nu avem timpi morti"): ramane exact ca inainte,
+// randat separat de player, mereu vizibil.
 export function OverlayClient({
   slug,
   apiKey,
@@ -43,8 +46,7 @@ export function OverlayClient({
   format: FormatOverlay;
   qrDataUrl: string;
 }) {
-  const [ded, setDed] = useState<DedicatieStream | null>(null);
-  const [cheieAnimatie, setCheieAnimatie] = useState(0);
+  const playerRef = useRef<RoundsPlayerHandle>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const anulatRef = useRef(false);
   const ultimulIdRef = useRef<string | null>(null);
@@ -79,9 +81,19 @@ export function OverlayClient({
         const data = await res.json();
         if (anulatRef.current) return;
         const nou: DedicatieStream | null = data.dedicatie ?? null;
-        setDed(nou);
         if (nou && nou.id !== ultimulIdRef.current) {
-          setCheieAnimatie((c) => c + 1);
+          playerRef.current
+            ?.play({
+              id: nou.id,
+              sender: nou.de_la,
+              recipient: nou.pentru,
+              message: nou.mesaj,
+              gift: nou.cadou,
+              duration: typeof data.durata_secunde === 'number' ? data.durata_secunde : undefined,
+            })
+            .catch((e) => console.error('Redarea dedicatiei a esuat', e));
+        } else if (!nou) {
+          playerRef.current?.stop();
         }
         ultimulIdRef.current = nou?.id ?? null;
         programeaza(INTERVAL_SONDARE_MS);
@@ -103,10 +115,20 @@ export function OverlayClient({
     };
   }, [slug, apiKey]);
 
-  return format === '9-16' ? (
-    <OverlayVertical ded={ded} cheieAnimatie={cheieAnimatie} qrDataUrl={qrDataUrl} />
-  ) : (
-    <OverlayOrizontal ded={ded} cheieAnimatie={cheieAnimatie} qrDataUrl={qrDataUrl} />
+  return (
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', inset: 0 }}>
+        <RoundsPlayer ref={playerRef} format={format === '9-16' ? 'tall' : 'wide'} />
+      </div>
+      <QrBadge
+        qrDataUrl={qrDataUrl}
+        marimeQr={format === '9-16' ? '12vh' : '11vh'}
+        top={format === '9-16' ? '9vh' : '3vh'}
+        right={format === '9-16' ? '5vw' : '3vw'}
+        padding={format === '9-16' ? '1.4vh' : '1.2vh'}
+        fontSize={format === '9-16' ? '1.5vh' : '1.4vh'}
+      />
+    </div>
   );
 }
 
@@ -149,185 +171,6 @@ function QrBadge({
       <div style={{ marginTop: '0.7vh', fontSize, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>
         Trimite o dedicație
       </div>
-    </div>
-  );
-}
-
-// 16:9 (1920x1080) — bara jos, latime completa, stil "lower third" clasic
-// de emisie: mesajul citeste usor peste imaginea live din spate. QR-ul sta
-// sus-dreapta, in afara zonei barei, ca sa nu se suprapuna niciodata cu ea.
-function OverlayOrizontal({
-  ded,
-  cheieAnimatie,
-  qrDataUrl,
-}: {
-  ded: DedicatieStream | null;
-  cheieAnimatie: number;
-  qrDataUrl: string;
-}) {
-  return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
-      <style>{`
-        /* Bara intra din jos si "sare" usor la asezare (scale 0.96 -> 1.015
-           -> 1) — fiecare dedicatie pe stream e prin definitie noua (nu se
-           reciclieaza niciodata, avanseaza_overlay_stream o marcheaza o
-           singura data), deci acelasi accent ca la prima difuzare pe
-           ecranele fizice se aplica aici la FIECARE intrare. */
-        @keyframes bara-intrare {
-          0% { transform: translateY(100%) scale(0.96); opacity: 0; }
-          70% { transform: translateY(0) scale(1.015); opacity: 1; }
-          100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        @keyframes insigna-nou-overlay {
-          0%, 100% { opacity: 0; }
-          8%, 75% { opacity: 1; }
-        }
-        .insigna-nou-overlay { animation: insigna-nou-overlay 5s ease forwards; }
-      `}</style>
-
-      <QrBadge qrDataUrl={qrDataUrl} marimeQr="11vh" top="3vh" right="3vw" padding="1.2vh" fontSize="1.4vh" />
-
-      {ded && (
-        <div
-          key={cheieAnimatie}
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            minHeight: '15.5vh',
-            background: 'rgba(10,10,11,0.92)',
-            borderTop: '0.3vh solid var(--accent, #e21d1d)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '2vw',
-            padding: '2vh 4vw',
-            animation: 'bara-intrare 0.6s cubic-bezier(0.2,0.8,0.2,1)',
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.jpeg" alt="" style={{ width: '6vh', height: '6vh', borderRadius: '50%', flexShrink: 0 }} />
-          <div style={{ minWidth: 0 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8vh', marginBottom: '0.6vh' }}>
-              <span style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.6vh' }}>
-                Dedicație
-              </span>
-              <span
-                className="insigna-nou-overlay"
-                style={{
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                  fontSize: '1.2vh',
-                  fontWeight: 800,
-                  color: '#0a0a0b',
-                  background: 'var(--accent, #e21d1d)',
-                  borderRadius: 999,
-                  padding: '0.2vh 0.9vh',
-                }}
-              >
-                Nou
-              </span>
-            </div>
-            <div style={{ fontSize: '2.9vh', fontWeight: 700, color: '#fff', lineHeight: 1.25, maxWidth: '82vw' }}>
-              {ded.mesaj}
-            </div>
-            {(ded.de_la || ded.pentru) && (
-              <div style={{ marginTop: '0.8vh', fontSize: '1.9vh', color: '#c8c8cc' }}>
-                {ded.de_la && <>De la <strong style={{ color: '#fff' }}>{ded.de_la}</strong></>}
-                {ded.pentru && <> pentru <strong style={{ color: '#fff' }}>{ded.pentru}</strong></>}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// 9:16 (1080x1920) — card in treimea inferioara, NU bara orizontala
-// micsorata: pe verticalul de telefon zona de sus e de obicei acoperita de
-// UI-ul platformei (nume cont, buton live) si cea de jos de comentarii/
-// reactii — cardul sta intr-o zona de siguranta intre cele doua. QR-ul sta
-// sus-dreapta, sub zona tipica de titlu a platformei, deasupra cardului.
-function OverlayVertical({
-  ded,
-  cheieAnimatie,
-  qrDataUrl,
-}: {
-  ded: DedicatieStream | null;
-  cheieAnimatie: number;
-  qrDataUrl: string;
-}) {
-  return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
-      <style>{`
-        /* Card centrat, plutitor — acelasi tratament de zoom cu bounce ca
-           dedicatia noua de pe ecranele fizice, aplicat aici la FIECARE
-           intrare (fiecare dedicatie pe stream e prin definitie noua, nu
-           se reciclieaza niciodata — avanseaza_overlay_stream). */
-        @keyframes card-intrare {
-          0% { transform: translateY(2vh) scale(0.9); opacity: 0; }
-          60% { transform: translateY(0) scale(1.03); opacity: 1; }
-          100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        @keyframes insigna-nou-overlay {
-          0%, 100% { opacity: 0; }
-          8%, 75% { opacity: 1; }
-        }
-        .insigna-nou-overlay { animation: insigna-nou-overlay 5s ease forwards; }
-      `}</style>
-
-      <QrBadge qrDataUrl={qrDataUrl} marimeQr="12vh" top="9vh" right="5vw" padding="1.4vh" fontSize="1.5vh" />
-
-      {ded && (
-        <div
-          key={cheieAnimatie}
-          style={{
-            position: 'absolute',
-            left: '6vw',
-            right: '6vw',
-            bottom: '20vh',
-            background: 'rgba(10,10,11,0.92)',
-            border: '0.25vh solid var(--accent, #e21d1d)',
-            borderRadius: '2.2vh',
-            padding: '3vh 5vw',
-            textAlign: 'center',
-            animation: 'card-intrare 0.7s cubic-bezier(0.22,0.9,0.2,1)',
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.jpeg" alt="" style={{ width: '7vh', height: '7vh', borderRadius: '50%', margin: '0 auto 1.6vh' }} />
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8vh', marginBottom: '1.4vh' }}>
-            <span style={{ fontFamily: 'var(--font-display)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-hover, #ff2e2e)', fontSize: '1.9vh' }}>
-              Dedicație
-            </span>
-            <span
-              className="insigna-nou-overlay"
-              style={{
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                fontSize: '1.4vh',
-                fontWeight: 800,
-                color: '#0a0a0b',
-                background: 'var(--accent, #e21d1d)',
-                borderRadius: 999,
-                padding: '0.2vh 0.9vh',
-              }}
-            >
-              Nou
-            </span>
-          </div>
-          <div style={{ fontSize: '3.1vh', fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>
-            {ded.mesaj}
-          </div>
-          {(ded.de_la || ded.pentru) && (
-            <div style={{ marginTop: '1.6vh', fontSize: '2.1vh', color: '#c8c8cc' }}>
-              {ded.de_la && <>De la <strong style={{ color: '#fff' }}>{ded.de_la}</strong></>}
-              {ded.pentru && <> pentru <strong style={{ color: '#fff' }}>{ded.pentru}</strong></>}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

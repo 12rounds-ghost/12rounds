@@ -16,8 +16,8 @@ export default async function EcranFizic({
   searchParams: { key?: string };
 }) {
   const sb = supabaseAdmin();
-  const { data } = await sb.from('ecrane').select('id, token').eq('id', params.id).maybeSingle();
-  const ecran = data as Pick<Ecran, 'id' | 'token'> | null;
+  const { data } = await sb.from('ecrane').select('id, nume, token').eq('id', params.id).maybeSingle();
+  const ecran = data as Pick<Ecran, 'id' | 'nume' | 'token'> | null;
 
   const secretGlobal = process.env.ECRAN_SECRET;
   const cheieValida =
@@ -27,5 +27,10 @@ export default async function EcranFizic({
     return <div style={{ background: '#000', minHeight: '100vh' }} />;
   }
 
-  return <EcranClient id={params.id} apiKey={searchParams.key!} />;
+  // Kit-ul RoundsAnimation are doar doua variante pentru sala — hall1
+  // (576x352) si hall6 (587x352). Mapare aleasa explicit: "Ecran 1" -> hall1,
+  // orice alt nume -> hall6 (Sarcina: grafica noua dedicatii).
+  const format = /\b1\b/.test(ecran.nume) ? 'hall1' : 'hall6';
+
+  return <EcranClient id={params.id} apiKey={searchParams.key!} format={format} />;
 }
