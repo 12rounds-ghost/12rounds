@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { obtineModeratorApi } from '@/lib/auth-admin';
-import type { TipDedicatie } from '@/lib/types';
+import { CADOURI, type TipDedicatie } from '@/lib/types';
 
 // Sarcina: fix cache Next.js (raspunsuri de status/date invechite in productie)
 // — GET-urile fara acest export pot fi cache-uite la nivel de fetch si servi
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
     pentru,
     artist_preferat,
     mesaj,
+    cadou,
     suma_lei,
     aproba_automat,
   } = body as Record<string, unknown>;
@@ -50,6 +51,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Mesajul este obligatoriu pentru acest tip.' }, { status: 400 });
   }
   const sumaBani = typeof suma_lei === 'number' && suma_lei >= 0 ? Math.round(suma_lei * 100) : 0;
+  // Cadoul e afisat vizual doar pe ecran/stream (acelasi player ca la
+  // formularul public) — spre deosebire de formularul public insa, aici nu
+  // blocam trimiterea daca lipseste: e un formular de urgenta, iar kit-ul
+  // insusi cade pe "crown" la o valoare lipsa/invalida, deci facem asta
+  // explicit in loc sa lasam camp gol in baza de date.
+  const areNevoieDeCadou = tip === 'ecran' || tip === 'stream';
+  const cadouValid =
+    typeof cadou === 'string' && CADOURI.includes(cadou as (typeof CADOURI)[number]) ? cadou : 'crown';
 
   const admin = supabaseAdmin();
   const { data: event } = await admin.from('events').select('id, status').eq('id', event_id).maybeSingle();
@@ -68,6 +77,7 @@ export async function POST(req: Request) {
       pentru: typeof pentru === 'string' ? pentru.trim().slice(0, 80) || null : null,
       artist_preferat: typeof artist_preferat === 'string' ? artist_preferat.trim().slice(0, 80) || null : null,
       mesaj: typeof mesaj === 'string' ? mesaj.trim().slice(0, 300) || null : null,
+      cadou: areNevoieDeCadou ? cadouValid : null,
       sursa_platforma: 'admin-manual',
       status_plata: 'paid',
       platit_la: acum,

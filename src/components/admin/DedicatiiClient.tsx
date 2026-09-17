@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
-import { NUME_TIP, lei, type Dedicatie, type TipDedicatie } from '@/lib/types';
+import { NUME_TIP, CADOURI, NUME_CADOU, lei, type Dedicatie, type TipDedicatie, type CadouDedicatie } from '@/lib/types';
 import type { RolModerator } from '@/lib/auth-admin';
 import { urlPozaAprobata } from '@/lib/storage';
 
@@ -24,10 +24,13 @@ function AdaugaManualCard({
   const [pentru, setPentru] = useState('');
   const [artistPreferat, setArtistPreferat] = useState('');
   const [mesaj, setMesaj] = useState('');
+  const [cadou, setCadou] = useState<CadouDedicatie>('crown');
   const [sumaLei, setSumaLei] = useState('0');
   const [aprobaAutomat, setAprobaAutomat] = useState(true);
   const [seSalveaza, setSeSalveaza] = useState(false);
   const [eroare, setEroare] = useState('');
+
+  const areNevoieDeCadou = tip === 'ecran' || tip === 'stream';
 
   function reseteaza() {
     setEventId('');
@@ -36,6 +39,7 @@ function AdaugaManualCard({
     setPentru('');
     setArtistPreferat('');
     setMesaj('');
+    setCadou('crown');
     setSumaLei('0');
     setAprobaAutomat(true);
     setEroare('');
@@ -59,6 +63,7 @@ function AdaugaManualCard({
           pentru,
           artist_preferat: artistPreferat,
           mesaj,
+          cadou: areNevoieDeCadou ? cadou : null,
           suma_lei: Number(sumaLei) || 0,
           aproba_automat: aprobaAutomat,
         }),
@@ -119,6 +124,25 @@ function AdaugaManualCard({
               onChange={(e) => setMesaj(e.target.value)}
               style={{ marginTop: 10 }}
             />
+          )}
+          {areNevoieDeCadou && (
+            <div style={{ marginTop: 10 }}>
+              <p className="sub" style={{ textAlign: 'left', margin: '0 0 8px' }}>Cadou (implicit „coroană" dacă nu alegi altul)</p>
+              <div className="cadouri-grid">
+                {CADOURI.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className={`cadou-item${cadou === c ? ' selected' : ''}`}
+                    onClick={() => setCadou(c)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/rounds-kit/assets/gifts/${c}/poster.png`} alt="" />
+                    <span>{NUME_CADOU[c]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
           <label className="rand" style={{ gap: 6, justifyContent: 'flex-start', width: 'auto', marginTop: 12 }}>
             <input type="checkbox" checked={aprobaAutomat} onChange={(e) => setAprobaAutomat(e.target.checked)} />
