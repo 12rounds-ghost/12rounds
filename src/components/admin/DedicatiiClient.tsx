@@ -1,9 +1,138 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
-import { NUME_TIP, lei, type Dedicatie } from '@/lib/types';
+import { NUME_TIP, lei, type Dedicatie, type TipDedicatie } from '@/lib/types';
 import type { RolModerator } from '@/lib/auth-admin';
 import { urlPozaAprobata } from '@/lib/storage';
+
+const TIPURI: TipDedicatie[] = ['sustinere', 'ecran', 'stream', 'prezentator'];
+
+// Sarcina: backup pentru cazul unei probleme/blocaj la platile online — admin-ul
+// poate adauga o dedicatie direct, fara Stripe. Intra direct 'paid' (vezi
+// /api/admin/dedicatii/manual), ca sa fie imediat eligibila pentru difuzare.
+function AdaugaManualCard({
+  evenimente,
+  onAdaugat,
+}: {
+  evenimente: { id: string; nume: string }[];
+  onAdaugat: () => void;
+}) {
+  const [deschis, setDeschis] = useState(false);
+  const [eventId, setEventId] = useState('');
+  const [tip, setTip] = useState<TipDedicatie>('ecran');
+  const [deLa, setDeLa] = useState('');
+  const [pentru, setPentru] = useState('');
+  const [artistPreferat, setArtistPreferat] = useState('');
+  const [mesaj, setMesaj] = useState('');
+  const [sumaLei, setSumaLei] = useState('0');
+  const [aprobaAutomat, setAprobaAutomat] = useState(true);
+  const [seSalveaza, setSeSalveaza] = useState(false);
+  const [eroare, setEroare] = useState('');
+
+  function reseteaza() {
+    setEventId('');
+    setTip('ecran');
+    setDeLa('');
+    setPentru('');
+    setArtistPreferat('');
+    setMesaj('');
+    setSumaLei('0');
+    setAprobaAutomat(true);
+    setEroare('');
+  }
+
+  async function trimite() {
+    setEroare('');
+    if (!eventId) {
+      setEroare('Alege ediția.');
+      return;
+    }
+    setSeSalveaza(true);
+    try {
+      const res = await fetch('/api/admin/dedicatii/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_id: eventId,
+          tip,
+          de_la: deLa,
+          pentru,
+          artist_preferat: artistPreferat,
+          mesaj,
+          suma_lei: Number(sumaLei) || 0,
+          aproba_automat: aprobaAutomat,
+        }),
+      });
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: 'A apărut o eroare.' }));
+        setEroare(error);
+        return;
+      }
+      reseteaza();
+      setDeschis(false);
+      onAdaugat();
+    } finally {
+      setSeSalveaza(false);
+    }
+  }
+
+  return (
+    <div className="card">
+      <div className="rand" style={{ cursor: 'pointer' }} onClick={() => setDeschis((d) => !d)}>
+        <strong>+ Adaugă dedicație manuală (fără plată)</strong>
+        <span className="sub" style={{ margin: 0 }}>{deschis ? '▲' : '▼'}</span>
+      </div>
+      {deschis && (
+        <div style={{ marginTop: 12 }}>
+          <p className="sub" style={{ textAlign: 'left', margin: '0 0 12px' }}>
+            Rezervă pentru cazul unei probleme cu plățile online — intră direct ca „paid", fără Stripe.
+            Marcată cu sursă „admin-manual", ca s-o poți găsi separat.
+          </p>
+          <div className="grid-filtre-dedicatii">
+            <select value={eventId} onChange={(e) => setEventId(e.target.value)}>
+              <option value="">Alege ediția…</option>
+              {evenimente.map((ev) => (
+                <option key={ev.id} value={ev.id}>{ev.nume}</option>
+              ))}
+            </select>
+            <select value={tip} onChange={(e) => setTip(e.target.value as TipDedicatie)}>
+              {TIPURI.map((t) => (
+                <option key={t} value={t}>{NUME_TIP[t]}</option>
+              ))}
+            </select>
+            <input placeholder="De la" value={deLa} onChange={(e) => setDeLa(e.target.value)} />
+            <input placeholder="Pentru" value={pentru} onChange={(e) => setPentru(e.target.value)} />
+            <input placeholder="Artist preferat (opțional)" value={artistPreferat} onChange={(e) => setArtistPreferat(e.target.value)} />
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="Sumă (lei) — 0 dacă e gratuit"
+              value={sumaLei}
+              onChange={(e) => setSumaLei(e.target.value)}
+            />
+          </div>
+          {tip !== 'sustinere' && (
+            <textarea
+              placeholder="Mesajul dedicației"
+              value={mesaj}
+              onChange={(e) => setMesaj(e.target.value)}
+              style={{ marginTop: 10 }}
+            />
+          )}
+          <label className="rand" style={{ gap: 6, justifyContent: 'flex-start', width: 'auto', marginTop: 12 }}>
+            <input type="checkbox" checked={aprobaAutomat} onChange={(e) => setAprobaAutomat(e.target.checked)} />
+            Aprobă automat (nu mai trece prin „Moderare")
+          </label>
+          {eroare && <p className="eroare">{eroare}</p>}
+          <button className="btn mic" style={{ marginTop: 12 }} disabled={seSalveaza} onClick={trimite}>
+            {seSalveaza ? 'Se adaugă…' : 'Adaugă dedicația'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const PE_PAGINA = 25;
 
@@ -249,6 +378,8 @@ export function DedicatiiClient({
     <div>
       <h1>Dedicații</h1>
       <p className="sub">Toate dedicațiile, din toate edițiile — {total} rezultate.</p>
+
+      {esteAdmin && <AdaugaManualCard evenimente={evenimente} onAdaugat={incarca} />}
 
       <div className="tab-bar">
         {TABURI_DIFUZARE.map((t) => (
