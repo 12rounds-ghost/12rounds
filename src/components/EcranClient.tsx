@@ -12,7 +12,6 @@ type Continut =
       cadou: string | null;
     }
   | { tip: 'qr'; url: string; qr_data_url: string }
-  | { tip: 'sponsor'; nume: string; logo_url: string }
   | { tip: 'branding' }
   | { tip: 'inactiv' };
 
@@ -28,7 +27,8 @@ const DURATA_RETRY_MS = 5000;
 // gestioneaza singur animatia si durata (creste pentru mesaje lungi). De-asta
 // pentru 'dedicatie' NU mai programam next() cu un timer fix — asteptam
 // finalizarea lui play(), apoi cerem imediat urmatorul continut. Umplutura
-// (qr/sponsor/branding) ramane exact pe vechiul mecanism, cu timer.
+// (qr/branding — sponsorul a fost scos din rotatie) ramane exact pe vechiul
+// mecanism, cu timer.
 export function EcranClient({ id, apiKey, format }: { id: string; apiKey: string; format: FormatRounds }) {
   const [continut, setContinut] = useState<Continut | null>(null);
   const [cheieAnimatie, setCheieAnimatie] = useState(0);
@@ -132,16 +132,6 @@ function ContinutFiller({ continut }: { continut: Exclude<Continut, { tip: 'dedi
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={continut.qr_data_url} alt="Cod QR" style={{ width: '24vw', height: '24vw', background: '#fff', padding: 20, borderRadius: 16 }} />
         <div style={{ marginTop: 28, fontSize: '1.4vw', color: '#b8b8bc' }}>Scanează și mesajul tău ajunge pe ecran</div>
-      </div>
-    );
-  }
-
-  if (continut.tip === 'sponsor') {
-    return (
-      <div className="ecran-continut" style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '1.3vw', textTransform: 'uppercase', letterSpacing: 2, color: '#b8b8bc', marginBottom: 24 }}>Partener</div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={continut.logo_url} alt={continut.nume} style={{ maxWidth: '40vw', maxHeight: '30vh', objectFit: 'contain' }} />
       </div>
     );
   }

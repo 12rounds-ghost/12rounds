@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server';
 import QRCode from 'qrcode';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { urlPozaAprobata, urlSponsorLogo } from '@/lib/storage';
-import type { Dedicatie, Ecran, Sponsor } from '@/lib/types';
+import { urlPozaAprobata } from '@/lib/storage';
+import type { Dedicatie, Ecran } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 const DURATA_IMPLICITA_SECUNDE = 12;
 const DURATA_INACTIV_SECUNDE = 20;
 
-// Continutul afisat cand e randul umpluturii — se roteste, in ordine de
-// prioritate, intre QR (cheama publicul sa trimita o dedicatie), un sponsor
-// si branding simplu (Sarcina V4-A3, IMPLEMENTARE-V4.md).
+// Continutul afisat cand e randul umpluturii — alterneaza QR (cheama publicul
+// sa trimita o dedicatie) si branding simplu (Sarcina V4-A3, IMPLEMENTARE-V4.md).
+// Sponsorul a fost scos din rotatie (Sarcina: grafica noua) — ramane doar
+// codul asociat sponsorilor pentru cine il reactiveaza mai tarziu.
 type Filler =
   | { tip: 'qr'; url: string; qr_data_url: string }
-  | { tip: 'sponsor'; nume: string; logo_url: string }
   | { tip: 'branding' }
   | { tip: 'inactiv' };
 
@@ -102,36 +102,18 @@ export async function POST(req: Request) {
     // trecem la umplutura mai jos, fara eroare si fara ecran negru.
   }
 
-  const filler = await alegeFiller(sb, ecran, event.id, event.slug);
+  const filler = await alegeFiller(sb, ecran, event.slug);
   await sb.from('ecrane').update({ ultima_cerere: new Date().toISOString(), ultimul_tip: 'umplere' }).eq('id', ecran.id);
   return NextResponse.json({ durata_secunde: durata, continut: filler });
 }
 
-async function alegeFiller(
-  sb: ReturnType<typeof supabaseAdmin>,
-  ecran: Ecran,
-  eventId: string,
-  slug: string
-): Promise<Filler> {
-  const { data: sponsoriData } = await sb
-    .from('sponsori')
-    .select('*')
-    .eq('activ', true)
-    .or(`event_id.eq.${eventId},event_id.is.null`);
-  const sponsoriCuLogo = ((sponsoriData ?? []) as Sponsor[]).filter((s) => s.logo_path);
-
-  // Ordine de prioritate fixa: QR, apoi sponsor (daca exista), apoi branding.
-  const variante: Filler['tip'][] = ['qr', ...(sponsoriCuLogo.length > 0 ? (['sponsor'] as const) : []), 'branding'];
+async function alegeFiller(sb: ReturnType<typeof supabaseAdmin>, ecran: Ecran, slug: string): Promise<Filler> {
+  const variante: Filler['tip'][] = ['qr', 'branding'];
   const ales = variante[ecran.filler_index % variante.length];
   await sb
     .from('ecrane')
     .update({ filler_index: (ecran.filler_index + 1) % variante.length })
     .eq('id', ecran.id);
-
-  if (ales === 'sponsor') {
-    const sponsor = sponsoriCuLogo[Math.floor(Math.random() * sponsoriCuLogo.length)];
-    return { tip: 'sponsor', nume: sponsor.nume, logo_url: urlSponsorLogo(sponsor.logo_path as string) };
-  }
 
   if (ales === 'qr') {
     const url = `${process.env.NEXT_PUBLIC_SITE_URL}/eveniment/${slug}?src=ecran`;
