@@ -36,7 +36,10 @@ export async function POST(req: Request) {
             currency: 'ron',
             unit_amount: tarif.pret_bani,
             product_data: {
-              name: `12 ROUNDS — ${NUME_TIP[ded.tip]}`,
+              // "Servicii dedicații" in loc de "12 ROUNDS" — consistent cu
+              // /api/payment-intent (acolo confirmat empiric ce citeste
+              // SmartBill pe linia facturii).
+              name: `Servicii dedicații — ${NUME_TIP[ded.tip]}`,
               description: ded.pentru ? `Pentru: ${ded.pentru}` : event.nume,
             },
           },
