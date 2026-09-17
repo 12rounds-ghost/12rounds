@@ -1,0 +1,249 @@
+
+@font-face{font-family:TikTokSans;src:url('../assets/fonts/tiktok.woff') format('woff');font-weight:100 900;font-display:swap}
+#rounds-lab{--red:#ec0034;--ink:#090a0d;--paper:#f6f5f0;color:#efeee9;background:#101115;font:14px/1.45 TikTokSans,sans-serif;border-radius:14px;overflow:hidden;color-scheme:dark}
+#rounds-lab [hidden]{display:none!important}#rounds-lab *{box-sizing:border-box}#rounds-lab button,#rounds-lab input,#rounds-lab select,#rounds-lab textarea{font:inherit}#rounds-lab button,#rounds-lab select{cursor:pointer}#rounds-lab button:focus-visible,#rounds-lab input:focus-visible,#rounds-lab textarea:focus-visible,#rounds-lab select:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#rounds-lab .lab-head{display:flex;align-items:center;justify-content:space-between;padding:24px 28px;border-bottom:1px solid #303036;gap:16px}#rounds-lab .lab-brand{font:700 25px/1 TikTokSans,TikTokSans,sans-serif;letter-spacing:-1px}#rounds-lab .lab-brand span{color:var(--red)}#rounds-lab .lab-kicker{font-size:10px;letter-spacing:3px;margin-top:8px;color:#a4a5ac}#rounds-lab .lab-version{font-size:11px;letter-spacing:1px;color:#c1c0c5}#rounds-lab .lab-version b{color:#ff345b}
+#rounds-lab .lab-toolbar{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:18px 28px}#rounds-lab .lab-tabs{display:flex;gap:5px;flex-wrap:wrap}#rounds-lab button{border:1px solid #414148;background:#202126;color:#dedee4;border-radius:5px;padding:10px 14px;font-size:12px}#rounds-lab button[aria-pressed=true]{color:#101115;background:#f0efea;border-color:#f0efea}#rounds-lab .lab-muted{font-size:11px;color:#aba9b3}#rounds-lab .lab-content{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:22px;padding:0 28px 26px}#rounds-lab .lab-stage-area{min-width:0}#rounds-lab .lab-viewport{position:relative;width:100%;overflow:hidden;background:#08090c;isolation:isolate;box-shadow:0 12px 35px #0005}#rounds-lab .lab-viewport.checker{background-color:#272830;background-image:linear-gradient(45deg,#363740 25%,transparent 25%),linear-gradient(-45deg,#363740 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#363740 75%),linear-gradient(-45deg,transparent 75%,#363740 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}#rounds-lab .lab-preview-holder{display:flex;justify-content:center;align-items:flex-start;min-height:240px}#rounds-lab .lab-viewport.portrait-preview{max-width:330px}#rounds-lab .lab-stage{position:absolute;left:0;top:0;width:1000px;transform-origin:top left;overflow:hidden}#rounds-lab .lab-scene{position:absolute;inset:0;background:#070b0d url('../demo/concert-poster.jpg') center/cover no-repeat}#rounds-lab .lab-scene:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#0005,transparent 65%)}#rounds-lab .lab-scene-label{position:absolute;left:32px;top:28px;z-index:1;color:#eee9;font-size:12px;letter-spacing:3px}#rounds-lab .tall .lab-scene-label{font-size:22px;left:70px;top:90px}
+#rounds-lab .overlay{position:absolute;inset:0;overflow:hidden;pointer-events:none;color:var(--paper)}#rounds-lab .panel{position:absolute;background:linear-gradient(118deg,#11121a 0%,#08090d 66%,#250310 100%);overflow:hidden;isolation:isolate}#rounds-lab .hall .panel{inset:0}#rounds-lab .wide .panel{left:45px;right:45px;bottom:40px;height:172px;border-left:5px solid var(--red);box-shadow:0 16px 45px #0009}#rounds-lab .tall .panel{left:65px;right:145px;bottom:310px;height:408px;border-left:7px solid var(--red);box-shadow:0 18px 65px #0009}
+#rounds-lab .ambient{position:absolute;inset:0;background:radial-gradient(ellipse at 100% 0,#b4002944,transparent 58%),linear-gradient(135deg,transparent 55%,#eb003410 55.2%,transparent 55.4%)}#rounds-lab .ghost{position:absolute;font:700 570px/.8 TikTokSans,TikTokSans,sans-serif;letter-spacing:-65px;right:-30px;bottom:-20px;color:#ffffff;opacity:.06;white-space:nowrap;user-select:none}#rounds-lab .wide .ghost{font-size:290px;bottom:-50px;right:10px;letter-spacing:-25px}#rounds-lab .tall .ghost{font-size:450px;right:-10px;bottom:-55px;letter-spacing:-45px}
+#rounds-lab .brand{position:absolute;left:53px;top:36px;z-index:3;font:700 24px/.9 TikTokSans,TikTokSans,sans-serif;letter-spacing:-1px}#rounds-lab .brand:after{content:'';display:block;height:3px;background:var(--red);margin-top:8px}#rounds-lab .brand small{display:block;font:8px TikTokSans,sans-serif;letter-spacing:2px;margin-top:6px}#rounds-lab .wide .brand{left:auto;right:28px;top:20px;font-size:17px}#rounds-lab .wide .brand small{display:none}#rounds-lab .tall .brand{left:auto;right:32px;top:35px;font-size:23px}#rounds-lab .tall .brand small{display:none}
+#rounds-lab .eyebrow{position:absolute;left:55px;top:144px;display:inline-block;background:var(--red);padding:8px 12px;font-size:18px;font-weight:700;letter-spacing:4px;z-index:3}#rounds-lab .hero{position:absolute;left:51px;top:192px;width:86%;height:168px;z-index:3;display:flex;align-items:center}#rounds-lab .hero-text{font:700 103px/.96 TikTokSans,TikTokSans,sans-serif;letter-spacing:-4px;text-transform:uppercase;overflow-wrap:anywhere;color:#f4f4ef;text-shadow:0 4px 0 #555760,0 9px 30px #0009;display:block;width:100%}#rounds-lab .has-photo .hero{width:54%;height:176px;top:189px}#rounds-lab .has-photo .hero-text{font-size:86px;letter-spacing:-3px}#rounds-lab .message{position:absolute;left:55px;top:386px;width:80%;max-height:130px;margin:0;font-size:32px;line-height:1.28;font-weight:500;z-index:3;overflow-wrap:anywhere;white-space:pre-wrap}#rounds-lab .has-photo .message{width:53%;font-size:28px;top:392px;max-height:122px}#rounds-lab .rule{position:absolute;left:55px;top:364px;width:160px;height:5px;background:var(--red);transform-origin:left;z-index:3}#rounds-lab .footer{position:absolute;bottom:30px;left:55px;right:55px;display:flex;justify-content:space-between;gap:20px;color:#b2a8ad;font-size:14px;letter-spacing:3px;z-index:3}#rounds-lab .footer .ticks{letter-spacing:5px;color:var(--red)}
+#rounds-lab .photo{position:absolute;top:132px;right:49px;width:299px;height:380px;padding:8px;border:1px solid #f5d9df55;z-index:3;display:none;box-shadow:18px 18px 0 -9px #ed0034}#rounds-lab .has-photo .photo{display:block}#rounds-lab .photo-inner{width:100%;height:100%;position:relative;background:linear-gradient(160deg,#442b34,#15151b 65%);overflow:hidden}#rounds-lab .photo img{width:100%;height:100%;object-fit:cover;display:none}#rounds-lab .photo-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;color:#ded8d8}#rounds-lab .photo-placeholder b{font:700 100px TikTokSans,sans-serif;color:#ffeff244}#rounds-lab .photo-placeholder span{font-size:10px;letter-spacing:2px}#rounds-lab .photo-label{position:absolute;bottom:9px;left:9px;right:9px;background:#050509c9;text-align:center;font-size:9px;letter-spacing:3px;padding:9px;color:white}
+#rounds-lab .wide .eyebrow{left:25px;top:18px;font-size:9px;letter-spacing:2px;padding:4px 8px}#rounds-lab .wide .hero{left:23px;top:43px;width:93%;height:57px}#rounds-lab .wide .hero-text{font-size:49px;letter-spacing:-2px;text-shadow:0 2px 0 #555760}#rounds-lab .wide .message{left:26px;top:109px;width:91%;font-size:20px;line-height:1.25;max-height:47px}#rounds-lab .wide .rule{left:26px;top:102px;height:2px;width:90px}#rounds-lab .wide .footer{display:none}
+#rounds-lab .tall .eyebrow{left:34px;top:35px;font-size:17px;letter-spacing:3px;padding:6px 9px}#rounds-lab .tall .hero{left:31px;top:88px;width:91%;height:142px}#rounds-lab .tall .hero-text{font-size:88px;letter-spacing:-3px}#rounds-lab .tall .message{left:36px;top:254px;width:90%;font-size:35px;max-height:125px;line-height:1.22}#rounds-lab .tall .rule{left:36px;top:237px;height:4px;width:125px}#rounds-lab .tall .footer{display:none}
+#rounds-lab .sweep{position:absolute;top:-30%;bottom:-30%;width:150px;background:linear-gradient(90deg,transparent,#fff3,transparent);transform:skewX(-20deg);z-index:5;mix-blend-mode:screen}#rounds-lab .wipe{position:absolute;inset:0;background:linear-gradient(100deg,#a50027,#ef0038 80%,#ff4262);z-index:8;transform-origin:left}#rounds-lab .wipe:after{content:'RESPECT';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 180px TikTokSans,sans-serif;letter-spacing:-10px;color:#fff1}#rounds-lab .wide .wipe:after{font-size:110px}#rounds-lab .tall .wipe:after{font-size:180px}#rounds-lab .fx{position:absolute;inset:0;z-index:6;width:100%;height:100%;pointer-events:none}#rounds-lab .progress-line{position:absolute;bottom:0;left:0;right:0;height:3px;background:#ec0034;transform-origin:left;z-index:7}
+#rounds-lab .lab-controls{display:flex;flex-direction:column;gap:15px}#rounds-lab .lab-controls label{display:flex;flex-direction:column;gap:7px;font-size:11px;color:#c8c5ce;letter-spacing:.3px}#rounds-lab input[type=text],#rounds-lab textarea,#rounds-lab select{width:100%;background:#1c1d23;border:1px solid #3c3c45;border-radius:5px;padding:10px;color:#f1f1f3;font-size:13px}#rounds-lab textarea{resize:vertical;min-height:94px}#rounds-lab .lab-photo-control{border-top:1px solid #33333a;padding-top:13px}#rounds-lab .lab-check{flex-direction:row!important;align-items:center;gap:9px!important}#rounds-lab input[type=checkbox]{accent-color:#ed0034}#rounds-lab input[type=file]{max-width:100%;font-size:11px;margin-top:12px}#rounds-lab .lab-actions{display:flex;gap:8px;margin-top:1px}#rounds-lab .lab-play{background:#ec0034;border-color:#ec0034;flex:1;color:white;font-weight:700}#rounds-lab .lab-transport{display:flex;align-items:center;gap:12px;margin-top:16px;color:#d5d1d6;font-size:11px}#rounds-lab input[type=range]{flex:1;width:100%;accent-color:#f22953}#rounds-lab .lab-time{font-variant-numeric:tabular-nums;white-space:nowrap}#rounds-lab .lab-state{margin-top:10px;font-size:11px;color:#b2a7af;display:flex;justify-content:space-between;gap:12px}#rounds-lab .lab-error{color:#ff9bae;font-size:12px;min-height:16px}#rounds-lab .lab-notes{border-top:1px solid #303036;padding:17px 28px;color:#aaa7b0;font-size:11px;line-height:1.6}#rounds-lab .lab-notes summary{cursor:pointer;color:#d2cfd6}#rounds-lab .lab-notes code{color:#f0c9d2;overflow-wrap:anywhere}#rounds-lab .lab-notes pre{white-space:pre-wrap;color:#d2cfd6;font-size:11px}#rounds-lab .lab-caption{margin-top:10px;font-size:10px;color:#929097}
+#rounds-lab.clean{background:transparent;border-radius:0;overflow:hidden;width:100vw;height:100vh}#rounds-lab.clean .lab-head,#rounds-lab.clean .lab-toolbar,#rounds-lab.clean .lab-controls,#rounds-lab.clean .lab-transport,#rounds-lab.clean .lab-state,#rounds-lab.clean .lab-caption,#rounds-lab.clean .lab-notes{display:none}#rounds-lab.clean .lab-content{display:block;padding:0}#rounds-lab.clean .lab-preview-holder{display:block;min-height:0}#rounds-lab.clean .lab-viewport{width:100vw!important;max-width:none!important;background:transparent;box-shadow:none}
+@media(max-width:760px){#rounds-lab .lab-content{grid-template-columns:1fr;padding:0 16px 20px}#rounds-lab .lab-head,#rounds-lab .lab-toolbar{padding:16px}#rounds-lab .lab-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}#rounds-lab .lab-photo-control,#rounds-lab .lab-actions,#rounds-lab .lab-error{grid-column:1/-1}#rounds-lab .lab-notes{padding:16px}#rounds-lab .lab-viewport.portrait-preview{max-width:270px}}
+@media(max-width:400px){#rounds-lab .lab-controls{grid-template-columns:1fr}#rounds-lab .lab-version{display:none}#rounds-lab .lab-tabs button{padding:9px 10px}}
+@media(prefers-reduced-motion:reduce){#rounds-lab .sweep{display:none}}
+/* SHOW 02 — oversized chrome lettering, stage light and angular architecture. */
+#rounds-lab .lab-kicker{color:#e0a8b6;letter-spacing:4px}
+#rounds-lab .panel{background:radial-gradient(ellipse at 50% 37%,#72091f 0%,#24050e 40%,#07080c 76%);perspective:1100px}
+#rounds-lab .ambient{background:repeating-linear-gradient(115deg,transparent 0 88px,#ffffff04 89px 90px),radial-gradient(ellipse at 50% 110%,#ff003b99,transparent 55%)}
+#rounds-lab .ghost{font-size:760px;color:transparent;-webkit-text-stroke:2px #ffb2c0;opacity:.09;bottom:-125px;right:25px;letter-spacing:-15px}
+#rounds-lab .stage-beams{position:absolute;inset:-70%;background:repeating-conic-gradient(from 7deg at 50% 50%,transparent 0deg 15deg,#ff1d4a25 17deg,#ffd1da16 18deg,transparent 20deg 40deg);mask-image:radial-gradient(ellipse,transparent 12%,black 55%,transparent 72%);z-index:0}
+#rounds-lab .show-ring{position:absolute;width:108%;height:80%;left:-4%;top:8%;border:2px solid #ed517361;border-radius:50%;box-shadow:0 0 35px #fa174f33,inset 0 0 40px #ed003422;transform:rotate(-12deg);z-index:0}
+#rounds-lab .show-ring:after{content:'';position:absolute;inset:20px;border:1px solid #fff3;border-radius:50%}
+#rounds-lab .show-edge{position:absolute;inset:17px;border:1px solid #f15d7944;clip-path:polygon(0 0,28% 0,28% 2%,72% 2%,72% 0,100% 0,100% 100%,72% 100%,72% 98%,28% 98%,28% 100%,0 100%);z-index:2;box-shadow:inset 0 0 20px #e4003220}
+#rounds-lab .show-wing{position:absolute;top:15%;bottom:13%;width:19%;background:linear-gradient(110deg,#260711,#ca0b38 42%,#fb4d6d 43%,#520b22 46%,#17040b 76%);clip-path:polygon(0 0,33% 0,100% 50%,33% 100%,0 100%,60% 50%);filter:drop-shadow(0 0 15px #ff003a66);opacity:.8;z-index:1}
+#rounds-lab .wing-left{left:-11%}#rounds-lab .wing-right{right:-11%;rotate:180deg}
+#rounds-lab .show-plate{position:absolute;inset:28% 5% 36%;background:linear-gradient(175deg,#ab133d33,#09090ba6 55%,#08090ddd);border-top:1px solid #ff7197aa;border-bottom:1px solid #de2a6077;clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%);z-index:1}
+#rounds-lab .show-badge{position:absolute;right:48px;top:38px;font-size:12px;letter-spacing:3px;z-index:3;color:#f1c8d1;border:1px solid #df4a6b;padding:7px 12px}
+#rounds-lab .recipient-tag{position:absolute;top:140px;left:7%;width:86%;text-align:center;z-index:3;font-size:19px;font-weight:700;letter-spacing:7px;color:#f9d7df}
+#rounds-lab .hall .brand{font-size:33px;top:32px;left:47px;letter-spacing:0}#rounds-lab .hall .brand small{font-size:10px;letter-spacing:1.6px}
+#rounds-lab .hall .hero{left:7%;top:186px;width:86%;height:171px;text-align:center}
+#rounds-lab .hero-text{font-size:168px;letter-spacing:-3px;line-height:.92;background:linear-gradient(175deg,#fff 8%,#f8f5f3 27%,#bfc0c9 46%,#fff 49%,#fff 57%,#9296a5 83%,#fcf4ef 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 3px 0 #757583) drop-shadow(0 8px 0 #2a1722) drop-shadow(0 14px 13px #0009);transform-origin:center}
+#rounds-lab .hall .message{top:397px;left:12%;width:76%;max-height:100px;font-size:34px;line-height:1.23;text-align:center;color:#f7e9ee;text-shadow:0 2px 12px #000}
+#rounds-lab .hall .rule{left:37.5%;top:366px;width:25%;height:5px;background:linear-gradient(90deg,transparent,#fb345e 20%,#fff 50%,#fb345e 80%,transparent);box-shadow:0 0 23px #ff003bbb;transform-origin:center}
+#rounds-lab .hall .eyebrow{top:auto;bottom:55px;left:22%;width:56%;text-align:center;max-width:56%;padding:8px 14px;font-size:17px;letter-spacing:3px;background:linear-gradient(90deg,transparent,#a6002c,transparent);border-top:1px solid #f3658255;border-bottom:1px solid #f3658255;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rounds-lab .hall .footer{bottom:20px;left:48px;right:48px;font-size:10px;letter-spacing:2px;color:#c89aa7}#rounds-lab .hall .footer .ticks{color:#ff7292}
+#rounds-lab .hall.has-photo .hero{top:197px;left:6%;width:54%;height:154px;text-align:left}#rounds-lab .hall.has-photo .hero-text{font-size:120px}
+#rounds-lab .hall.has-photo .recipient-tag{left:6%;width:53%;text-align:left;font-size:17px;letter-spacing:4px;top:150px}
+#rounds-lab .hall.has-photo .message{left:6%;width:51%;top:383px;max-height:107px;text-align:left;font-size:29px}
+#rounds-lab .hall.has-photo .rule{left:6%;top:361px;width:35%;transform-origin:left}
+#rounds-lab .hall.has-photo .eyebrow{left:6%;width:51%;text-align:left;bottom:54px}
+#rounds-lab .hall.has-photo .show-plate{right:37%;left:3%}
+#rounds-lab .photo{top:148px;right:45px;width:302px;height:364px;padding:5px;rotate:2deg;background:linear-gradient(140deg,#fff,#9f193a 25%,#220d18 48%,#fff 73%,#ff184d);border:0;box-shadow:0 0 0 2px #f1486744,0 0 42px #e2004466,17px 21px 0 -10px #e1003b}
+#rounds-lab .photo-inner{background:radial-gradient(ellipse at 50% 0,#9b2546,#1a0811 70%)}#rounds-lab .photo-label{background:#970c31d9;bottom:10px;left:9px;right:9px;font-size:14px;letter-spacing:4px}#rounds-lab .photo-placeholder b{font-size:190px;line-height:1;color:#f8c7d22b}#rounds-lab .photo-placeholder span{font-size:14px}
+#rounds-lab .wide .panel{height:200px;bottom:36px;border-left:0;border-top:1px solid #ffc7d333;border-bottom:2px solid #ff2359;box-shadow:0 12px 40px #000c,0 0 22px #ff154330}
+#rounds-lab .wide .brand{top:67px;left:21px;right:auto;width:87px;font-size:29px;line-height:.95;letter-spacing:0;text-align:center}#rounds-lab .wide .brand:after{height:3px;margin:8px 12px 0}
+#rounds-lab .wide .show-badge,#rounds-lab .wide .recipient-tag{display:none}#rounds-lab .wide .show-plate{inset:22% 4% 42% 13%}
+#rounds-lab .wide .hero{left:135px;top:48px;height:68px;width:78%}#rounds-lab .wide .hero-text{font-size:72px;letter-spacing:-1px;line-height:.94;text-shadow:none}
+#rounds-lab .wide .eyebrow{left:139px;top:20px;max-width:77%;font-size:11px;letter-spacing:2px;padding:3px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rounds-lab .wide .message{left:141px;top:137px;width:76%;max-height:49px;font-size:21px;line-height:1.15}#rounds-lab .wide .rule{left:140px;top:122px;width:160px;height:3px;background:linear-gradient(90deg,#ff285b,#fff,transparent);box-shadow:0 0 14px #ff145b}
+#rounds-lab .wide .show-edge{inset:9px}#rounds-lab .wide .show-wing{width:10%;top:2%;bottom:2%}#rounds-lab .wide .wing-left{left:-5%}#rounds-lab .wide .wing-right{right:-5%}#rounds-lab .wide .ghost{font-size:330px;bottom:-60px;right:8px;letter-spacing:0}
+#rounds-lab .tall .panel{height:508px;bottom:290px;border-left:0;border-top:1px solid #ffb9ce66;border-bottom:4px solid #ff285b;box-shadow:0 15px 50px #000c,0 0 45px #ed004a44}
+#rounds-lab .tall .brand{font-size:29px;top:33px;right:30px;letter-spacing:0}#rounds-lab .tall .show-badge{display:none}
+#rounds-lab .tall .recipient-tag{left:35px;top:103px;text-align:left;font-size:18px;letter-spacing:4px;width:88%}#rounds-lab .tall .hero{left:33px;top:147px;height:132px;width:91%}#rounds-lab .tall .hero-text{font-size:128px;letter-spacing:-2px}
+#rounds-lab .tall .eyebrow{top:35px;left:35px;max-width:58%;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rounds-lab .tall .message{left:39px;top:322px;width:88%;max-height:145px;font-size:40px;line-height:1.17}#rounds-lab .tall .rule{left:38px;top:297px;width:230px;background:linear-gradient(90deg,#ff285b,#fff,transparent);box-shadow:0 0 15px #ff145b}
+#rounds-lab .tall .show-plate{inset:26% 1% 42% 0}#rounds-lab .tall .ghost{font-size:630px;bottom:-95px;right:25px;letter-spacing:0}#rounds-lab .tall .show-wing{opacity:.5}
+#rounds-lab .impact-light{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 47%,#fff9,#ff67875c 28%,transparent 65%);z-index:5;pointer-events:none;mix-blend-mode:screen}
+#rounds-lab .show-intro{position:absolute;inset:0;z-index:9;background:radial-gradient(ellipse at 48% 45%,#fb214d,#a0002a 45%,#290912 100%);display:flex;justify-content:center;align-items:center;flex-direction:column;overflow:hidden}
+#rounds-lab .show-intro:after{content:'';position:absolute;inset:22px;border:1px solid #ffc1cf55;clip-path:polygon(0 0,30% 0,30% 2%,70% 2%,70% 0,100% 0,100% 100%,0 100%);pointer-events:none}
+#rounds-lab .intro-num{position:absolute;font:700 820px/.8 TikTokSans,sans-serif;color:transparent;-webkit-text-stroke:2px #ffd6df33;letter-spacing:-15px;opacity:.6;transform:rotate(-15deg)}
+#rounds-lab .show-intro>span{font-size:19px;letter-spacing:12px;color:#ffd6e0;z-index:1;margin-bottom:20px}
+#rounds-lab .show-intro>b{font:700 124px/.86 TikTokSans,sans-serif;letter-spacing:-2px;text-align:center;color:white;z-index:1;text-shadow:0 5px 0 #aa183c,0 12px 0 #5a0926,0 20px 40px #41000bcc;transform-origin:center}
+#rounds-lab .show-intro>i{display:block;width:40%;height:4px;margin-top:30px;background:linear-gradient(90deg,transparent,#fff,transparent);box-shadow:0 0 15px #ffb7c9;z-index:1}
+#rounds-lab .wide .show-intro>span{font-size:9px;letter-spacing:6px;margin-bottom:9px}#rounds-lab .wide .show-intro>b{font-size:66px;line-height:1}#rounds-lab .wide .show-intro>b br{display:none}#rounds-lab .wide .show-intro>i{margin-top:13px;height:2px}#rounds-lab .wide .intro-num{font-size:400px}
+#rounds-lab .tall .show-intro>b{font-size:113px}#rounds-lab .tall .show-intro>span{font-size:17px;letter-spacing:8px}
+#rounds-lab .wipe{display:none}#rounds-lab .fx{z-index:10}#rounds-lab .sweep{z-index:5;width:260px;background:linear-gradient(90deg,transparent,#fff4,transparent)}
+#rounds-lab .progress-line{height:2px;background:linear-gradient(90deg,#e30038,#ff8ba9,#fff)}
+
+#rounds-lab .show-intro{background:radial-gradient(ellipse at 50% 40%,#9b145966,#69002133 45%,#050509 80%),linear-gradient(130deg,#130613,#330015 55%,#080a10)}
+#rounds-lab .gift-art{position:absolute;width:340px;height:340px;left:calc(50% - 170px);top:65px;filter:drop-shadow(0 0 25px #ff1865a0) drop-shadow(0 25px 40px #0008);z-index:3;transform-origin:50% 65%}
+#rounds-lab .gift-aura{position:absolute;width:520px;height:520px;left:calc(50% - 260px);top:-15px;border-radius:50%;background:radial-gradient(ellipse,#fb0b6633,transparent 64%);border:1px solid #ffb0df44;box-shadow:inset 0 0 60px #f30c5b22,0 0 45px #fa1b8833;z-index:1}
+#rounds-lab .gift-aura:before,#rounds-lab .gift-aura:after{content:'';position:absolute;inset:30px;border:1px solid #ff729144;border-radius:50%;transform:rotateX(65deg) rotate(-25deg);box-shadow:0 0 14px #fd518a77}
+#rounds-lab .gift-aura:after{inset:60px;transform:rotateY(60deg) rotate(35deg)}
+#rounds-lab .show-intro>span{position:absolute;top:36px;font-size:15px;letter-spacing:8px;margin:0;z-index:5}
+#rounds-lab .show-intro>b{position:absolute;bottom:99px;font-size:73px;line-height:.93;letter-spacing:0;z-index:5}
+#rounds-lab .show-intro>b br{display:none}#rounds-lab .show-intro>i{position:absolute;bottom:76px;margin:0;width:26%;height:3px}
+#rounds-lab .intro-num{font-size:880px;opacity:.21;color:transparent;letter-spacing:-10px}
+#rounds-lab .gift-stamp{position:absolute;right:57px;top:82px;width:77px;height:77px;filter:drop-shadow(0 0 13px #ff327488);z-index:3}
+#rounds-lab .hall.has-photo .gift-stamp{display:none}
+#rounds-lab .wide .gift-art{width:180px;height:180px;left:65px;top:4px}#rounds-lab .wide .gift-aura{width:240px;height:240px;left:34px;top:-26px}
+#rounds-lab .wide .show-intro>span{top:39px;left:295px;font-size:13px;letter-spacing:6px}
+#rounds-lab .wide .show-intro>b{left:293px;bottom:57px;font-size:75px;text-align:left}
+#rounds-lab .wide .show-intro>i{left:295px;bottom:35px;width:38%}
+#rounds-lab .wide .gift-stamp{left:29px;right:auto;top:9px;width:65px;height:65px}#rounds-lab .wide .brand{top:108px;font-size:25px}
+#rounds-lab .tall .gift-art{width:310px;height:310px;left:calc(50% - 155px);top:46px}#rounds-lab .tall .gift-aura{width:420px;height:420px;left:calc(50% - 210px);top:-14px}
+#rounds-lab .tall .show-intro>span{top:26px;font-size:14px;letter-spacing:7px}#rounds-lab .tall .show-intro>b{font-size:75px;bottom:69px}#rounds-lab .tall .show-intro>i{bottom:49px}
+#rounds-lab .tall .gift-stamp{right:33px;top:70px;width:68px;height:68px}
+
+#rounds-lab{--gift-rgb:255,191,81;--live-alpha:.55}
+#rounds-lab .gift-art{filter:drop-shadow(0 0 25px rgba(var(--gift-rgb),.58)) drop-shadow(0 25px 40px #0008)}
+#rounds-lab .gift-stamp{filter:drop-shadow(0 0 11px rgba(var(--gift-rgb),.4))}
+#rounds-lab .gift-aura{background:radial-gradient(ellipse,rgba(var(--gift-rgb),.16),transparent 64%);border-color:rgba(var(--gift-rgb),.25);box-shadow:inset 0 0 60px rgba(var(--gift-rgb),.12),0 0 45px rgba(var(--gift-rgb),.15)}
+#rounds-lab .gift-aura:before,#rounds-lab .gift-aura:after{border-color:rgba(var(--gift-rgb),.28);box-shadow:0 0 14px rgba(var(--gift-rgb),.4)}
+#rounds-lab .lab-alpha label{gap:5px}#rounds-lab .lab-alpha input{width:100%;margin:0}
+#rounds-lab .wide .panel,#rounds-lab .tall .panel{background:rgba(8,10,17,var(--live-alpha));border:1px solid #ffffff19;border-left:2px solid #fa315d99;border-bottom:0;border-radius:4px;box-shadow:0 8px 20px #0002}
+#rounds-lab .wide .ambient,#rounds-lab .tall .ambient,#rounds-lab .wide .ghost,#rounds-lab .tall .ghost,#rounds-lab .wide .stage-beams,#rounds-lab .tall .stage-beams,#rounds-lab .wide .show-ring,#rounds-lab .tall .show-ring,#rounds-lab .wide .show-edge,#rounds-lab .tall .show-edge,#rounds-lab .wide .show-wing,#rounds-lab .tall .show-wing,#rounds-lab .wide .show-plate,#rounds-lab .tall .show-plate,#rounds-lab .wide .show-intro,#rounds-lab .tall .show-intro,#rounds-lab .wide .impact-light,#rounds-lab .tall .impact-light,#rounds-lab .wide .sweep,#rounds-lab .tall .sweep,#rounds-lab .wide .recipient-tag,#rounds-lab .tall .recipient-tag{display:none}
+#rounds-lab .wide .hero-text,#rounds-lab .tall .hero-text{color:#fff;background:none;-webkit-background-clip:initial;background-clip:initial;filter:none;text-shadow:0 1px 3px #0008;letter-spacing:0;font-weight:700}
+#rounds-lab .wide .eyebrow,#rounds-lab .tall .eyebrow{background:none;padding:0;color:#dddfe8;letter-spacing:1.5px}
+#rounds-lab .wide .rule,#rounds-lab .tall .rule{background:linear-gradient(90deg,#f24166aa,#ffffff20,transparent);box-shadow:none;height:1px}
+#rounds-lab .wide .progress-line,#rounds-lab .tall .progress-line{height:1px;background:#ff486a66}
+#rounds-lab .wide .brand,#rounds-lab .tall .brand{color:#ffffffa0;letter-spacing:1px;font-weight:700}
+#rounds-lab .wide .brand:after,#rounds-lab .tall .brand:after{display:none}
+#rounds-lab .wide .panel{left:45px;right:220px;height:126px;bottom:28px}
+#rounds-lab .wide .gift-stamp{left:13px;top:17px;width:68px;height:68px}
+#rounds-lab .wide .brand{left:13px;right:auto;top:97px;font-size:10px;width:71px;text-align:center;line-height:1}
+#rounds-lab .wide .eyebrow{left:98px;top:12px;font-size:9px;max-width:82%}
+#rounds-lab .wide .hero{left:96px;top:29px;width:83%;height:36px;text-align:left}
+#rounds-lab .wide .hero-text{font-size:38px;line-height:.98}
+#rounds-lab .wide .rule{left:98px;top:69px;width:90px}
+#rounds-lab .wide .message{left:98px;top:78px;width:82%;max-height:39px;font-size:17px;line-height:1.15;color:#f7f7fb;font-weight:400;text-shadow:0 1px 3px #0008}
+#rounds-lab .tall .panel{left:60px;right:150px;height:275px;bottom:285px;border-radius:7px}
+#rounds-lab .tall .gift-stamp{left:15px;right:auto;top:27px;width:80px;height:80px}
+#rounds-lab .tall .eyebrow{left:111px;top:25px;font-size:15px;max-width:81%}
+#rounds-lab .tall .hero{left:108px;top:55px;width:82%;height:55px;text-align:left}
+#rounds-lab .tall .hero-text{font-size:57px;line-height:.98}
+#rounds-lab .tall .rule{left:26px;top:123px;width:140px}
+#rounds-lab .tall .message{left:26px;top:142px;width:92%;max-height:99px;font-size:29px;line-height:1.14;color:#f7f7fb;font-weight:400;text-shadow:0 1px 3px #0008}
+#rounds-lab .tall .brand{left:26px;right:auto;top:251px;font-size:11px;width:160px;text-align:left;line-height:1}
+
+
+#rounds-lab .wide .eyebrow,#rounds-lab .tall .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Edition 04: clean typography and collectible motion; no orbital graphics. */
+#rounds-lab .show-ring,#rounds-lab .stage-beams,#rounds-lab .intro-num,#rounds-lab .show-wing{display:none!important}
+#rounds-lab .gift-aura{border:0;box-shadow:none;background:radial-gradient(ellipse,rgba(var(--gift-rgb),.19),transparent 66%)}
+#rounds-lab .gift-aura:before,#rounds-lab .gift-aura:after{display:none}
+#rounds-lab .hero-text{font-family:TikTokSans,sans-serif;font-weight:800;text-transform:none;background:none;color:#fff;-webkit-background-clip:initial;background-clip:initial;letter-spacing:-2px;line-height:1.06;text-shadow:0 3px 14px #0005}
+#rounds-lab .hall .hero-text{font-size:106px}
+#rounds-lab .hall.has-photo .hero-text{font-size:86px}
+#rounds-lab .wide .hero-text{font-size:34px;letter-spacing:-.5px;line-height:1.06}
+#rounds-lab .tall .hero-text{font-size:50px;letter-spacing:-.5px;line-height:1.06}
+#rounds-lab .show-intro>b{font-family:TikTokSans,sans-serif;font-size:58px;font-weight:800;letter-spacing:-1px}
+#rounds-lab .recipient-tag{letter-spacing:3px;font-weight:600}
+#rounds-lab .hall .show-plate{clip-path:none;border:0;background:linear-gradient(90deg,transparent,#07080b44,transparent)}
+#rounds-lab .hall.has-photo .gift-stamp{display:block;right:55px;top:64px;width:66px;height:66px}
+#rounds-lab .gift-stamp{will-change:transform,filter}
+
+
+/* Edition 05: readable sender-to-recipient attribution. */
+#rounds-lab .wide .eyebrow{font-size:14px;line-height:1.15;letter-spacing:.6px;top:11px;font-weight:700}
+#rounds-lab .wide .hero{top:33px;height:41px}
+#rounds-lab .wide .hero-text{font-size:38px}
+#rounds-lab .wide .rule{top:76px}
+#rounds-lab .wide .message{top:82px;font-size:17px;max-height:38px}
+#rounds-lab .tall .eyebrow{font-size:22px;line-height:1.15;letter-spacing:.8px;top:22px;font-weight:700}
+#rounds-lab .tall .hero{top:57px;height:61px}
+#rounds-lab .tall .hero-text{font-size:56px}
+
+#rounds-lab .eyebrow{display:flex;gap:.45em;align-items:baseline}
+#rounds-lab .hall .eyebrow{justify-content:center}
+#rounds-lab .hall.has-photo .eyebrow{justify-content:flex-start}
+#rounds-lab [data-from],#rounds-lab [data-for]{flex-shrink:0}
+#rounds-lab [data-sender-display]{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#rounds-lab .lab-scene video{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:50% 50%}
+#rounds-lab .tall .lab-scene video{object-position:32% 50%}
+
+#rounds-lab .live-reward{position:absolute;inset:0;z-index:15;pointer-events:none;opacity:0}
+#rounds-lab .hall .live-reward{display:none}
+#rounds-lab .reward-art{position:absolute;object-fit:contain;transform-origin:center}
+#rounds-lab .reward-fx{position:absolute;inset:0;width:100%;height:100%}
+#rounds-lab .reward-flare{position:absolute;width:400px;height:280px;background:radial-gradient(ellipse,#fff9,rgba(var(--gift-rgb),.4) 22%,transparent 66%);mix-blend-mode:screen}
+#rounds-lab .reward-title{position:absolute;width:450px;color:#fff;text-shadow:0 3px 18px #000;font-family:TikTokSans,sans-serif}
+#rounds-lab .reward-title small{display:block;font-size:12px;font-weight:700;letter-spacing:2px;color:#fff}
+#rounds-lab .reward-title strong{display:block;font-size:44px;line-height:1.1;font-weight:850;letter-spacing:-1px;margin-top:8px}
+#rounds-lab .tall .reward-title{width:590px;text-align:center}
+#rounds-lab .tall .reward-title small{font-size:20px}
+#rounds-lab .tall .reward-title strong{font-size:60px}
+#rounds-lab .tall .reward-flare{width:580px;height:440px}
+
+/* Energy 07: clean depth, directional light, no particle wheels. */
+#rounds-lab .hall .fx{z-index:2}
+#rounds-lab .hall .ghost{display:none}
+#rounds-lab .hall .ambient{background:linear-gradient(120deg,transparent 20%,#ff164a0a 45%,transparent 65%)}
+#rounds-lab .hall .panel{background:radial-gradient(ellipse at 55% 5%,#5c0c23 0%,#180b15 46%,#07080d 85%)}
+#rounds-lab .show-edge{border-color:#ffffff12;box-shadow:none}
+#rounds-lab .reward-flare{height:140px;background:radial-gradient(ellipse,#fff9,rgba(var(--gift-rgb),.36) 18%,transparent 67%)}
+#rounds-lab .tall .reward-flare{height:210px}
+
+/* Edition 08: all live animation is clipped inside the lower third. */
+#rounds-lab .wide .brand,#rounds-lab .tall .brand,#rounds-lab .wide .lab-scene-label,#rounds-lab .tall .lab-scene-label{display:none!important}
+#rounds-lab .live-sheen{display:none;position:absolute;top:-20%;height:140%;width:120px;z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(var(--gift-rgb),.1) 20%,#ffffffa0 50%,rgba(var(--gift-rgb),.14) 75%,transparent)}
+#rounds-lab .wide .live-sheen,#rounds-lab .tall .live-sheen{display:block}
+#rounds-lab .wide .panel,#rounds-lab .tall .panel{overflow:hidden;border-left:2px solid rgba(var(--gift-rgb),.8)}
+#rounds-lab .wide .fx,#rounds-lab .tall .fx{z-index:2}
+#rounds-lab .wide .gift-stamp{width:84px;height:84px;left:6px;top:18px}
+#rounds-lab .wide .rule,#rounds-lab .tall .rule{background:linear-gradient(90deg,rgba(var(--gift-rgb),.7),transparent)}
+/* Reward 09: larger gift, a deliberate reveal, stable readable text. */
+#rounds-lab .wide .gift-stamp{left:8px;top:7px;width:112px;height:112px}
+#rounds-lab .wide .eyebrow{left:143px;top:10px;max-width:78%;font-size:16px;letter-spacing:.4px}
+#rounds-lab .wide .hero{left:141px;top:33px;width:77%;height:39px}
+#rounds-lab .wide .hero-text{font-size:34px;line-height:1.1;letter-spacing:-.4px}
+#rounds-lab .wide .message{left:143px;top:76px;width:77%;height:46px;max-height:46px;font-size:20px;line-height:1.14;overflow:hidden}
+#rounds-lab .wide .rule{display:none}
+#rounds-lab .tall .gift-stamp{left:10px;top:13px;width:148px;height:148px}
+#rounds-lab .tall .eyebrow{left:182px;top:22px;max-width:74%;font-size:32px;line-height:1.14;letter-spacing:0}
+#rounds-lab .tall .hero{left:179px;top:67px;width:74%;height:62px}
+#rounds-lab .tall .hero-text{font-size:52px;line-height:1.1;letter-spacing:-.6px}
+#rounds-lab .tall .message{left:28px;top:166px;width:92%;height:84px;max-height:84px;font-size:35px;line-height:1.18;overflow:hidden}
+#rounds-lab .tall .rule{left:183px;top:144px;width:240px}
+#rounds-lab .live-charge{display:none;position:absolute;inset:0 auto 0 0;width:142px;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 45% 55%,rgba(var(--gift-rgb),.6),rgba(var(--gift-rgb),.12) 48%,transparent 76%)}
+#rounds-lab .wide .live-charge,#rounds-lab .tall .live-charge{display:block}
+#rounds-lab .tall .live-charge{width:176px;height:173px}
+#rounds-lab .wide .hero,#rounds-lab .tall .hero{overflow:hidden}
+
+
+/* Fixed attribution slot: measuring a sender must not resize its own container. */
+#rounds-lab .wide .eyebrow{width:77%;max-width:none}
+#rounds-lab .tall .eyebrow{width:74%;max-width:none}
+#rounds-lab .wide [data-sender-display],#rounds-lab .tall [data-sender-display]{flex:0 1 auto;min-width:0}
+
+
+/* Edition 14 — sculpted gifts, compact illuminated live plates. */
+#rounds-lab .gift-art canvas,#rounds-lab .gift-stamp canvas,#rounds-lab .gift-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#rounds-lab .gift-art canvas,#rounds-lab .gift-stamp canvas{display:none}
+#rounds-lab.has-gift-3d .gift-art canvas,#rounds-lab.has-gift-3d .gift-stamp canvas{display:block}
+#rounds-lab.has-gift-3d .gift-fallback{display:none}
+#rounds-lab .wide .panel,#rounds-lab .tall .panel{background:linear-gradient(108deg,rgba(var(--gift-rgb),.09),transparent 29%),rgba(8,10,17,var(--live-alpha));border:1px solid rgba(var(--gift-rgb),.2);border-left:2px solid rgba(var(--gift-rgb),.75);border-radius:7px;backdrop-filter:blur(5px) saturate(1.15);-webkit-backdrop-filter:blur(5px) saturate(1.15)}
+#rounds-lab .tall .panel{border-radius:12px}
+#rounds-lab .wide .live-charge,#rounds-lab .tall .live-charge{background:radial-gradient(ellipse at 44% 49%,rgba(var(--gift-rgb),.65),rgba(var(--gift-rgb),.19) 39%,transparent 72%);transform-origin:42% 50%}
+#rounds-lab .wide .progress-line,#rounds-lab .tall .progress-line,#rounds-lab .wide .rule,#rounds-lab .tall .rule{display:none!important}
+#rounds-lab .wide .live-sheen,#rounds-lab .tall .live-sheen{width:110px;background:linear-gradient(90deg,transparent,rgba(var(--gift-rgb),.12) 25%,#ffffffa0 50%,rgba(var(--gift-rgb),.08) 70%,transparent)}
+#rounds-lab .wide .gift-stamp{width:118px;height:118px;left:5px;top:3px}
+#rounds-lab .tall .gift-stamp{width:155px;height:155px;left:6px;top:8px}
+#rounds-lab .wide .hero-text,#rounds-lab .tall .hero-text{font-weight:800;text-shadow:0 2px 8px #0008,0 0 20px rgba(var(--gift-rgb),.15)}
+#rounds-lab .wide .hero,#rounds-lab .tall .hero{contain:paint}
+@media(prefers-reduced-motion:reduce){#rounds-lab .wide .panel,#rounds-lab .tall .panel{backdrop-filter:none;-webkit-backdrop-filter:none}}
+
+
+/* Energy 15: separate the two names by hue, keep all readable pixels bright. */
+#rounds-lab{--gift-secondary-rgb:83,225,255;--sender-color:#9af5ff;--recipient-color:#ffe094;--recipient-light:#fff5db}
+#rounds-lab .wide .panel,#rounds-lab .tall .panel{background:radial-gradient(ellipse at 2% 50%,rgba(var(--gift-rgb),.2),transparent 42%),linear-gradient(112deg,transparent 34%,rgba(var(--gift-secondary-rgb),.035) 78%,transparent),rgba(8,10,17,var(--live-alpha))}
+#rounds-lab .wide .eyebrow,#rounds-lab .tall .eyebrow{overflow:visible}
+#rounds-lab .wide [data-from],#rounds-lab .wide [data-for],#rounds-lab .tall [data-from],#rounds-lab .tall [data-for]{font-size:.78em;font-weight:600;color:#bcc3d8;letter-spacing:.045em;text-shadow:0 1px 4px #000c}
+#rounds-lab .wide [data-sender-display],#rounds-lab .tall [data-sender-display]{font-weight:800;color:var(--sender-color);text-shadow:0 1px 5px #000a,0 0 10px rgba(var(--gift-secondary-rgb),.33)}
+/* Flat recipient text on both live outputs; retain the gift palette. */
+#rounds-lab .wide .hero-text,#rounds-lab .tall .hero-text{background:none;background-clip:border-box;-webkit-background-clip:border-box;color:var(--recipient-color);-webkit-text-fill-color:var(--recipient-color);text-shadow:none}
+#rounds-lab .wide .message,#rounds-lab .tall .message{color:#f1f3fa;text-shadow:0 1px 5px #000b}
+
+
+/* Prerendered media occupies the same authored gift slot. */
+#rounds-lab .gift-media,#rounds-lab .gift-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+#rounds-lab.has-gift-media .gift-fallback{display:none}
+#rounds-lab .gift-media video{display:none}
+html[data-clean="1"],html[data-clean="1"] body{background:transparent!important}
+html[data-clean="1"]:not([data-ready="1"]) body{visibility:hidden}
+body{margin:0;background:#07080b;padding:24px}#rounds-lab{max-width:1260px;margin:auto}@media(max-width:600px){body{padding:8px}}#rounds-lab.clean{max-width:none;margin:0}
