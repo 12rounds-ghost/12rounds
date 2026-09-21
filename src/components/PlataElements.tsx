@@ -18,7 +18,6 @@ interface DateDedicatie {
   tip: string;
   de_la: string;
   pentru: string;
-  artist_preferat: string;
   mesaj: string;
   src: string;
   event_id: string;

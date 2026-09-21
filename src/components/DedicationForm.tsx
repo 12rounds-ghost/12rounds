@@ -18,7 +18,6 @@ export function DedicationForm({
   const [tip, setTip] = useState<TipDedicatie | null>(null);
   const [deLa, setDeLa] = useState('');
   const [pentru, setPentru] = useState('');
-  const [artist, setArtist] = useState('');
   const [mesaj, setMesaj] = useState('');
   const [cadou, setCadou] = useState<CadouDedicatie | null>(null);
   const [modClasic, setModClasic] = useState(false);
@@ -97,7 +96,6 @@ export function DedicationForm({
           tip,
           de_la: deLa,
           pentru,
-          artist_preferat: artist,
           mesaj,
           src,
           event_id: eventId,
@@ -150,8 +148,6 @@ export function DedicationForm({
           <input id="dela" value={deLa} onChange={(e) => setDeLa(e.target.value)} placeholder="George" maxLength={80} />
           <label htmlFor="pentru">Pentru</label>
           <input id="pentru" value={pentru} onChange={(e) => setPentru(e.target.value)} placeholder="Maria" maxLength={80} />
-          <label htmlFor="artist">Artist preferat (opțional)</label>
-          <input id="artist" value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="Luis Gabriel" maxLength={80} />
           <label htmlFor="mesaj" className="camp-mesaj-label">Mesajul tău</label>
           <div className="camp-mesaj">
             <textarea
@@ -174,10 +170,11 @@ export function DedicationForm({
                     type="button"
                     className={`cadou-item${cadou === c ? ' selected' : ''}`}
                     onClick={() => setCadou(c)}
+                    aria-label={NUME_CADOU[c]}
+                    aria-pressed={cadou === c}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={`/rounds-kit/assets/gifts/${c}/poster.png`} alt="" />
-                    <span>{NUME_CADOU[c]}</span>
                   </button>
                 ))}
               </div>
@@ -253,7 +250,6 @@ export function DedicationForm({
                 tip,
                 de_la: deLa,
                 pentru,
-                artist_preferat: artist,
                 mesaj,
                 src,
                 event_id: eventId,

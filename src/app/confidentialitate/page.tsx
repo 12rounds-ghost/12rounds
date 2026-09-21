@@ -24,7 +24,7 @@ export default function Confidentialitate() {
         <h2>2. Ce date colectăm</h2>
         <p>
           Când trimiți o dedicație, colectăm: numele „de la” și „pentru” (dacă le
-          completezi), mesajul, artistul preferat (opțional), platforma de unde ai venit
+          completezi), mesajul, platforma de unde ai venit
           (ex. qr, tiktok), o poză atașată (opțional, doar pentru pachetele cu mesaj) și,
           la plată, adresa de email pe care o introduci în Stripe Checkout. Nu colectăm și
           nu stocăm niciodată datele cardului bancar — acestea rămân integral în sistemele

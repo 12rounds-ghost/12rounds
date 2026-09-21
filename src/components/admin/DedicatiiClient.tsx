@@ -22,7 +22,6 @@ function AdaugaManualCard({
   const [tip, setTip] = useState<TipDedicatie>('ecran');
   const [deLa, setDeLa] = useState('');
   const [pentru, setPentru] = useState('');
-  const [artistPreferat, setArtistPreferat] = useState('');
   const [mesaj, setMesaj] = useState('');
   const [cadou, setCadou] = useState<CadouDedicatie>('crown');
   const [sumaLei, setSumaLei] = useState('0');
@@ -37,7 +36,6 @@ function AdaugaManualCard({
     setTip('ecran');
     setDeLa('');
     setPentru('');
-    setArtistPreferat('');
     setMesaj('');
     setCadou('crown');
     setSumaLei('0');
@@ -61,7 +59,6 @@ function AdaugaManualCard({
           tip,
           de_la: deLa,
           pentru,
-          artist_preferat: artistPreferat,
           mesaj,
           cadou: areNevoieDeCadou ? cadou : null,
           suma_lei: Number(sumaLei) || 0,
@@ -107,7 +104,6 @@ function AdaugaManualCard({
             </select>
             <input placeholder="De la" value={deLa} onChange={(e) => setDeLa(e.target.value)} />
             <input placeholder="Pentru" value={pentru} onChange={(e) => setPentru(e.target.value)} />
-            <input placeholder="Artist preferat (opțional)" value={artistPreferat} onChange={(e) => setArtistPreferat(e.target.value)} />
             <input
               type="number"
               min={0}
