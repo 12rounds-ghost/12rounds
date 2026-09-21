@@ -205,7 +205,8 @@ export function EvenimentEditor({
     }
     const confirmari: Partial<Record<Event['status'], string>> = {
       live: 'Pornești LIVE? Din acest moment se acceptă plăți pentru această ediție.',
-      ended: 'Încheii show-ul? Nu se vor mai accepta plăți pentru această ediție.',
+      ended:
+        'Încheii show-ul?\n\n• Dedicațiile dispar de pe ecranele din sală (rămâne logo-ul 12 ROUNDS) și din transmisiunea live.\n• Nu se mai acceptă plăți pentru această ediție.\n\nPoți redeschide ediția oricând.',
     };
     const mesaj = confirmari[nou];
     if (mesaj && !window.confirm(mesaj)) return;
@@ -238,6 +239,11 @@ export function EvenimentEditor({
             )}
           </span>
         </div>
+        <p className="sub" style={{ margin: '10px 0 0', textAlign: 'left' }}>
+          {status === 'upcoming' && 'Ediția nu e pornită: ecranele din sală arată logo-ul, iar transmisiunea live nu afișează dedicații.'}
+          {status === 'live' && 'Ediția e LIVE: dedicațiile aprobate apar pe ecranele din sală și în transmisiunea live. „Încheie show-ul” le oprește imediat.'}
+          {status === 'ended' && 'Show încheiat: nu mai apar dedicații pe ecrane (rămâne logo-ul 12 ROUNDS) și nu se mai acceptă plăți. „Redeschide” schimbă ediția înapoi în „în curând”; apoi „Pornește LIVE” reia difuzarea.'}
+        </p>
       </div>
 
       <div className="card">

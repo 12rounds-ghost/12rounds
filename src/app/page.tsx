@@ -289,8 +289,8 @@ export default async function Home() {
               </div>
             </div>
             <div className="steps">
-              <div><h4>Scanezi codul QR</h4><p>De pe ecranele din sală, de pe masă sau de pe bilet.</p></div>
-              <div><h4>Scrii mesajul</h4><p>De la cine, pentru cine, artistul preferat. Opțional, o poză.</p></div>
+              <div><h4>Scanezi codul QR</h4><p>De pe masă sau de pe bilet.</p></div>
+              <div><h4>Scrii mesajul</h4><p>De la cine și pentru cine. Opțional, o poză.</p></div>
               <div><h4>Plătești</h4><p>Apple Pay, Google Pay sau card. Un singur tap, fără cont.</p></div>
               <div><h4>Apare pe ecran</h4><p>După aprobarea moderatorului, pe ecranele din sală.</p></div>
             </div>

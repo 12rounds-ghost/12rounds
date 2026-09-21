@@ -2,44 +2,81 @@
 import { useEffect, useRef, useState } from 'react';
 import { RoundsPlayer, type FormatRounds, type RoundsPlayerHandle } from '@/components/RoundsPlayer';
 
-type Continut =
-  | {
-      tip: 'dedicatie';
-      mesaj: string | null;
-      de_la: string | null;
-      pentru: string | null;
-      poza_url: string | null;
-      cadou: string | null;
-    }
-  | { tip: 'qr'; url: string; qr_data_url: string }
-  | { tip: 'branding' }
-  | { tip: 'inactiv' };
+interface DedicatieEcran {
+  tip: 'dedicatie';
+  cheie: string;
+  mesaj: string | null;
+  de_la: string | null;
+  pentru: string | null;
+  poza_url: string | null;
+  cadou: string | null;
+}
 
-const DURATA_FALLBACK_MS = 12000;
-const DURATA_RETRY_MS = 5000;
+type Continut = DedicatieEcran | { tip: 'branding' } | { tip: 'inactiv' };
+type ItemCoada = DedicatieEcran & { durata: number | undefined };
+
+const INTERVAL_SONDARE_MS = 2000;
+const INTERVAL_RETRY_MS = 5000;
+// Plasa de siguranta: daca ecranul ramane in urma (mesaje lungi, kit blocat),
+// nu lasam coada sa creasca la nesfarsit.
+const MAX_IN_COADA = 5;
 
 // Kiosk fullscreen, fara stare persistata (niciun localStorage — un ecran
 // se poate reporni oricand fara sa ramana blocat intr-o stare veche).
-// Buclă recursivă: serverul alterneaza deja dedicatie/umplere (V4-A3).
 //
-// Sarcina: grafica noua (kit RoundsAnimation) — o dedicatie nu mai e randata
-// cu CSS-ul nostru, ci trimisa playerului vendorizat (RoundsPlayer), care isi
-// gestioneaza singur animatia si durata (creste pentru mesaje lungi). De-asta
-// pentru 'dedicatie' NU mai programam next() cu un timer fix — asteptam
-// finalizarea lui play(), apoi cerem imediat urmatorul continut. Umplutura
-// (qr/branding — sponsorul a fost scos din rotatie) ramane exact pe vechiul
-// mecanism, cu timer.
+// Sarcina: ecranele din sala (1 si 6) arata ACEEASI dedicatie in ACELASI
+// moment. Serverul e sursa de adevar pentru "ce ruleaza acum" (vezi
+// /api/ecran/next + avanseaza_ecrane_sala), la fel ca la overlay-ul de stream;
+// fiecare ecran doar sondeaza la 2s si reda ce vede. Decalajul intre ecrane e
+// deci cel mult intervalul de sondare, nu mai exista cozi separate.
+//
+// Kit-ul RoundsAnimation isi prelungeste singur animatia pentru mesaje lungi
+// (pana la 30s), iar asta nu se poate sti pe server. Ca sa nu taiem niciodata o
+// animatie in curs, difuzarile noi intra intr-o coada locala si se reda pe rand
+// — cateva secunde de decalaj la un mesaj lung sunt preferabile unei
+// dedicatii intrerupte la jumatate.
 export function EcranClient({ id, apiKey, format }: { id: string; apiKey: string; format: FormatRounds }) {
   const [continut, setContinut] = useState<Continut | null>(null);
-  const [cheieAnimatie, setCheieAnimatie] = useState(0);
   const playerRef = useRef<RoundsPlayerHandle>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const anulatRef = useRef(false);
+  const ultimaCheieRef = useRef<string | null>(null);
+  const coadaRef = useRef<ItemCoada[]>([]);
+  const ruleazaRef = useRef(false);
+  // Ultimul lucru cerut de server cand nu e o dedicatie (logo/inactiv) — se
+  // aplica abia cand coada s-a golit si animatia curenta s-a terminat. Cat
+  // timp serverul inca raporteaza o dedicatie (chiar daca animatia a
+  // terminat), nu aratam logo-ul: ar clipi intre doua difuzari consecutive.
+  const fillerRef = useRef<Continut>({ tip: 'branding' });
+  const serverLiberRef = useRef(false);
 
   useEffect(() => {
     anulatRef.current = false;
 
-    async function urmatorul() {
+    async function ruleazaCoada() {
+      if (ruleazaRef.current) return;
+      ruleazaRef.current = true;
+      while (coadaRef.current.length > 0 && !anulatRef.current) {
+        const ded = coadaRef.current.shift()!;
+        setContinut(ded);
+        try {
+          await playerRef.current?.play({
+            sender: ded.de_la,
+            recipient: ded.pentru,
+            message: ded.mesaj,
+            gift: ded.cadou,
+            photoUrl: ded.poza_url,
+            duration: ded.durata,
+          });
+        } catch (e) {
+          console.error('Redarea dedicatiei a esuat', e);
+        }
+      }
+      ruleazaRef.current = false;
+      if (!anulatRef.current && serverLiberRef.current) setContinut(fillerRef.current);
+    }
+
+    async function sondeaza() {
       if (anulatRef.current) return;
       try {
         const res = await fetch('/api/ecran/next', {
@@ -52,37 +89,38 @@ export function EcranClient({ id, apiKey, format }: { id: string; apiKey: string
         const data = await res.json();
         if (anulatRef.current) return;
         const nou = data.continut as Continut;
-        setContinut(nou);
 
         if (nou.tip === 'dedicatie') {
-          try {
-            await playerRef.current?.play({
-              sender: nou.de_la,
-              recipient: nou.pentru,
-              message: nou.mesaj,
-              gift: nou.cadou,
-              photoUrl: nou.poza_url,
+          serverLiberRef.current = false;
+          if (nou.cheie !== ultimaCheieRef.current) {
+            ultimaCheieRef.current = nou.cheie;
+            coadaRef.current.push({
+              ...nou,
+              durata: typeof data.durata_secunde === 'number' ? data.durata_secunde : undefined,
             });
-          } catch (e) {
-            console.error('Redarea dedicatiei a esuat', e);
+            if (coadaRef.current.length > MAX_IN_COADA) coadaRef.current.shift();
+            ruleazaCoada();
           }
-          if (!anulatRef.current) urmatorul();
-          return;
+        } else {
+          ultimaCheieRef.current = null;
+          serverLiberRef.current = true;
+          fillerRef.current = nou;
+          // Nu intrerupem o dedicatie aflata in curs de redare: ruleazaCoada
+          // aplica logo-ul singura, la final.
+          if (!ruleazaRef.current) setContinut(nou);
         }
-
-        setCheieAnimatie((c) => c + 1);
-        programeaza(typeof data.durata_secunde === 'number' ? data.durata_secunde * 1000 : DURATA_FALLBACK_MS);
+        programeaza(INTERVAL_SONDARE_MS);
       } catch {
-        if (!anulatRef.current) programeaza(DURATA_RETRY_MS);
+        if (!anulatRef.current) programeaza(INTERVAL_RETRY_MS);
       }
     }
 
     function programeaza(intarziereMs: number) {
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(urmatorul, intarziereMs);
+      timerRef.current = setTimeout(sondeaza, intarziereMs);
     }
 
-    urmatorul();
+    sondeaza();
 
     return () => {
       anulatRef.current = true;
@@ -111,31 +149,16 @@ export function EcranClient({ id, apiKey, format }: { id: string; apiKey: string
         <RoundsPlayer ref={playerRef} format={format} />
       </div>
 
-      {continut && continut.tip !== 'dedicatie' && (
+      {continut && continut.tip === 'branding' && (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ContinutFiller key={cheieAnimatie} continut={continut} />
+          <Branding />
         </div>
       )}
     </div>
   );
 }
 
-function ContinutFiller({ continut }: { continut: Exclude<Continut, { tip: 'dedicatie' }> }) {
-  if (continut.tip === 'inactiv') {
-    return null;
-  }
-
-  if (continut.tip === 'qr') {
-    return (
-      <div className="ecran-continut" style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '3vw', fontWeight: 700, marginBottom: 32 }}>Trimite și tu o dedicație</div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={continut.qr_data_url} alt="Cod QR" style={{ width: '24vw', height: '24vw', background: '#fff', padding: 20, borderRadius: 16 }} />
-        <div style={{ marginTop: 28, fontSize: '1.4vw', color: '#b8b8bc' }}>Scanează și mesajul tău ajunge pe ecran</div>
-      </div>
-    );
-  }
-
+function Branding() {
   return (
     <div className="ecran-continut" style={{ textAlign: 'center' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}

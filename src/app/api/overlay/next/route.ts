@@ -30,11 +30,15 @@ export async function POST(req: Request) {
   const sb = supabaseAdmin();
   const { data: event } = await sb
     .from('events')
-    .select('id, durata_stream_secunde')
+    .select('id, durata_stream_secunde, status')
     .eq('slug', slug)
     .maybeSingle();
 
-  if (!event) {
+  // Doar un eveniment LIVE difuzeaza dedicatii. Dupa "Încheie show-ul" din
+  // admin, overlay-ul nu mai afiseaza nimic (la fel ca ecranele din sala).
+  // Nu apelam avanseaza_overlay_stream: e mutant, ar consuma dedicatii fara
+  // sa le arate nimanui.
+  if (!event || event.status !== 'live') {
     return NextResponse.json({ durata_secunde: DURATA_FARA_EVENIMENT_SECUNDE, dedicatie: null });
   }
 

@@ -8,7 +8,6 @@ export interface CorpDedicatie {
   tip: TipDedicatie;
   de_la?: string;
   pentru?: string;
-  artist_preferat?: string;
   mesaj?: string;
   src?: string;
   event_id: string;
@@ -36,7 +35,7 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
     };
   }
 
-  const { tip, de_la, pentru, artist_preferat, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime, nume_facturare, cadou } = body;
+  const { tip, de_la, pentru, mesaj, src, event_id, poza_path, poza_latime, poza_inaltime, nume_facturare, cadou } = body;
 
   if (!['sustinere', 'ecran', 'stream', 'prezentator'].includes(tip)) {
     return { eroare: NextResponse.json({ error: 'Tip de dedicație invalid.' }, { status: 400 }) };
@@ -134,7 +133,6 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
       suma_bani: tarif.pret_bani,
       de_la: de_la?.slice(0, 80) ?? null,
       pentru: pentru?.slice(0, 80) ?? null,
-      artist_preferat: artist_preferat?.slice(0, 80) ?? null,
       mesaj: mesaj?.slice(0, 300) ?? null,
       sursa_platforma: typeof src === 'string' ? src.slice(0, 30) : 'direct',
       este_rezervare: esteRezervare,

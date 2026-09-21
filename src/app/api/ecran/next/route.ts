@@ -1,20 +1,32 @@
 import { NextResponse } from 'next/server';
-import QRCode from 'qrcode';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { urlPozaAprobata } from '@/lib/storage';
-import type { Dedicatie, Ecran } from '@/lib/types';
+import type { Ecran } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 const DURATA_IMPLICITA_SECUNDE = 12;
+// Cat asteapta un ecran intre doua sondari cand nu are nimic de aratat.
 const DURATA_INACTIV_SECUNDE = 20;
+// De cate ori poate fi difuzata o dedicatie pe ecranele din sala (Sarcina: fara
+// bucla infinita).
+const MAX_DIFUZARI = 2;
 
-// Continutul afisat cand e randul umpluturii — alterneaza QR (cheama publicul
-// sa trimita o dedicatie) si branding simplu (Sarcina V4-A3, IMPLEMENTARE-V4.md).
-// Sponsorul a fost scos din rotatie (Sarcina: grafica noua) — ramane doar
-// codul asociat sponsorilor pentru cine il reactiveaza mai tarziu.
-type Filler =
-  | { tip: 'qr'; url: string; qr_data_url: string }
+// Ce afiseaza un ecran: o dedicatie, logo-ul 12 ROUNDS (cand nu e nimic de
+// aratat sau show-ul nu e live) sau nimic (ecran dezactivat din admin).
+// Codul QR a fost scos de pe ecranele din sala (Sarcina: modificari 12 ROUNDS).
+type Continut =
+  | {
+      tip: 'dedicatie';
+      // id + momentul difuzarii: identifica O difuzare, nu doar dedicatia — a
+      // doua difuzare a aceleiasi dedicatii trebuie sa ruleze din nou.
+      cheie: string;
+      mesaj: string | null;
+      de_la: string | null;
+      pentru: string | null;
+      poza_url: string | null;
+      cadou: string | null;
+    }
   | { tip: 'branding' }
   | { tip: 'inactiv' };
 
@@ -25,6 +37,11 @@ type Filler =
 // direct: acelasi ecran, acelasi token din DB, dar "Acces refuzat" pentru ca
 // randul din Storage era cache-uit cu tokenul dinaintea unei regenerari).
 // Ruta fara segment dinamic + POST s-a dovedit intotdeauna proaspata.
+//
+// Sarcina: ecranele din sala arata aceeasi dedicatie in acelasi moment — nu mai
+// revendica fiecare ecran pe cont propriu. Apelam avanseaza_ecrane_sala
+// (0025_ecrane_sala_sincronizate.sql), care tine "ce ruleaza acum si pana
+// cand" pe evenimentul insusi; oricate ecrane sondeaza, vad aceeasi difuzare.
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const id = body?.id;
@@ -48,78 +65,70 @@ export async function POST(req: Request) {
 
   if (!ecran.activ) {
     await sb.from('ecrane').update({ ultima_cerere: new Date().toISOString() }).eq('id', ecran.id);
-    return NextResponse.json({ durata_secunde: DURATA_INACTIV_SECUNDE, continut: { tip: 'inactiv' } as Filler });
+    return NextResponse.json({ durata_secunde: DURATA_INACTIV_SECUNDE, continut: { tip: 'inactiv' } as Continut });
   }
 
+  // Doar un eveniment LIVE difuzeaza dedicatii. Dupa "Încheie show-ul" din
+  // admin (status 'ended') sau inainte de pornire, ecranul arata logo-ul.
   const { data: event } = await sb
     .from('events')
-    .select('id, slug, durata_afisare_secunde')
+    .select('id, durata_afisare_secunde')
     .eq('status', 'live')
     .maybeSingle();
 
   if (!event) {
     await sb.from('ecrane').update({ ultima_cerere: new Date().toISOString() }).eq('id', ecran.id);
-    return NextResponse.json({
-      durata_secunde: DURATA_INACTIV_SECUNDE,
-      continut: { tip: 'branding' } as Filler,
-    });
+    return NextResponse.json({ durata_secunde: DURATA_INACTIV_SECUNDE, continut: { tip: 'branding' } as Continut });
   }
 
   const durata = event.durata_afisare_secunde || DURATA_IMPLICITA_SECUNDE;
 
-  // A3: alternam strict dedicatie/umplere. Fara asta, reciclarea din
-  // revendica_dedicatie gaseste mereu candidat (macar cel deja aratat) si
-  // umplutura nu mai apare niciodata dupa prima dedicatie difuzata.
-  const incearcaDedicatie = ecran.ultimul_tip !== 'dedicatie';
+  const { data: rezultat, error } = await sb.rpc('avanseaza_ecrane_sala', {
+    p_event_id: event.id,
+    p_durata_secunde: durata,
+    p_max_difuzari: MAX_DIFUZARI,
+  });
+  if (error) console.error('avanseaza_ecrane_sala a esuat', error);
 
-  if (incearcaDedicatie) {
-    const { data: revendicate } = await sb.rpc('revendica_dedicatie', {
-      p_event_id: event.id,
-      p_ecran_id: ecran.id,
-    });
-    const ded = (revendicate as Dedicatie[] | null)?.[0] ?? null;
+  const ded =
+    (
+      rezultat as
+        | {
+            id: string;
+            mesaj: string | null;
+            de_la: string | null;
+            pentru: string | null;
+            cadou: string | null;
+            poza_path: string | null;
+            poza_aprobata: boolean;
+            afisata_la: string;
+          }[]
+        | null
+    )?.[0] ?? null;
 
-    if (ded) {
-      await sb
-        .from('ecrane')
-        .update({ ultima_cerere: new Date().toISOString(), ultimul_tip: 'dedicatie', ultima_dedicatie_id: ded.id })
-        .eq('id', ecran.id);
-      return NextResponse.json({
-        durata_secunde: durata,
-        continut: {
-          tip: 'dedicatie',
-          mesaj: ded.mesaj,
-          de_la: ded.de_la,
-          pentru: ded.pentru,
-          // Layout-ul fotografiei (orientare, cadru) e gestionat de kit-ul
-          // RoundsAnimation — nu mai avem nevoie de dimensiuni aici.
-          poza_url: ded.poza_aprobata && ded.poza_path ? urlPozaAprobata(ded.poza_path) : null,
-          cadou: ded.cadou,
-        },
-      });
-    }
-    // Zero dedicatii aprobate in tot sistemul — nu exista ce revendica,
-    // trecem la umplutura mai jos, fara eroare si fara ecran negru.
-  }
-
-  const filler = await alegeFiller(sb, ecran, event.slug);
-  await sb.from('ecrane').update({ ultima_cerere: new Date().toISOString(), ultimul_tip: 'umplere' }).eq('id', ecran.id);
-  return NextResponse.json({ durata_secunde: durata, continut: filler });
-}
-
-async function alegeFiller(sb: ReturnType<typeof supabaseAdmin>, ecran: Ecran, slug: string): Promise<Filler> {
-  const variante: Filler['tip'][] = ['qr', 'branding'];
-  const ales = variante[ecran.filler_index % variante.length];
   await sb
     .from('ecrane')
-    .update({ filler_index: (ecran.filler_index + 1) % variante.length })
+    .update({ ultima_cerere: new Date().toISOString(), ultima_dedicatie_id: ded?.id ?? null })
     .eq('id', ecran.id);
 
-  if (ales === 'qr') {
-    const url = `${process.env.NEXT_PUBLIC_SITE_URL}/eveniment/${slug}?src=ecran`;
-    const qrDataUrl = await QRCode.toDataURL(url, { margin: 1, width: 400 });
-    return { tip: 'qr', url, qr_data_url: qrDataUrl };
+  if (!ded) {
+    // Nicio dedicatie (inca) aprobata sau toate au fost deja aratate de
+    // MAX_DIFUZARI ori — logo, nu ecran negru.
+    return NextResponse.json({ durata_secunde: durata, continut: { tip: 'branding' } as Continut });
   }
 
-  return { tip: 'branding' };
+  return NextResponse.json({
+    durata_secunde: durata,
+    continut: {
+      tip: 'dedicatie',
+      cheie: `${ded.id}|${ded.afisata_la}`,
+      mesaj: ded.mesaj,
+      de_la: ded.de_la,
+      pentru: ded.pentru,
+      // Layout-ul fotografiei (orientare, cadru) e gestionat de kit-ul
+      // RoundsAnimation — nu mai avem nevoie de dimensiuni aici.
+      poza_url: ded.poza_aprobata && ded.poza_path ? urlPozaAprobata(ded.poza_path) : null,
+      cadou: ded.cadou,
+    } as Continut,
+  });
 }
