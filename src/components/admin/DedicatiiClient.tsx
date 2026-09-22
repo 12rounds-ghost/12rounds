@@ -249,6 +249,7 @@ export function DedicatiiClient({
   const [numeFacturaEdit, setNumeFacturaEdit] = useState<Record<string, string>>({});
   const [reincercare, setReincercare] = useState<string | null>(null);
   const [reincercareEmail, setReincercareEmail] = useState<string | null>(null);
+  const [redifuzare, setRedifuzare] = useState<string | null>(null);
   const esteAdmin = rol === 'admin';
 
   const numeEveniment = useCallback(
@@ -357,11 +358,18 @@ export function DedicatiiClient({
     incarca();
   }
 
+  // Sarcina: buton "retrimite pe ecran" — cu ecranele sincronizate (0025/0026),
+  // ce se afiseaza urmator nu mai depinde de status_difuzare (asa lucra
+  // vechea implementare, direct pe tabela), ci de coloana redifuzare_fortata,
+  // setata prin API ca sa treaca prin avanseaza_ecrane_sala.
   async function retrimitePeEcran(d: Dedicatie) {
-    await supabaseBrowser()
-      .from('dedicatii')
-      .update({ status_difuzare: 'in_asteptare', difuzat_la: null })
-      .eq('id', d.id);
+    setRedifuzare(d.id);
+    const res = await fetch(`/api/admin/dedicatii/${d.id}/redifuzeaza-ecran`, { method: 'POST' });
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: 'A apărut o eroare.' }));
+      alert(error);
+    }
+    setRedifuzare(null);
     incarca();
   }
 
@@ -565,9 +573,9 @@ export function DedicatiiClient({
                     {esteAdmin && d.status_plata === 'paid' && (
                       <button className="btn danger mic" onClick={() => ramburseaza(d)}>Rambursează</button>
                     )}
-                    {d.status_difuzare === 'difuzat' && (
-                      <button className="btn secondary mic" onClick={() => retrimitePeEcran(d)}>
-                        ↺ Retrimite pe ecran
+                    {d.tip === 'ecran' && d.status_difuzare === 'difuzat' && (
+                      <button className="btn secondary mic" disabled={redifuzare === d.id} onClick={() => retrimitePeEcran(d)}>
+                        {redifuzare === d.id ? 'Se trimite…' : '↺ Arată din nou pe ecran'}
                       </button>
                     )}
                   </div>

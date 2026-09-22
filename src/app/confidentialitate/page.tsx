@@ -10,15 +10,15 @@ export default function Confidentialitate() {
       <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Politica de confidențialitate</h1>
-      <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
+      <p className="sub">Ultima actualizare: 22 septembrie 2026</p>
 
       <div className="card legal">
         <h2>1. Operatorul de date</h2>
         <p>
-          Datele tale sunt prelucrate de <strong>[DE COMPLETAT — denumire firmă]</strong>,
-          CUI <strong>[DE COMPLETAT]</strong>, cu sediul în{' '}
-          <strong>[DE COMPLETAT — adresă sediu social]</strong>, contact:{' '}
-          <strong>[DE COMPLETAT — email/telefon]</strong>.
+          Datele tale sunt prelucrate de <strong>GHOST RECORDS SRL</strong>,
+          CUI <strong>21072492</strong>, cu sediul în{' '}
+          <strong>Str. Intrarea Chefalului nr. 12G, București</strong>, contact:{' '}
+          <strong>office@12rounds.ro</strong>.
         </p>
 
         <h2>2. Ce date colectăm</h2>
@@ -59,7 +59,24 @@ export default function Confidentialitate() {
         </ul>
 
         <h2>6. Perioada de stocare</h2>
-        <p>[DE COMPLETAT — cât timp păstrați datele dedicațiilor după eveniment]</p>
+        <p><strong>Datele asociate dedicațiilor</strong></p>
+        <p>
+          Datele introduse în formularul de dedicații, inclusiv adresa de e-mail furnizată
+          opțional, sunt prelucrate pentru înregistrarea și transmiterea dedicației,
+          confirmarea achiziției și comunicarea eventualelor informații privind solicitarea.
+        </p>
+        <p>
+          Aceste date sunt păstrate pe durata evenimentului și pentru maximum 7 zile după
+          încheierea acestuia. După expirarea acestei perioade, datele sunt șterse sau
+          anonimizate.
+        </p>
+        <p>
+          Adresa de e-mail nu va fi utilizată pentru newslettere sau alte comunicări
+          comerciale fără consimțământul explicit al utilizatorului. Datele aferente
+          plăților și documentelor financiar-contabile sunt gestionate separat și păstrate
+          conform obligațiilor legale aplicabile.
+        </p>
+        <p><strong>Pozele atașate</strong></p>
         <p>
           Pozele atașate dedicațiilor sunt păstrate <strong>maximum 90 de zile</strong> de la
           data evenimentului, după care sunt șterse automat din sistemele noastre. Pozele
@@ -67,7 +84,7 @@ export default function Confidentialitate() {
           ore. Poți solicita oricând ștergerea mai devreme a pozei tale — vezi secțiunea 7.
         </p>
 
-        <h2>7. Drepturile tale</h2>
+        <h2 id="gdpr">7. Drepturile tale (GDPR)</h2>
         <p>
           Conform GDPR, ai dreptul de acces, rectificare, ștergere, restricționare și
           opoziție asupra datelor tale, precum și dreptul de a depune plângere la{' '}
@@ -76,7 +93,7 @@ export default function Confidentialitate() {
           </a>
           . Acest drept include și ștergerea, la cerere, a unei poze atașate unei dedicații,
           înainte de expirarea perioadei standard de retenție. Pentru a-ți exercita
-          drepturile, scrie-ne la: [DE COMPLETAT — email contact].
+          drepturile, scrie-ne la: office@12rounds.ro.
         </p>
       </div>
 

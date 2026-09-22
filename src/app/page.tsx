@@ -6,12 +6,16 @@ import { Wave } from '@/components/Wave';
 import { EditiiUrmeaza } from '@/components/EditiiUrmeaza';
 import { EditiiIncheiate } from '@/components/EditiiIncheiate';
 import { SponsoriSection } from '@/components/SponsoriSection';
+import { HeroVideoButon } from '@/components/HeroVideoButon';
 import { urlCoperta } from '@/lib/storage';
 import type { Event, Sponsor } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 const NUMAR_EDITII_INCHEIATE = 3;
+// Sarcina: iconita de play in hero — deschide popup cu acest video de pe
+// canalul YouTube 12 ROUNDS (https://youtu.be/jFFs4xumUv8).
+const HERO_YOUTUBE_ID = 'jFFs4xumUv8';
 
 const PROVOCARI = [
   { nr: '01', nume: 'Signature', text: 'O piesă proprie care definește artistul.', simte: 'Identitate' },
@@ -119,8 +123,11 @@ export default async function Home() {
                   <span>Live in concert</span>
                   <span>12 Rounds</span>
                 </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="official-poster" src={urlCoperta(hero.cover_path)} alt={hero.nume} />
+                <div style={{ position: 'relative' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="official-poster" src={urlCoperta(hero.cover_path)} alt={hero.nume} />
+                  <HeroVideoButon youtubeId={HERO_YOUTUBE_ID} />
+                </div>
                 {(hero.artist_a || hero.artist_b) && (
                   <div className="poster-caption">
                     {hero.artist_a && (

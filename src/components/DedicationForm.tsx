@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { NUME_TIP, DESCRIERE_IMPLICITA, CADOURI, NUME_CADOU, lei, type Tarif, type TipDedicatie, type CadouDedicatie } from '@/lib/types';
 import { PlataElements } from '@/components/PlataElements';
 import { salveazaDedicatieLocala } from '@/lib/dedicatii-locale';
@@ -31,6 +32,7 @@ export function DedicationForm({
   const [pozaLatime, setPozaLatime] = useState<number | null>(null);
   const [pozaInaltime, setPozaInaltime] = useState<number | null>(null);
   const [numeComplet, setNumeComplet] = useState('');
+  const [gdprAcceptat, setGdprAcceptat] = useState(false);
 
   const esteDedicatie = tip === 'ecran' || tip === 'stream' || tip === 'prezentator';
   // Cadoul (kit RoundsAnimation) e afisat vizual doar pe ecran/stream —
@@ -218,6 +220,13 @@ export function DedicationForm({
         </div>
       )}
 
+      {esteDedicatie && (
+        <p className="sub" style={{ textAlign: 'center', margin: '10px 0 0' }}>
+          Dedicațiile pot fi afișate sau citite public în timpul transmisiunii live. Nu introduceți date
+          sensibile, informații confidențiale sau date personale ale altor persoane fără acordul acestora.
+        </p>
+      )}
+
       {tip && tarifSelectat && mesajValid && cadouValid && !pozaIncarcare && (
         <div className="card" style={{ marginTop: 16 }}>
           <label htmlFor="nume-complet">Nume complet</label>
@@ -232,42 +241,60 @@ export function DedicationForm({
             Necesar pentru emiterea facturii.
           </p>
 
-          {modClasic ? (
-            <>
-              <button className="btn" onClick={plateasteClasic} disabled={loadingClasic || !numeValid}>
-                {loadingClasic ? 'Se deschide plata…' : `Plătește ${lei(tarifSelectat.pret_bani)}`}
-              </button>
-              {eroareClasic && <p className="eroare">{eroareClasic}</p>}
-            </>
-          ) : (
-            <PlataElements
-              sumaBani={tarifSelectat.pret_bani}
-              eventSlug={eventSlug}
-              numeComplet={numeComplet}
-              onNumeCompletChange={setNumeComplet}
-              numeValid={numeValid}
-              dateDedicatie={{
-                tip,
-                de_la: deLa,
-                pentru,
-                mesaj,
-                src,
-                event_id: eventId,
-                poza_path: pozaPath,
-                poza_latime: pozaLatime,
-                poza_inaltime: pozaInaltime,
-                cadou,
-              }}
-              onEsuatEncarcare={() => setModClasic(true)}
+          <label className="consimtamant-gdpr">
+            <input
+              type="checkbox"
+              checked={gdprAcceptat}
+              onChange={(e) => setGdprAcceptat(e.target.checked)}
             />
+            <span>
+              Sunt de acord cu prelucrarea datelor mele conform{' '}
+              <Link href="/confidentialitate#gdpr" target="_blank">Politicii de confidențialitate</Link>.
+            </span>
+          </label>
+
+          {gdprAcceptat ? (
+            modClasic ? (
+              <>
+                <button className="btn" onClick={plateasteClasic} disabled={loadingClasic || !numeValid}>
+                  {loadingClasic ? 'Se deschide plata…' : `Plătește ${lei(tarifSelectat.pret_bani)}`}
+                </button>
+                {eroareClasic && <p className="eroare">{eroareClasic}</p>}
+              </>
+            ) : (
+              <PlataElements
+                sumaBani={tarifSelectat.pret_bani}
+                eventSlug={eventSlug}
+                numeComplet={numeComplet}
+                onNumeCompletChange={setNumeComplet}
+                numeValid={numeValid}
+                dateDedicatie={{
+                  tip,
+                  de_la: deLa,
+                  pentru,
+                  mesaj,
+                  src,
+                  event_id: eventId,
+                  poza_path: pozaPath,
+                  poza_latime: pozaLatime,
+                  poza_inaltime: pozaInaltime,
+                  cadou,
+                }}
+                onEsuatEncarcare={() => setModClasic(true)}
+              />
+            )
+          ) : (
+            <p className="sub" style={{ margin: '10px 0 0' }}>Bifează mai sus ca să continui la plată.</p>
           )}
-          <button
-            type="button"
-            className="link-discret"
-            onClick={() => setModClasic((v) => !v)}
-          >
-            {modClasic ? '← Înapoi la plata rapidă' : 'Ai probleme cu plata? Încearcă varianta clasică'}
-          </button>
+          {gdprAcceptat && (
+            <button
+              type="button"
+              className="link-discret"
+              onClick={() => setModClasic((v) => !v)}
+            >
+              {modClasic ? '← Înapoi la plata rapidă' : 'Ai probleme cu plata? Încearcă varianta clasică'}
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -10,7 +10,7 @@ export default function Rambursare() {
       <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Politica de rambursare</h1>
-      <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
+      <p className="sub">Ultima actualizare: 22 septembrie 2026</p>
 
       <div className="card legal">
         <h2>Când primești banii înapoi</h2>
@@ -40,7 +40,7 @@ export default function Rambursare() {
         <h2>Cum se face rambursarea</h2>
         <p>
           Rambursarea se procesează prin Stripe, pe același card folosit la plată, și
-          apare de obicei în [DE COMPLETAT — ex. 5-10 zile lucrătoare], în funcție de banca
+          apare de obicei în 5 zile lucrătoare, în funcție de banca
           emitentă a cardului. Vei vedea statusul „Plata a fost rambursată” pe pagina de
           status a dedicației tale.
         </p>
@@ -48,7 +48,7 @@ export default function Rambursare() {
         <h2>Întrebări</h2>
         <p>
           Pentru orice nelămurire legată de o rambursare, scrie-ne la:{' '}
-          [DE COMPLETAT — email contact].
+          office@12rounds.ro.
         </p>
       </div>
 

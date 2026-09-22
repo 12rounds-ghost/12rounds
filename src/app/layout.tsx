@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Barlow_Condensed } from 'next/font/google';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { CookieConsent } from '@/components/CookieConsent';
 import './globals.css';
 
 // Sarcina: redesign homepage — Barlow Condensed inlocuieste Anton ca font de
@@ -20,10 +22,24 @@ export const metadata: Metadata = {
   icons: { icon: '/logo.jpeg' },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Setat din /admin/setari. supabaseAdmin() (nu supabaseServer()) —
+  // supabaseServer() citeste cookies(), ceea ce ar forta tot layout-ul (deci
+  // si paginile statice: Termeni, Confidentialitate) sa devina dinamic.
+  // Datele sunt oricum publice (RLS: setari_site_citire_publica), deci
+  // ocolirea RLS aici nu schimba ce se poate vedea.
+  const { data: setari } = await supabaseAdmin()
+    .from('setari_site')
+    .select('google_tag_id')
+    .eq('id', 1)
+    .maybeSingle();
+
   return (
     <html lang="ro" className={barlow.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <CookieConsent tagId={setari?.google_tag_id ?? ''} />
+      </body>
     </html>
   );
 }

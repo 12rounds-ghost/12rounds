@@ -89,6 +89,18 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
       ),
     };
   }
+  // Sarcina: lansare site fara zona de dedicatii — formularul e ascuns pe
+  // pagina evenimentului, dar validam si aici (API-ul e apelabil direct,
+  // ocolind interfata).
+  if (!event.dedicatii_active) {
+    return {
+      eroare: NextResponse.json(
+        { error: 'Dedicațiile nu sunt încă disponibile pentru această ediție.' },
+        { status: 409 }
+      ),
+    };
+  }
+
   const esteRezervare = event.status === 'upcoming';
 
   const { data: tarif } = await sb
