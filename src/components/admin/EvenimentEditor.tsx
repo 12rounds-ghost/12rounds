@@ -39,6 +39,23 @@ function laBani(lei: string): number {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
+// Sarcina: ora evenimentului aparea gresita la redeschiderea editorului
+// (admin pune 20:00, la reincarcare vede 17:00) — data_show vine din baza
+// de date in UTC (ex. "...T17:00:00+00:00"), dar era taiata direct cu
+// slice(0, 16) si bagata ca atare in input-ul datetime-local, care afiseaza
+// string-ul primit ca ora locala, fara nicio conversie. La salvare insa
+// facem exact conversia inversa (new Date(dataShow).toISOString() —
+// interpreteaza ce a scris admin-ul ca ora locala a browserului si o
+// transforma in UTC), deci data STOCATA era corecta — doar afisarea la
+// redeschidere era gresita. Aici facem conversia UTC -> ora locala, folosind
+// getterii locali (getHours etc, nu getUTCHours), ca sa fie simetric cu
+// salvarea.
+function laDatetimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function EvenimentEditor({
   event,
   tarife: tarifeInitiale,
@@ -57,7 +74,7 @@ export function EvenimentEditor({
   const [subtitlu, setSubtitlu] = useState(event.subtitlu ?? '');
   const [slug, setSlug] = useState(event.slug);
   const [descriere, setDescriere] = useState(event.descriere ?? '');
-  const [dataShow, setDataShow] = useState(event.data_show ? event.data_show.slice(0, 16) : '');
+  const [dataShow, setDataShow] = useState(event.data_show ? laDatetimeLocal(event.data_show) : '');
   const [locatie, setLocatie] = useState(event.locatie ?? '');
   const [artistA, setArtistA] = useState(event.artist_a ?? '');
   const [artistB, setArtistB] = useState(event.artist_b ?? '');
