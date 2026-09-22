@@ -11,24 +11,25 @@ export default function Termeni() {
       <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Termeni și condiții</h1>
-      <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
+      <p className="sub">Ultima actualizare: 22 septembrie 2026</p>
 
       <div className="card legal">
         <h2>1. Operatorul serviciului</h2>
         <p>
           Serviciul „12 ROUNDS — Dedicații" (12rounds.ro) este operat de{' '}
-          <strong>[DE COMPLETAT — denumire firmă]</strong>, CUI{' '}
-          <strong>[DE COMPLETAT]</strong>, cu sediul în{' '}
-          <strong>[DE COMPLETAT — adresă sediu social]</strong>, contact:{' '}
-          <strong>[DE COMPLETAT — email/telefon]</strong>.
+          <strong>GHOST RECORDS SRL</strong>, CUI{' '}
+          <strong>21072492</strong>, cu sediul în{' '}
+          <strong>Str. Intrarea Chefalului nr. 12G, București</strong>, contact:{' '}
+          <strong>office@12rounds.ro</strong>.
         </p>
 
         <h2>2. Ce oferă serviciul</h2>
         <p>
           Platforma permite achiziționarea de dedicații („Susține show-ul", „Dedicație pe
-          ecran", „Dedicație citită de prezentator") disponibile exclusiv publicului prezent
-          în sală. Dedicațiile aprobate sunt afișate pe ecranele din sală — nu în
-          transmisiunile online — după aprobarea unui moderator al echipei.
+          ecranele din sală", „Dedicație în transmisiunea live", „Dedicație citită de
+          prezentator"). Dedicațiile aprobate sunt afișate, în funcție de tipul ales, pe
+          ecranele din sală, în transmisiunea live sau citite de prezentator — după
+          aprobarea unui moderator al echipei.
         </p>
 
         <h2>3. Prețuri</h2>
@@ -70,7 +71,7 @@ export default function Termeni() {
         <p>Acești termeni sunt guvernați de legislația română.</p>
 
         <h2>9. Contact</h2>
-        <p>[DE COMPLETAT — adresă de email pentru întrebări și reclamații]</p>
+        <p>office@12rounds.ro</p>
       </div>
 
       <Footer />

@@ -63,6 +63,8 @@ export function EvenimentEditor({
   const [artistB, setArtistB] = useState(event.artist_b ?? '');
   const [linkuri, setLinkuri] = useState<Record<string, string>>(() => ({ ...(event.linkuri_stream ?? {}) }));
   const [status, setStatus] = useState(event.status);
+  const [dedicatiiActive, setDedicatiiActive] = useState(event.dedicatii_active);
+  const [seSalveazaDedicatiiActive, setSeSalveazaDedicatiiActive] = useState(false);
   const [spectatori, setSpectatori] = useState(event.spectatori != null ? String(event.spectatori) : '');
   const [momenteLive, setMomenteLive] = useState(event.momente_live != null ? String(event.momente_live) : '');
   const [coverPath, setCoverPath] = useState(event.cover_path);
@@ -196,6 +198,20 @@ export function EvenimentEditor({
     setGalerie((prev) => prev.filter((p) => p.id !== poza.id));
   }
 
+  // Sarcina: lansare site fara zona de dedicatii — comutator per editie,
+  // separat de status (live/upcoming), ca sa poti tine editia live inainte
+  // sa activezi formularul public.
+  async function schimbaDedicatiiActive(nou: boolean) {
+    if (!nou && !window.confirm('Ascunzi formularul public de dedicații? Rămâne doar mesajul „Dedicațiile vor fi disponibile...” pe pagina ediției.')) {
+      return;
+    }
+    setSeSalveazaDedicatiiActive(true);
+    await supabaseBrowser().from('events').update({ dedicatii_active: nou }).eq('id', event.id);
+    setDedicatiiActive(nou);
+    setSeSalveazaDedicatiiActive(false);
+    router.refresh();
+  }
+
   async function schimbaStatus(nou: Event['status']) {
     // Sarcina V4-G2: fara niciun tip de dedicatie activ, nu are ce sa vanda
     // editia — blocam tranzitia la LIVE cu un mesaj explicit.
@@ -243,6 +259,24 @@ export function EvenimentEditor({
           {status === 'upcoming' && 'Ediția nu e pornită: ecranele din sală arată logo-ul, iar transmisiunea live nu afișează dedicații.'}
           {status === 'live' && 'Ediția e LIVE: dedicațiile aprobate apar pe ecranele din sală și în transmisiunea live. „Încheie show-ul” le oprește imediat.'}
           {status === 'ended' && 'Show încheiat: nu mai apar dedicații pe ecrane (rămâne logo-ul 12 ROUNDS) și nu se mai acceptă plăți. „Redeschide” schimbă ediția înapoi în „în curând”; apoi „Pornește LIVE” reia difuzarea.'}
+        </p>
+
+        <div className="rand" style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #2a2a2a' }}>
+          <span>
+            Formular public de dedicații: <strong>{dedicatiiActive ? 'activ' : 'ascuns'}</strong>
+          </span>
+          <button
+            className={`btn ${dedicatiiActive ? 'secondary' : 'ok'} mic`}
+            disabled={seSalveazaDedicatiiActive}
+            onClick={() => schimbaDedicatiiActive(!dedicatiiActive)}
+          >
+            {dedicatiiActive ? 'Ascunde formularul' : '🎤 Activează formularul'}
+          </button>
+        </div>
+        <p className="sub" style={{ margin: '10px 0 0', textAlign: 'left' }}>
+          {dedicatiiActive
+            ? 'Pagina publică a ediției arată formularul de dedicații (independent de status — și pe „urmează", și pe „live").'
+            : 'Pagina publică arată doar mesajul „Dedicațiile vor fi disponibile în timpul evenimentului live." — util ca site-ul să fie deja online, fără să vinzi dedicații încă. Activează-l seara evenimentului.'}
         </p>
       </div>
 

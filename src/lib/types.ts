@@ -34,6 +34,10 @@ export interface Event {
   durata_afisare_secunde: number;
   disparitie_automata: boolean;
   durata_stream_secunde: number;
+  // Comutator per editie (Sarcina: lansare site fara dedicatii) — cat timp e
+  // false, formularul public de dedicatii e ascuns, in orice status
+  // (upcoming/live), inlocuit de un mesaj generic pe pagina editiei.
+  dedicatii_active: boolean;
   slug: string;
   subtitlu: string | null;
   descriere: string | null;
@@ -111,7 +115,18 @@ export interface Dedicatie {
   platit_la: string | null;
   moderat_la: string | null;
   cadou: CadouDedicatie | null;
+  // Setat din admin ("Arată din nou pe ecran") — avanseaza_ecrane_sala (0026)
+  // o alege inaintea cozii normale, indiferent de nr_difuzari, apoi il pune
+  // singura inapoi pe false.
+  redifuzare_fortata: boolean;
   created_at: string;
+}
+
+// Singurul rand de setari globale ale site-ului (Sarcina: Google Tag din admin).
+export interface SetariSite {
+  id: 1;
+  google_tag_id: string | null;
+  updated_at: string;
 }
 
 // Un ecran fizic din sala, ca entitate administrabila (Sarcina V4-C,

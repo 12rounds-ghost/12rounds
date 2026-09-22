@@ -10,15 +10,15 @@ export default function Confidentialitate() {
       <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Politica de confidențialitate</h1>
-      <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
+      <p className="sub">Ultima actualizare: 22 septembrie 2026</p>
 
       <div className="card legal">
         <h2>1. Operatorul de date</h2>
         <p>
-          Datele tale sunt prelucrate de <strong>[DE COMPLETAT — denumire firmă]</strong>,
-          CUI <strong>[DE COMPLETAT]</strong>, cu sediul în{' '}
-          <strong>[DE COMPLETAT — adresă sediu social]</strong>, contact:{' '}
-          <strong>[DE COMPLETAT — email/telefon]</strong>.
+          Datele tale sunt prelucrate de <strong>GHOST RECORDS SRL</strong>,
+          CUI <strong>21072492</strong>, cu sediul în{' '}
+          <strong>Str. Intrarea Chefalului nr. 12G, București</strong>, contact:{' '}
+          <strong>office@12rounds.ro</strong>.
         </p>
 
         <h2>2. Ce date colectăm</h2>
@@ -76,7 +76,7 @@ export default function Confidentialitate() {
           </a>
           . Acest drept include și ștergerea, la cerere, a unei poze atașate unei dedicații,
           înainte de expirarea perioadei standard de retenție. Pentru a-ți exercita
-          drepturile, scrie-ne la: [DE COMPLETAT — email contact].
+          drepturile, scrie-ne la: office@12rounds.ro.
         </p>
       </div>
 

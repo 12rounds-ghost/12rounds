@@ -17,6 +17,7 @@ const LINKURI_PE_ROL: Record<RolModerator, { href: string; eticheta: string }[]>
     { href: '/admin/dedicatii', eticheta: 'Dedicații' },
     { href: '/admin/sponsori', eticheta: 'Sponsori' },
     { href: '/admin/statistici', eticheta: 'Statistici' },
+    { href: '/admin/setari', eticheta: 'Setări' },
   ],
   moderator: [
     { href: '/admin/moderare', eticheta: 'Moderare' },

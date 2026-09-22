@@ -17,6 +17,19 @@ const NUME_PLATFORMA: Record<string, string> = {
   youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook', instagram: 'Instagram', telegram: 'Telegram',
 };
 
+// Sarcina: lansare site fara zona de dedicatii — cat timp editia nu are
+// dedicatii_active, ramane doar acest mesaj, indiferent de status
+// (upcoming/live). Formularul apare abia dupa ce admin-ul il activeaza din
+// editorul editiei.
+function DedicatiiInactive() {
+  return (
+    <div style={{ textAlign: 'center', padding: '12px 0' }}>
+      <p style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px' }}>🎤 Dedicațiile vor fi disponibile în timpul evenimentului live.</p>
+      <p className="sub" style={{ margin: 0 }}>Revino aici după începerea show-ului pentru a trimite dedicația ta!</p>
+    </div>
+  );
+}
+
 export default async function EvenimentPage({
   params,
   searchParams,
@@ -138,26 +151,38 @@ export default async function EvenimentPage({
             )}
             {event.status === 'live' && (
               <div className="card">
-                <h3 style={{ marginTop: 0, textAlign: 'center' }}>Trimite o dedicație</h3>
-                <p className="sub">Mesajul apare acolo unde ai ales mai jos — pe ecran, pe stream sau citit de prezentator — după aprobarea moderatorului.</p>
-                {tarife.length > 0 ? (
-                  <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
+                {event.dedicatii_active ? (
+                  <>
+                    <h3 style={{ marginTop: 0, textAlign: 'center' }}>Trimite o dedicație</h3>
+                    <p className="sub">Mesajul apare acolo unde ai ales mai jos — pe ecran, pe stream sau citit de prezentator — după aprobarea moderatorului.</p>
+                    {tarife.length > 0 ? (
+                      <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
+                    ) : (
+                      <div className="card">Momentan nu sunt tarife active pentru această ediție.</div>
+                    )}
+                  </>
                 ) : (
-                  <div className="card">Momentan nu sunt tarife active pentru această ediție.</div>
+                  <DedicatiiInactive />
                 )}
               </div>
             )}
             {event.status === 'upcoming' && (
               <div className="card">
-                <h3 style={{ marginTop: 0, textAlign: 'center' }}>Rezervă o dedicație</h3>
-                <p className="sub">
-                  Plătești acum, mesajul intră în coadă imediat ce ediția devine live. Dacă ediția se anulează,
-                  primești rambursare integrală.
-                </p>
-                {tarife.length > 0 ? (
-                  <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
+                {event.dedicatii_active ? (
+                  <>
+                    <h3 style={{ marginTop: 0, textAlign: 'center' }}>Rezervă o dedicație</h3>
+                    <p className="sub">
+                      Plătești acum, mesajul intră în coadă imediat ce ediția devine live. Dacă ediția se anulează,
+                      primești rambursare integrală.
+                    </p>
+                    {tarife.length > 0 ? (
+                      <DedicationForm tarife={tarife} src={searchParams.src ?? 'direct'} eventId={event.id} eventSlug={event.slug} />
+                    ) : (
+                      <div className="card">Rezervările pentru această ediție nu sunt încă deschise.</div>
+                    )}
+                  </>
                 ) : (
-                  <div className="card">Rezervările pentru această ediție nu sunt încă deschise.</div>
+                  <DedicatiiInactive />
                 )}
               </div>
             )}

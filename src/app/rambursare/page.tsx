@@ -10,7 +10,7 @@ export default function Rambursare() {
       <main className="container">
       <div className="brand">12 Rounds</div>
       <h1>Politica de rambursare</h1>
-      <p className="sub">Ultima actualizare: [DE COMPLETAT — data publicării]</p>
+      <p className="sub">Ultima actualizare: 22 septembrie 2026</p>
 
       <div className="card legal">
         <h2>Când primești banii înapoi</h2>
@@ -48,7 +48,7 @@ export default function Rambursare() {
         <h2>Întrebări</h2>
         <p>
           Pentru orice nelămurire legată de o rambursare, scrie-ne la:{' '}
-          [DE COMPLETAT — email contact].
+          office@12rounds.ro.
         </p>
       </div>
 
