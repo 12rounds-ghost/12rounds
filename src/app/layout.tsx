@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Barlow_Condensed } from 'next/font/google';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { CookieConsent } from '@/components/CookieConsent';
 import './globals.css';
 
 // Sarcina: redesign homepage — Barlow Condensed inlocuieste Anton ca font de
@@ -38,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="ro" className={barlow.variable}>
       <body>
         {children}
-        <GoogleAnalytics tagId={setari?.google_tag_id ?? ''} />
+        <CookieConsent tagId={setari?.google_tag_id ?? ''} />
       </body>
     </html>
   );

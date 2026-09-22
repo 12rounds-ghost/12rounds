@@ -196,7 +196,8 @@ function FormularPlata({
           placeholder="tu@exemplu.ro"
         />
         <p className="sub" style={{ textAlign: 'left', margin: '4px 0 0' }}>
-          Îți trimitem linkul dedicației și factura.
+          Îți trimitem linkul dedicației și factura. Îl vom folosi exclusiv pentru confirmarea achiziției și
+          pentru informări privind dedicația ta. Adresa nu va fi utilizată pentru mesaje promoționale.
         </p>
       </div>
 

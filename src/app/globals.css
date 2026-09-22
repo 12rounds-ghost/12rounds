@@ -863,6 +863,27 @@ a { color: var(--accent-hover); }
 }
 .hero-video-close:hover { background: rgba(255,255,255,0.12); }
 
+/* banner GDPR de cookie-uri (Sarcina: GDPR afisat) */
+.cookie-banner {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 300;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px;
+  padding: 16px 20px; background: #121111; border-top: 1px solid #35302f;
+  box-shadow: 0 -6px 24px rgba(0,0,0,0.4);
+}
+.cookie-banner p { margin: 0; max-width: 640px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.cookie-banner p a { color: var(--text); text-decoration: underline; }
+.cookie-banner-actii { display: flex; gap: 10px; flex-shrink: 0; }
+.cookie-banner-actii .btn { width: auto; margin: 0; }
+@media (max-width: 560px) { .cookie-banner { justify-content: flex-start; text-align: left; } }
+
+/* checkbox de consimtamant GDPR de pe formularul de dedicatie */
+.consimtamant-gdpr {
+  display: flex; align-items: flex-start; gap: 8px; margin: 0 0 14px; cursor: pointer;
+}
+.consimtamant-gdpr input { margin-top: 3px; flex-shrink: 0; width: 16px; height: 16px; accent-color: var(--accent); }
+.consimtamant-gdpr span { font-size: 13px; color: var(--muted); line-height: 1.5; text-align: left; }
+.consimtamant-gdpr span a { color: var(--text); text-decoration: underline; }
+
 .hero-bottom {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   border-top: 1px solid #2b2525; padding: 24px 0;

@@ -21,6 +21,7 @@ export function Footer() {
             <Link href="/termeni">Termeni și condiții</Link>
             <Link href="/confidentialitate">Confidențialitate</Link>
             <Link href="/rambursare">Politica de rambursare</Link>
+            <Link href="/confidentialitate#gdpr">GDPR</Link>
             <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer">ANPC</a>
           </div>
           <div>
