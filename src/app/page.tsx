@@ -73,7 +73,6 @@ export default async function Home() {
 
   return (
     <>
-      <a className="skip-link" href="#concept">Sari la conținut</a>
       <Header />
       <main>
         {/* ============ HERO — full-bleed, gutter proprie ============ */}
