@@ -250,6 +250,7 @@ export function DedicatiiClient({
   const [reincercare, setReincercare] = useState<string | null>(null);
   const [reincercareEmail, setReincercareEmail] = useState<string | null>(null);
   const [redifuzare, setRedifuzare] = useState<string | null>(null);
+  const [redifuzareStream, setRedifuzareStream] = useState<string | null>(null);
   const esteAdmin = rol === 'admin';
 
   const numeEveniment = useCallback(
@@ -370,6 +371,21 @@ export function DedicatiiClient({
       alert(error);
     }
     setRedifuzare(null);
+    incarca();
+  }
+
+  // Sarcina: buton "retrimite pe stream" — doar pentru tip='stream'. O
+  // dedicatie "din sala" (tip='ecran') merge mereu si pe live (0021), deci
+  // pentru ea un singur click pe "Arata din nou pe ecran" retrimite pe
+  // AMBELE (vezi retrimitePeEcran) — nu mai are nevoie de acest buton.
+  async function retrimitePeStream(d: Dedicatie) {
+    setRedifuzareStream(d.id);
+    const res = await fetch(`/api/admin/dedicatii/${d.id}/redifuzeaza-stream`, { method: 'POST' });
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: 'A apărut o eroare.' }));
+      alert(error);
+    }
+    setRedifuzareStream(null);
     incarca();
   }
 
@@ -575,9 +591,20 @@ export function DedicatiiClient({
                     )}
                     {d.tip === 'ecran' && d.status_difuzare === 'difuzat' && (
                       <button className="btn secondary mic" disabled={redifuzare === d.id} onClick={() => retrimitePeEcran(d)}>
-                        {redifuzare === d.id ? 'Se trimite…' : '↺ Arată din nou pe ecran'}
+                        {redifuzare === d.id ? 'Se trimite…' : '↺ Arată din nou pe ecran + stream'}
                       </button>
                     )}
+                    {d.tip === 'stream' &&
+                      d.status_plata === 'paid' &&
+                      d.status_moderare === 'aprobat' && (
+                        <button
+                          className="btn secondary mic"
+                          disabled={redifuzareStream === d.id}
+                          onClick={() => retrimitePeStream(d)}
+                        >
+                          {redifuzareStream === d.id ? 'Se trimite…' : '↺ Retrimite pe stream'}
+                        </button>
+                      )}
                   </div>
                 </div>
               )}

@@ -119,6 +119,8 @@ export interface Dedicatie {
   // o alege inaintea cozii normale, indiferent de nr_difuzari, apoi il pune
   // singura inapoi pe false.
   redifuzare_fortata: boolean;
+  // Analog, dar pentru "Retrimite pe stream" — avanseaza_overlay_stream (0027).
+  redifuzare_fortata_stream: boolean;
   created_at: string;
 }
 

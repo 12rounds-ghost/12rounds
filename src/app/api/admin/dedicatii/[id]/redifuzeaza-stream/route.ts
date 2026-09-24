@@ -4,18 +4,16 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 
-// Sarcina: buton "retrimite pe ecran" din admin. Cu ecranele sincronizate
-// (0025/0026) ce se afiseaza urmator nu mai e ales dupa status_difuzare, ci
-// strict dupa nr_difuzari — vechiul buton reseta status_difuzare fara efect.
-// Aici doar marcam dedicatia cu redifuzare_fortata; avanseaza_ecrane_sala o
-// alege la urmatoarea sa avansare (cel mult durata_afisare_secunde), inaintea
-// cozii normale, indiferent cate difuzari are deja.
+// Sarcina: buton "retrimite pe stream" din admin — util la testare, ca sa nu
+// mai trebuiasca creata mereu o dedicatie noua ca sa vezi ceva pe overlay-ul
+// de live.
 //
-// Sarcina: o dedicatie "din sala" merge mereu si pe live (0021) — retrimiterea
-// pe ecran seteaza deci AMBELE flag-uri (0027: redifuzare_fortata_stream),
-// ca sa nu fie nevoie de un al doilea click separat pentru stream. Butonul
-// distinct "Retrimite pe stream" ramane doar pentru tip='stream', care nu
-// apare niciodata pe ecrane.
+// Doar tip='stream' — o dedicatie "din sala" (tip='ecran') merge mereu si pe
+// live (0021), deci retrimiterea ei se face din butonul "Arata din nou pe
+// ecran" (redifuzeaza-ecran/route.ts), care seteaza AMBELE flag-uri dintr-un
+// singur click. Aici ramane doar cazul care n-are alta cale: o dedicatie
+// 'stream' nu apare niciodata pe ecrane, deci nu are unde altundeva sa fie
+// retrimisa.
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
   const mod = await obtineModeratorApi();
   if (!mod) return NextResponse.json({ error: 'Neautentificat' }, { status: 401 });
@@ -31,19 +29,19 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     .maybeSingle();
 
   if (!ded) return NextResponse.json({ error: 'Dedicația nu a fost găsită.' }, { status: 404 });
-  if (ded.tip !== 'ecran') {
-    return NextResponse.json({ error: 'Doar dedicațiile pentru ecranele din sală pot fi retrimise.' }, { status: 400 });
+  if (ded.tip !== 'stream') {
+    return NextResponse.json(
+      { error: 'Doar dedicațiile pentru transmisiunea live pot fi retrimise de aici — cele de pe ecran se retrimit din „Arată din nou pe ecran".' },
+      { status: 400 }
+    );
   }
   if (ded.status_plata !== 'paid' || ded.status_moderare !== 'aprobat') {
     return NextResponse.json({ error: 'Dedicația trebuie să fie plătită și aprobată.' }, { status: 400 });
   }
 
-  const { error } = await admin
-    .from('dedicatii')
-    .update({ redifuzare_fortata: true, redifuzare_fortata_stream: true })
-    .eq('id', params.id);
+  const { error } = await admin.from('dedicatii').update({ redifuzare_fortata_stream: true }).eq('id', params.id);
   if (error) {
-    console.error('Nu am putut marca redifuzarea fortata', error);
+    console.error('Nu am putut marca redifuzarea fortata pe stream', error);
     return NextResponse.json({ error: 'A apărut o eroare. Încearcă din nou.' }, { status: 500 });
   }
 
