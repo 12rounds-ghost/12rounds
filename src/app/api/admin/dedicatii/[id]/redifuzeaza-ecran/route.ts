@@ -10,6 +10,12 @@ export const dynamic = 'force-dynamic';
 // Aici doar marcam dedicatia cu redifuzare_fortata; avanseaza_ecrane_sala o
 // alege la urmatoarea sa avansare (cel mult durata_afisare_secunde), inaintea
 // cozii normale, indiferent cate difuzari are deja.
+//
+// Sarcina: o dedicatie "din sala" merge mereu si pe live (0021) — retrimiterea
+// pe ecran seteaza deci AMBELE flag-uri (0027: redifuzare_fortata_stream),
+// ca sa nu fie nevoie de un al doilea click separat pentru stream. Butonul
+// distinct "Retrimite pe stream" ramane doar pentru tip='stream', care nu
+// apare niciodata pe ecrane.
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
   const mod = await obtineModeratorApi();
   if (!mod) return NextResponse.json({ error: 'Neautentificat' }, { status: 401 });
@@ -32,7 +38,10 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     return NextResponse.json({ error: 'Dedicația trebuie să fie plătită și aprobată.' }, { status: 400 });
   }
 
-  const { error } = await admin.from('dedicatii').update({ redifuzare_fortata: true }).eq('id', params.id);
+  const { error } = await admin
+    .from('dedicatii')
+    .update({ redifuzare_fortata: true, redifuzare_fortata_stream: true })
+    .eq('id', params.id);
   if (error) {
     console.error('Nu am putut marca redifuzarea fortata', error);
     return NextResponse.json({ error: 'A apărut o eroare. Încearcă din nou.' }, { status: 500 });

@@ -6,10 +6,14 @@ export const dynamic = 'force-dynamic';
 
 // Sarcina: buton "retrimite pe stream" din admin — util la testare, ca sa nu
 // mai trebuiasca creata mereu o dedicatie noua ca sa vezi ceva pe overlay-ul
-// de live. Dedicatiile "din sala" (tip='ecran') merg si ele pe live (0021),
-// deci butonul functioneaza pentru ambele tipuri, nu doar 'stream'.
-// Acelasi mecanism ca redifuzeaza-ecran: doar marcam un flag, pe care
-// avanseaza_overlay_stream (0027) il verifica inaintea cozii normale.
+// de live.
+//
+// Doar tip='stream' — o dedicatie "din sala" (tip='ecran') merge mereu si pe
+// live (0021), deci retrimiterea ei se face din butonul "Arata din nou pe
+// ecran" (redifuzeaza-ecran/route.ts), care seteaza AMBELE flag-uri dintr-un
+// singur click. Aici ramane doar cazul care n-are alta cale: o dedicatie
+// 'stream' nu apare niciodata pe ecrane, deci nu are unde altundeva sa fie
+// retrimisa.
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
   const mod = await obtineModeratorApi();
   if (!mod) return NextResponse.json({ error: 'Neautentificat' }, { status: 401 });
@@ -25,8 +29,11 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     .maybeSingle();
 
   if (!ded) return NextResponse.json({ error: 'Dedicația nu a fost găsită.' }, { status: 404 });
-  if (ded.tip !== 'ecran' && ded.tip !== 'stream') {
-    return NextResponse.json({ error: 'Doar dedicațiile pentru ecran sau stream pot fi retrimise pe live.' }, { status: 400 });
+  if (ded.tip !== 'stream') {
+    return NextResponse.json(
+      { error: 'Doar dedicațiile pentru transmisiunea live pot fi retrimise de aici — cele de pe ecran se retrimit din „Arată din nou pe ecran".' },
+      { status: 400 }
+    );
   }
   if (ded.status_plata !== 'paid' || ded.status_moderare !== 'aprobat') {
     return NextResponse.json({ error: 'Dedicația trebuie să fie plătită și aprobată.' }, { status: 400 });
