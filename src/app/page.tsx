@@ -85,7 +85,7 @@ export default async function Home() {
               </span>
               <span>
                 {hero.data_show &&
-                  new Date(hero.data_show).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  new Date(hero.data_show).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Bucharest' })}
                 {hero.locatie ? <> <b>/</b> {hero.locatie}</> : null}
               </span>
               <span className="hero-number">The Battle of the Bands</span>
