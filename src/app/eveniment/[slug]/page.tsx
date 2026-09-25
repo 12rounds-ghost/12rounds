@@ -30,6 +30,44 @@ function DedicatiiInactive() {
   );
 }
 
+// Sarcina: sectiunea "Informatii importante" (acces, pret bilet, dress code,
+// contact) — text liber editat din admin (EvenimentEditor.tsx). O linie care
+// incepe cu "- " devine element de lista, grupat cu liniile "- " urmatoare
+// sub acelasi <ul> (ex. cele doua variante de pret, sub linia "Preț bilet:").
+function InformatiiImportante({ text }: { text: string }) {
+  const linii = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const blocuri: React.ReactNode[] = [];
+  let bulete: string[] = [];
+  const inchideBulete = () => {
+    if (bulete.length > 0) {
+      blocuri.push(
+        <ul key={`ul-${blocuri.length}`} className="info-importante-lista">
+          {bulete.map((b, i) => (
+            <li key={i}>{b}</li>
+          ))}
+        </ul>
+      );
+      bulete = [];
+    }
+  };
+  linii.forEach((linie, i) => {
+    if (linie.startsWith('- ')) {
+      bulete.push(linie.slice(2));
+    } else {
+      inchideBulete();
+      blocuri.push(<p key={i}>{linie}</p>);
+    }
+  });
+  inchideBulete();
+
+  return (
+    <div className="card info-importante">
+      <h3 style={{ marginTop: 0 }}>Informații importante</h3>
+      {blocuri}
+    </div>
+  );
+}
+
 export default async function EvenimentPage({
   params,
   searchParams,
@@ -147,6 +185,11 @@ export default async function EvenimentPage({
             {event.descriere && (
               <div className="prose" style={{ textAlign: 'center', marginBottom: 28 }}>
                 {event.descriere.split('\n').filter(Boolean).map((par, i) => <p key={i}>{par}</p>)}
+              </div>
+            )}
+            {event.informatii_importante && (
+              <div style={{ marginBottom: 28, textAlign: 'left' }}>
+                <InformatiiImportante text={event.informatii_importante} />
               </div>
             )}
             {event.status === 'live' && (
