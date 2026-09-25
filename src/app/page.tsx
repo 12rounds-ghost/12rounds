@@ -47,7 +47,10 @@ export default async function Home() {
     .slice(0, NUMAR_EDITII_INCHEIATE);
 
   const hero = live ?? viitoare[0] ?? null;
-  const railViitoare = viitoare.filter((e) => e.id !== hero?.id);
+  // Sarcina: nu afisam in "Editii viitoare" editiile fara data concreta inca
+  // (placeholders "Coming Soon", data_show null) — apar automat de indata ce
+  // primesc o data reala, fara sa mai trebuiasca create din nou.
+  const railViitoare = viitoare.filter((e) => e.id !== hero?.id && e.data_show);
 
   let difuzatePerEveniment = new Map<string, number>();
   if (incheiate.length > 0) {
