@@ -33,8 +33,21 @@ const INTERVAL_RETRY_MS = 5000;
 // playerul primeste durata_secunde ca hint, dar poate creste intern pentru
 // texte lungi (comportament normal al kit-ului), fara sa afecteze avansarea.
 //
-// QR permanent (Sarcina: "sa nu avem timpi morti"): ramane exact ca inainte,
-// randat separat de player, mereu vizibil.
+// QR permanent (Sarcina: "sa nu avem timpi morti"): ramane pe 16:9. Pe 9:16
+// insa (Sarcina: dedicatiile nu se vad pe live-ul de Instagram/TikTok —
+// cardul kit-ului sta jos, exact unde platformele isi pun propriul UI de
+// comentarii) l-am scos — publicul e deja pe telefon, nu are de pe ce sa
+// scaneze un al doilea cod — si am mutat cardul de dedicatie in locul lui,
+// sus pe ecran, unde nimic din UI-ul platformelor nu se suprapune.
+//
+// Nu atingem fisierele kit-ului (vendorizat, nemodificat pana acum — vezi
+// public/rounds-kit) ca sa nu riscam sa stricam ceva in cascada lui de CSS,
+// greu de urmarit si posibil legata de logica de desen din JS. In schimb
+// mutam vizual TOT iframe-ul cu un translateY, din afara — masurat direct
+// (getBoundingClientRect in clean=1&format=tall): cardul reda in mod normal
+// intre ~56% si ~68% din inaltime; -48% il aduce intre ~8% si ~20%, sus, in
+// zona ramasa libera dupa ce am scos QR-ul.
+const DEPLASARE_CARD_9_16 = 'translateY(-48%)';
 export function OverlayClient({
   slug,
   apiKey,
@@ -118,16 +131,15 @@ export function OverlayClient({
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0 }}>
-        <RoundsPlayer ref={playerRef} format={format === '9-16' ? 'tall' : 'wide'} />
+        <RoundsPlayer
+          ref={playerRef}
+          format={format === '9-16' ? 'tall' : 'wide'}
+          style={format === '9-16' ? { transform: DEPLASARE_CARD_9_16 } : undefined}
+        />
       </div>
-      <QrBadge
-        qrDataUrl={qrDataUrl}
-        marimeQr={format === '9-16' ? '12vh' : '11vh'}
-        top={format === '9-16' ? '9vh' : '3vh'}
-        right={format === '9-16' ? '5vw' : '3vw'}
-        padding={format === '9-16' ? '1.4vh' : '1.2vh'}
-        fontSize={format === '9-16' ? '1.5vh' : '1.4vh'}
-      />
+      {format === '16-9' && (
+        <QrBadge qrDataUrl={qrDataUrl} marimeQr="11vh" top="3vh" right="3vw" padding="1.2vh" fontSize="1.4vh" />
+      )}
     </div>
   );
 }
