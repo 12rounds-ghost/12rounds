@@ -26,9 +26,43 @@ const CALE_LIBERA = [
 
 const COOKIE = '12rounds_access';
 
-export function middleware(req: NextRequest) {
+// Sarcina: comutator din admin pentru gate-ul de mai sus (/admin/setari) —
+// pana acum singura cale sa scoti "revenim in curand" era o variabila de
+// mediu, care cere redeploy. Acum admin-ul citeste/scrie direct in
+// setari_site.site_public (migratia 0029); cand e true, tot site-ul e liber,
+// indiferent de cookie.
+//
+// Cache de 15s (next.revalidate) — altfel am interoga Supabase la fiecare
+// cerere din tot site-ul, ceea ce ar adauga o latenta si o incarcare inutile.
+// Inseamna ca un comutator din admin ajunge la vizitatori in cel mult 15
+// secunde, nu instant — acceptabil pentru o schimbare rara. Daca citirea
+// esueaza (Supabase indisponibil etc.), ramanem pe gate-ul cu parola
+// (fail-closed) — o eroare de retea nu trebuie sa lase site-ul public din
+// greseala.
+async function esteSitePublic(): Promise<boolean> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const cheie = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !cheie) return false;
+  try {
+    const res = await fetch(`${url}/rest/v1/setari_site?id=eq.1&select=site_public`, {
+      headers: { apikey: cheie, Authorization: `Bearer ${cheie}` },
+      next: { revalidate: 15 },
+    });
+    if (!res.ok) return false;
+    const randuri = (await res.json()) as { site_public?: boolean }[];
+    return randuri[0]?.site_public === true;
+  } catch {
+    return false;
+  }
+}
+
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (CALE_LIBERA.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return NextResponse.next();
+  }
+
+  if (await esteSitePublic()) {
     return NextResponse.next();
   }
 
