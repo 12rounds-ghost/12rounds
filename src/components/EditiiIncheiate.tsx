@@ -28,7 +28,7 @@ export function EditiiIncheiate({
             <div className="card-eveniment-titlu">{ev.nume}</div>
             {ev.data_show && (
               <div className="card-eveniment-data">
-                {new Date(ev.data_show).toLocaleDateString('ro-RO', { dateStyle: 'medium' })}
+                {new Date(ev.data_show).toLocaleDateString('ro-RO', { dateStyle: 'medium', timeZone: 'Europe/Bucharest' })}
                 {ev.locatie ? ` · ${ev.locatie}` : ''}
               </div>
             )}

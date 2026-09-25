@@ -94,7 +94,7 @@ export default async function EvenimentPage({
             status={event.status}
             dataScurta={
               event.data_show
-                ? new Date(event.data_show).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })
+                ? new Date(event.data_show).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', timeZone: 'Europe/Bucharest' })
                 : null
             }
           />
@@ -108,7 +108,7 @@ export default async function EvenimentPage({
           {event.data_show && (
             <div>
               <i>Data</i>
-              <b>{new Date(event.data_show).toLocaleString('ro-RO', { dateStyle: 'full', timeStyle: 'short' })}</b>
+              <b>{new Date(event.data_show).toLocaleString('ro-RO', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Bucharest' })}</b>
             </div>
           )}
           {event.locatie && (
@@ -234,7 +234,7 @@ export default async function EvenimentPage({
               <section style={{ marginTop: 44, marginBottom: 8 }}>
                 <div className="strip">
                   <h2>Nu rata ediția următoare</h2>
-                  <p>{urmatoareaEditie.nume}{urmatoareaEditie.data_show ? ` — ${new Date(urmatoareaEditie.data_show).toLocaleDateString('ro-RO', { dateStyle: 'long' })}` : ''}</p>
+                  <p>{urmatoareaEditie.nume}{urmatoareaEditie.data_show ? ` — ${new Date(urmatoareaEditie.data_show).toLocaleDateString('ro-RO', { dateStyle: 'long', timeZone: 'Europe/Bucharest' })}` : ''}</p>
                   <Link className="btn" href={`/eveniment/${urmatoareaEditie.slug}`}>Vezi ediția</Link>
                 </div>
               </section>

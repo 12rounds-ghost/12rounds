@@ -20,14 +20,14 @@ export function EditiiUrmeaza({ evenimente }: { evenimente: Event[] }) {
               status="upcoming"
               dataScurta={
                 ev.data_show
-                  ? new Date(ev.data_show).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })
+                  ? new Date(ev.data_show).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', timeZone: 'Europe/Bucharest' })
                   : null
               }
             />
             <div className="card-eveniment-titlu">{ev.nume}</div>
             {ev.data_show && (
               <div className="card-eveniment-data">
-                {new Date(ev.data_show).toLocaleDateString('ro-RO', { dateStyle: 'medium' })}
+                {new Date(ev.data_show).toLocaleDateString('ro-RO', { dateStyle: 'medium', timeZone: 'Europe/Bucharest' })}
                 {ev.locatie ? ` · ${ev.locatie}` : ''}
               </div>
             )}

@@ -86,7 +86,7 @@ export default async function AdminDashboard() {
               <strong>{ev.nume}</strong>
               <div className="sub" style={{ margin: '4px 0 0', textAlign: 'left' }}>
                 {ev.data_show
-                  ? new Date(ev.data_show).toLocaleDateString('ro-RO', { dateStyle: 'medium' })
+                  ? new Date(ev.data_show).toLocaleDateString('ro-RO', { dateStyle: 'medium', timeZone: 'Europe/Bucharest' })
                   : 'fără dată'}
                 {' · '}{s.numarDedicatii} dedicații{' · '}{lei(s.incasari)}
               </div>
