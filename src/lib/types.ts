@@ -133,6 +133,9 @@ export interface Dedicatie {
 export interface SetariSite {
   id: 1;
   google_tag_id: string | null;
+  // Comutator pentru gate-ul "revenim in curand" din src/middleware.ts — cat
+  // timp e true, tot site-ul e liber, fara parola (Sarcina: comutator din admin).
+  site_public: boolean;
   updated_at: string;
 }
 
