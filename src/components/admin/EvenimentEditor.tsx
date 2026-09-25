@@ -74,6 +74,7 @@ export function EvenimentEditor({
   const [subtitlu, setSubtitlu] = useState(event.subtitlu ?? '');
   const [slug, setSlug] = useState(event.slug);
   const [descriere, setDescriere] = useState(event.descriere ?? '');
+  const [informatiiImportante, setInformatiiImportante] = useState(event.informatii_importante ?? '');
   const [dataShow, setDataShow] = useState(event.data_show ? laDatetimeLocal(event.data_show) : '');
   const [locatie, setLocatie] = useState(event.locatie ?? '');
   const [artistA, setArtistA] = useState(event.artist_a ?? '');
@@ -146,6 +147,7 @@ export function EvenimentEditor({
         subtitlu: subtitlu || null,
         slug,
         descriere: descriere || null,
+        informatii_importante: informatiiImportante || null,
         data_show: dataShow ? new Date(dataShow).toISOString() : null,
         locatie: locatie || null,
         artist_a: artistA || null,
@@ -333,6 +335,20 @@ export function EvenimentEditor({
         </div>
         <label htmlFor="descriere">Descriere</label>
         <textarea id="descriere" value={descriere} onChange={(e) => setDescriere(e.target.value)} />
+        <label htmlFor="informatii-importante">Informații importante (acces, preț bilet, dress code, contact)</label>
+        <textarea
+          id="informatii-importante"
+          value={informatiiImportante}
+          onChange={(e) => setInformatiiImportante(e.target.value)}
+          placeholder={
+            '🕖 Acces în locație: începând cu ora 19:00\n🎶 Show-ul începe: la ora 20:00\n🎟️ Preț bilet:\n- 100 lei/persoană pentru acces până la ora 20:00\n- 150 lei/persoană pentru acces după ora 20:00\nBiletele pot fi achiziționate direct de la Club OXYA.\n👗 Dress code: Smart Casual\n📞 Informații/Rezervări: +40 723 226 266'
+          }
+          style={{ minHeight: 160 }}
+        />
+        <p className="sub" style={{ textAlign: 'left', margin: '4px 0 0' }}>
+          O linie care începe cu „- " apare ca element de listă, sub linia de deasupra (ex. cele două variante de
+          preț). Rămâne gol dacă nu completezi nimic — secțiunea nu apare deloc pe pagină.
+        </p>
         <label htmlFor="data">Data și ora show-ului</label>
         <input id="data" type="datetime-local" value={dataShow} onChange={(e) => setDataShow(e.target.value)} />
         <label htmlFor="locatie">Locație</label>

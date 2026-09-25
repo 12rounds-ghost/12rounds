@@ -71,6 +71,17 @@ h3 { font-family: var(--font-display); font-weight: 800; text-transform: upperca
   margin-bottom: 12px;
 }
 
+/* sectiunea "Informatii importante" de pe pagina editiei (acces, pret,
+   dress code, contact) — text liber editat din admin, vezi
+   InformatiiImportante in eveniment/[slug]/page.tsx. */
+.info-importante p { margin: 0 0 8px; line-height: 1.5; }
+.info-importante p:last-child { margin-bottom: 0; }
+.info-importante-lista { list-style: none; margin: 2px 0 10px; padding: 0; }
+.info-importante-lista li {
+  padding-left: 16px; position: relative; line-height: 1.5; margin-bottom: 4px; color: var(--muted);
+}
+.info-importante-lista li::before { content: '–'; position: absolute; left: 0; color: var(--accent); }
+
 /* selector pachet — carduri pe grid 2 coloane, ca .channel-options din
    referinta (nume mare Barlow Condensed, pret sub el, descriere jos) */
 .tarife-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 13px; margin-bottom: 10px; }

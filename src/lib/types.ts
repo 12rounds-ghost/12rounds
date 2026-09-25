@@ -41,6 +41,11 @@ export interface Event {
   slug: string;
   subtitlu: string | null;
   descriere: string | null;
+  // Text liber (Sarcina: sectiunea "Informatii importante" pe pagina publica)
+  // — acces in locatie, ora show-ului, pret bilet, dress code, contact. O
+  // linie care incepe cu "- " se randeaza ca element de lista (vezi
+  // randeazaInformatii in eveniment/[slug]/page.tsx).
+  informatii_importante: string | null;
   cover_path: string | null;
   artist_a: string | null;
   artist_b: string | null;
