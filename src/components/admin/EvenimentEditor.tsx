@@ -102,7 +102,7 @@ export function EvenimentEditor({
   const [durataStream, setDurataStream] = useState(String(event.durata_stream_secunde ?? 12));
   const [salvare, setSalvare] = useState('');
   const [qr, setQr] = useState('');
-  const [copiatOverlay, setCopiatOverlay] = useState<'16-9' | '9-16' | null>(null);
+  const [copiatOverlay, setCopiatOverlay] = useState<'16-9' | 'instagram' | 'tiktok' | null>(null);
   const [galerie, setGalerie] = useState(galerieInitiala);
   const [galerieIncarcare, setGalerieIncarcare] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -114,9 +114,10 @@ export function EvenimentEditor({
   }, []);
 
   const linkOverlay16x9 = `${siteUrl}/overlay/${slug}/16-9?key=${overlaySecret}`;
-  const linkOverlay9x16 = `${siteUrl}/overlay/${slug}/9-16?key=${overlaySecret}`;
+  const linkOverlayInstagram = `${siteUrl}/overlay/${slug}/instagram?key=${overlaySecret}`;
+  const linkOverlayTikTok = `${siteUrl}/overlay/${slug}/tiktok?key=${overlaySecret}`;
 
-  function copiazaOverlay(format: '16-9' | '9-16', link: string) {
+  function copiazaOverlay(format: '16-9' | 'instagram' | 'tiktok', link: string) {
     navigator.clipboard.writeText(link);
     setCopiatOverlay(format);
     setTimeout(() => setCopiatOverlay(null), 2000);
@@ -494,26 +495,39 @@ export function EvenimentEditor({
         <h2 style={{ marginTop: 0 }}>Overlay stream (OBS / vMix)</h2>
         <p className="sub" style={{ margin: '0 0 8px', textAlign: 'left' }}>
           Browser Source, fundal transparent — rotește automat dedicațiile plătite tip „stream" pentru această ediție.
-          Cele două linkuri arată aceeași dedicație în același moment — deschide-le simultan, în două Browser Source
-          separate, dimensionate exact la 1920×1080 și 1080×1920.
+          Toate linkurile arată aceeași dedicație în același moment — deschide-le simultan, în Browser Source separate.
         </p>
         {overlaySecret ? (
           <>
-            <div className="sub" style={{ textAlign: 'left', margin: '14px 0 4px', fontWeight: 600, color: 'var(--text)' }}>16:9 — 1920×1080</div>
+            <div className="sub" style={{ textAlign: 'left', margin: '14px 0 4px', fontWeight: 600, color: 'var(--text)' }}>YouTube — 16:9, 1920×1080</div>
             <div className="sub" style={{ textAlign: 'left', wordBreak: 'break-all', margin: '0 0 6px' }}>
               {linkOverlay16x9}
             </div>
             <button type="button" className="btn secondary mic" onClick={() => copiazaOverlay('16-9', linkOverlay16x9)}>
-              {copiatOverlay === '16-9' ? '✓ Copiat' : 'Copiază link 16:9'}
+              {copiatOverlay === '16-9' ? '✓ Copiat' : 'Copiază link YouTube'}
             </button>
 
-            <div className="sub" style={{ textAlign: 'left', margin: '18px 0 4px', fontWeight: 600, color: 'var(--text)' }}>9:16 — 1080×1920</div>
+            <div className="sub" style={{ textAlign: 'left', margin: '18px 0 4px', fontWeight: 600, color: 'var(--text)' }}>Instagram — 9:16, 1080×1920</div>
             <div className="sub" style={{ textAlign: 'left', wordBreak: 'break-all', margin: '0 0 6px' }}>
-              {linkOverlay9x16}
+              {linkOverlayInstagram}
             </div>
-            <button type="button" className="btn secondary mic" onClick={() => copiazaOverlay('9-16', linkOverlay9x16)}>
-              {copiatOverlay === '9-16' ? '✓ Copiat' : 'Copiază link 9:16'}
+            <button type="button" className="btn secondary mic" onClick={() => copiazaOverlay('instagram', linkOverlayInstagram)}>
+              {copiatOverlay === 'instagram' ? '✓ Copiat' : 'Copiază link Instagram'}
             </button>
+
+            <div className="sub" style={{ textAlign: 'left', margin: '18px 0 4px', fontWeight: 600, color: 'var(--text)' }}>TikTok — 9:16, 1080×1920</div>
+            <div className="sub" style={{ textAlign: 'left', wordBreak: 'break-all', margin: '0 0 6px' }}>
+              {linkOverlayTikTok}
+            </div>
+            <button type="button" className="btn secondary mic" onClick={() => copiazaOverlay('tiktok', linkOverlayTikTok)}>
+              {copiatOverlay === 'tiktok' ? '✓ Copiat' : 'Copiază link TikTok'}
+            </button>
+
+            <p className="sub" style={{ textAlign: 'left', margin: '14px 0 0' }}>
+              Pentru Instagram și TikTok, camera live trebuie poziționată în OBS/vMix doar în zona din stânga a
+              canvasului (nu pe tot ecranul) — restul e grafică fixă (coloană laterală + zonă jos, pentru comentariile
+              platformei). Cere-i lui Claude coordonatele exacte dacă ai nevoie să repoziționezi sursa video.
+            </p>
           </>
         ) : (
           <p className="eroare" style={{ textAlign: 'left' }}>

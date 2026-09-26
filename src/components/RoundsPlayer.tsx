@@ -6,7 +6,11 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 // din pachetul original). Nu reimplementam nimic din randare/animatie aici —
 // doar incarcam iframe-ul same-origin si expunem play()/stop() catre
 // componentele care afiseaza efectiv dedicatiile (EcranClient, OverlayClient).
-export type FormatRounds = 'hall1' | 'hall6' | 'wide' | 'tall';
+// 'tall' (verticalul kit-ului vechi) nu mai e folosit — inlocuit de layout-ul
+// nou NGM Creative, randat separat in OverlaySocialClient.tsx (nu prin
+// RoundsPlayer). Ramane doar in public/rounds-kit/ (index.html?format=tall),
+// nefolosit de aplicatie.
+export type FormatRounds = 'hall1' | 'hall6' | 'wide';
 
 export interface DateRedareCadou {
   id?: string;
