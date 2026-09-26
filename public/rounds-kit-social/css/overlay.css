@@ -38,3 +38,13 @@
 @keyframes column-breathe{from{transform:translateY(-2%) scale(1);opacity:calc(var(--plate-alpha) * .75)}to{transform:translateY(2%) scale(1.06);opacity:var(--plate-alpha)}}
 @media(prefers-reduced-motion:reduce){.ambient-lower:before,.column-fx{position:absolute;inset:0;z-index:2;border-radius:inherit;overflow:hidden;pointer-events:none;opacity:0}
 .dedication-column:before{z-index:0;animation:none;transform:none}}
+/* Fara dedicatie activa, camera ocupa toata latimea (gaura din layout-matte
+   e mereu maxima); sidebar-mask reface vizual coloana ingusta doar cat timp
+   ruleaza o dedicatie. Clasa .active e adaugata/eliminata din overlay.js in
+   play()/finish(), sincronizat cu fade-ul textului. */
+.sidebar-mask{position:absolute;left:752px;top:var(--panel-top);width:324px;height:var(--panel-height);background:#050608;z-index:7;pointer-events:none;transform:translateX(340px);transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.dedication-column{transform:translateX(340px);transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.video-frame{opacity:0;transition:opacity .5s ease}
+#rounds-social.active .sidebar-mask,#rounds-social.active .dedication-column{transform:translateX(0)}
+#rounds-social.active .video-frame{opacity:1}
+@media(prefers-reduced-motion:reduce){.sidebar-mask,.dedication-column{transition:none}.video-frame{transition:none}}
