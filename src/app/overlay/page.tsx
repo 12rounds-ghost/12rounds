@@ -32,5 +32,5 @@ export default async function OverlayAutoLive({
 
   const qrDataUrl = await genereazaQrOverlay(live.slug);
 
-  return <OverlayClient slug={live.slug} apiKey={secret} format="16-9" qrDataUrl={qrDataUrl} />;
+  return <OverlayClient slug={live.slug} apiKey={secret} qrDataUrl={qrDataUrl} />;
 }

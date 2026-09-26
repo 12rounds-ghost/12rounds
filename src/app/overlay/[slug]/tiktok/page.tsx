@@ -1,13 +1,12 @@
 import { supabaseServer } from '@/lib/supabase/server';
-import { OverlayClient } from '@/components/OverlayClient';
-import { genereazaQrOverlay } from '@/lib/overlay-qr';
+import { OverlaySocialClient } from '@/components/OverlaySocialClient';
 
 export const dynamic = 'force-dynamic';
 
-// Format 16:9 (1920x1080) — Browser Source dedicat, pentru YouTube. Pentru
-// Instagram/TikTok (vertical), vezi ../instagram/page.tsx si ../tiktok/page.tsx
-// (layout nou, complet diferit — nu doar acelasi format orizontal micsorat).
-export default async function OverlayEveniment16x9({
+// Overlay TikTok Live, layout nou NGM Creative — vezi ../instagram/page.tsx
+// (aceeasi logica, doar compozitia video/sidebar difera usor intre platforme,
+// ceea ce e stabilit in interiorul kit-ului, in tiktok.html).
+export default async function OverlayEvenimentTikTok({
   params,
   searchParams,
 }: {
@@ -24,7 +23,5 @@ export default async function OverlayEveniment16x9({
 
   if (!event) return <div style={{ background: 'transparent', minHeight: '100vh' }} />;
 
-  const qrDataUrl = await genereazaQrOverlay(event.slug);
-
-  return <OverlayClient slug={event.slug} apiKey={secret} qrDataUrl={qrDataUrl} />;
+  return <OverlaySocialClient slug={event.slug} apiKey={secret} platform="tiktok" />;
 }

@@ -11,7 +11,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 // /rounds-kit e playerul de animatii (fisiere statice din public/), incarcat
 // intr-un iframe chiar din /ecran si /overlay — daca ar ramane in spatele
 // gate-ului, iframe-ul ar arata "revenim in curand" pe un kiosk real, care
-// nu are niciodata cookie-ul de acces.
+// nu are niciodata cookie-ul de acces. /rounds-kit-social e kit-ul nou,
+// pentru overlay-urile Instagram/TikTok (NGM Creative, layout cu coloana
+// laterala), separat de /rounds-kit — folosit in continuare de ecrane si de
+// overlay-ul 16:9.
 const CALE_LIBERA = [
   '/coming-soon',
   '/api/site-access',
@@ -22,6 +25,7 @@ const CALE_LIBERA = [
   '/overlay',
   '/api/overlay',
   '/rounds-kit',
+  '/rounds-kit-social',
 ];
 
 const COOKIE = '12rounds_access';

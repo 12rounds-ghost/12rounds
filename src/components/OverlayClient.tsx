@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { RoundsPlayer, type RoundsPlayerHandle } from '@/components/RoundsPlayer';
 
 interface DedicatieStream {
@@ -10,63 +10,30 @@ interface DedicatieStream {
   cadou: string | null;
 }
 
-export type FormatOverlay = '16-9' | '9-16';
+export type FormatOverlay = '16-9';
 
 const INTERVAL_SONDARE_MS = 3000;
 const INTERVAL_RETRY_MS = 5000;
 
-// Sarcina: overlay de streaming in doua formate (16:9 si 9:16), pe doua
-// pagini/linkuri separate, deschise simultan in doua Browser Source diferite
-// din OBS/vMix — cerinta explicita a echipei tehnice: "verticalul trebuie
-// facut separat, nu e orizontalul micsorat".
+// Sarcina: overlay de streaming pentru YouTube (16:9) — kit-ul vechi
+// (public/rounds-kit), format "wide", cu QR permanent in colt (nu avem
+// timpi morti). Formatul vertical (Instagram/TikTok) a fost inlocuit
+// complet de layout-ul nou NGM Creative — vezi OverlaySocialClient.tsx.
 //
-// Sincronizare: ambele pagini sondeaza pe ritm propriu, dar serverul e sursa
-// de adevar pentru "ce ruleaza acum" (vezi /api/overlay/next +
-// avanseaza_overlay_stream) — asta NU s-a schimbat cu grafica noua. Am ales
-// deliberat sa NU trecem avansarea pe finalizarea locala a playerului (cum
-// am facut la /ecran, unde fiecare ecran fizic e independent): daca fiecare
-// pagina ar decide singura cand trece la urmatoarea, cele doua iesiri
-// (16:9/9:16, sau acelasi output deschis pe doua calculatoare) ar putea
-// incepe sa arate dedicatii diferite in momente diferite — exact ce
-// sincronizarea server-side de la 0020_overlay_sincronizat.sql a fost gandita
-// sa previna. Deci: serverul decide TOT cand trecem la urmatoarea (neschimbat);
-// playerul primeste durata_secunde ca hint, dar poate creste intern pentru
-// texte lungi (comportament normal al kit-ului), fara sa afecteze avansarea.
-//
-// QR permanent (Sarcina: "sa nu avem timpi morti"): ramane pe 16:9. Pe 9:16
-// insa (Sarcina: dedicatiile nu se vad pe live-ul de Instagram/TikTok —
-// cardul kit-ului sta jos, exact unde platformele isi pun propriul UI de
-// comentarii) l-am scos — publicul e deja pe telefon, nu are de pe ce sa
-// scaneze un al doilea cod — si am mutat cardul de dedicatie in locul lui,
-// sus pe ecran, unde nimic din UI-ul platformelor nu se suprapune.
-//
-// Nu atingem fisierele kit-ului (vendorizat, nemodificat pana acum — vezi
-// public/rounds-kit) ca sa nu riscam sa stricam ceva in cascada lui de CSS,
-// greu de urmarit si posibil legata de logica de desen din JS. In schimb
-// mutam vizual TOT iframe-ul din afara, cu scale+translate.
-//
-// Sarcina: un translateY simplu (incercarea anterioara) tinea cardul la
-// latimea lui originala — aproape toata latimea ecranului — asa ca ajungea
-// tot peste titlurile mari, centrate, din fundalul transmisiunii. Acum il
-// micsoram si il mutam in coltul dreapta-sus, unde nu se suprapune cu nimic.
-//
-// Calculat din pozitia naturala masurata direct (getBoundingClientRect in
-// clean=1&format=tall, fara nicio transformare): cardul (.panel) ocupa
-// left 8%/right 84%, top 57%/bottom 69% din inaltime/latime. Cu
-// transform-origin in coltul stanga-sus (0 0), scale(0.6) urmat de
-// translate (in ordinea asta, dreapta la stanga = scale intai) muta acelasi
-// dreptunghi la left 51%/right 96%, top 6%/bottom 13% — un card mai mic,
-// in coltul dreapta-sus, cu putina margine fata de margini.
-const DEPLASARE_CARD_9_16 = 'translate(45.8%, -28.1%) scale(0.6)';
+// Sincronizare: pagina sondeaza pe ritm propriu, dar serverul e sursa de
+// adevar pentru "ce ruleaza acum" (vezi /api/overlay/next +
+// avanseaza_overlay_stream) — la fel pentru toate formatele/platformele
+// (16:9, Instagram, TikTok), ca sa arate mereu aceeasi dedicatie in acelasi
+// moment, indiferent cate iesiri sunt deschise simultan. Playerul primeste
+// durata_secunde ca hint, dar poate creste intern pentru texte lungi
+// (comportament normal al kit-ului), fara sa afecteze avansarea.
 export function OverlayClient({
   slug,
   apiKey,
-  format,
   qrDataUrl,
 }: {
   slug: string;
   apiKey: string;
-  format: FormatOverlay;
   qrDataUrl: string;
 }) {
   const playerRef = useRef<RoundsPlayerHandle>(null);
@@ -141,15 +108,9 @@ export function OverlayClient({
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0 }}>
-        <RoundsPlayer
-          ref={playerRef}
-          format={format === '9-16' ? 'tall' : 'wide'}
-          style={format === '9-16' ? { transform: DEPLASARE_CARD_9_16, transformOrigin: '0 0' } : undefined}
-        />
+        <RoundsPlayer ref={playerRef} format="wide" />
       </div>
-      {format === '16-9' && (
-        <QrBadge qrDataUrl={qrDataUrl} marimeQr="11vh" top="3vh" right="3vw" padding="1.2vh" fontSize="1.4vh" />
-      )}
+      <QrBadge qrDataUrl={qrDataUrl} marimeQr="11vh" top="3vh" right="3vw" padding="1.2vh" fontSize="1.4vh" />
     </div>
   );
 }
