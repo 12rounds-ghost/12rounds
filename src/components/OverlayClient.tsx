@@ -43,11 +43,21 @@ const INTERVAL_RETRY_MS = 5000;
 // Nu atingem fisierele kit-ului (vendorizat, nemodificat pana acum — vezi
 // public/rounds-kit) ca sa nu riscam sa stricam ceva in cascada lui de CSS,
 // greu de urmarit si posibil legata de logica de desen din JS. In schimb
-// mutam vizual TOT iframe-ul cu un translateY, din afara — masurat direct
-// (getBoundingClientRect in clean=1&format=tall): cardul reda in mod normal
-// intre ~56% si ~68% din inaltime; -48% il aduce intre ~8% si ~20%, sus, in
-// zona ramasa libera dupa ce am scos QR-ul.
-const DEPLASARE_CARD_9_16 = 'translateY(-48%)';
+// mutam vizual TOT iframe-ul din afara, cu scale+translate.
+//
+// Sarcina: un translateY simplu (incercarea anterioara) tinea cardul la
+// latimea lui originala — aproape toata latimea ecranului — asa ca ajungea
+// tot peste titlurile mari, centrate, din fundalul transmisiunii. Acum il
+// micsoram si il mutam in coltul dreapta-sus, unde nu se suprapune cu nimic.
+//
+// Calculat din pozitia naturala masurata direct (getBoundingClientRect in
+// clean=1&format=tall, fara nicio transformare): cardul (.panel) ocupa
+// left 8%/right 84%, top 57%/bottom 69% din inaltime/latime. Cu
+// transform-origin in coltul stanga-sus (0 0), scale(0.6) urmat de
+// translate (in ordinea asta, dreapta la stanga = scale intai) muta acelasi
+// dreptunghi la left 51%/right 96%, top 6%/bottom 13% — un card mai mic,
+// in coltul dreapta-sus, cu putina margine fata de margini.
+const DEPLASARE_CARD_9_16 = 'translate(45.8%, -28.1%) scale(0.6)';
 export function OverlayClient({
   slug,
   apiKey,
@@ -134,7 +144,7 @@ export function OverlayClient({
         <RoundsPlayer
           ref={playerRef}
           format={format === '9-16' ? 'tall' : 'wide'}
-          style={format === '9-16' ? { transform: DEPLASARE_CARD_9_16 } : undefined}
+          style={format === '9-16' ? { transform: DEPLASARE_CARD_9_16, transformOrigin: '0 0' } : undefined}
         />
       </div>
       {format === '16-9' && (
