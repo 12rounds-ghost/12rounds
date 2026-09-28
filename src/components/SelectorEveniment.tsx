@@ -5,13 +5,14 @@ import { supabaseBrowser } from '@/lib/supabase/client';
 interface EvenimentOptiune {
   id: string;
   nume: string;
-  status: 'upcoming' | 'live' | 'ended';
+  status: 'upcoming' | 'live' | 'ended' | 'anulat';
 }
 
 const ETICHETA_STATUS: Record<EvenimentOptiune['status'], string> = {
   live: 'LIVE',
   upcoming: 'urmează',
   ended: 'încheiat',
+  anulat: 'anulat',
 };
 
 // Dropdown de eveniment pentru /admin/moderare si /admin/regie — aceste

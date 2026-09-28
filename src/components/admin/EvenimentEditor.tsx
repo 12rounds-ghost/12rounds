@@ -20,6 +20,7 @@ const ETICHETA_STATUS: Record<Event['status'], string> = {
   live: 'live',
   upcoming: 'urmează',
   ended: 'încheiat',
+  anulat: 'anulat',
 };
 
 function slugify(text: string): string {
@@ -243,6 +244,8 @@ export function EvenimentEditor({
       live: 'Pornești LIVE? Din acest moment se acceptă plăți pentru această ediție.',
       ended:
         'Încheii show-ul?\n\n• Dedicațiile dispar de pe ecranele din sală (rămâne logo-ul 12 ROUNDS) și din transmisiunea live.\n• Nu se mai acceptă plăți pentru această ediție.\n\nPoți redeschide ediția oricând.',
+      anulat:
+        'Anulezi evenimentul?\n\n• Apare un badge roșu „ANULAT" pe site.\n• Nu se mai acceptă plăți pentru dedicații la această ediție.\n\nPoți redeschide ediția oricând (revine la „urmează").',
     };
     const mesaj = confirmari[nou];
     if (mesaj && !window.confirm(mesaj)) return;
@@ -265,12 +268,18 @@ export function EvenimentEditor({
           </span>
           <span className="rand" style={{ width: 'auto', gap: 8 }}>
             {status === 'upcoming' && (
-              <button className="btn ok mic" onClick={() => schimbaStatus('live')}>● Pornește LIVE</button>
+              <>
+                <button className="btn ok mic" onClick={() => schimbaStatus('live')}>● Pornește LIVE</button>
+                <button className="btn danger mic" onClick={() => schimbaStatus('anulat')}>✕ Anulează</button>
+              </>
             )}
             {status === 'live' && (
-              <button className="btn danger mic" onClick={() => schimbaStatus('ended')}>■ Încheie show-ul</button>
+              <>
+                <button className="btn danger mic" onClick={() => schimbaStatus('ended')}>■ Încheie show-ul</button>
+                <button className="btn danger mic" onClick={() => schimbaStatus('anulat')}>✕ Anulează</button>
+              </>
             )}
-            {status === 'ended' && (
+            {(status === 'ended' || status === 'anulat') && (
               <button className="btn secondary mic" onClick={() => schimbaStatus('upcoming')}>↺ Redeschide</button>
             )}
           </span>
@@ -279,6 +288,7 @@ export function EvenimentEditor({
           {status === 'upcoming' && 'Ediția nu e pornită: ecranele din sală arată logo-ul, iar transmisiunea live nu afișează dedicații.'}
           {status === 'live' && 'Ediția e LIVE: dedicațiile aprobate apar pe ecranele din sală și în transmisiunea live. „Încheie show-ul” le oprește imediat.'}
           {status === 'ended' && 'Show încheiat: nu mai apar dedicații pe ecrane (rămâne logo-ul 12 ROUNDS) și nu se mai acceptă plăți. „Redeschide” schimbă ediția înapoi în „în curând”; apoi „Pornește LIVE” reia difuzarea.'}
+          {status === 'anulat' && 'Eveniment anulat: apare un badge roșu „ANULAT" pe site și nu se mai acceptă plăți pentru dedicații. „Redeschide” schimbă ediția înapoi în „în curând”.'}
         </p>
 
         <div className="rand" style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #2a2a2a' }}>

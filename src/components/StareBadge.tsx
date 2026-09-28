@@ -4,12 +4,13 @@ export function StareBadge({
   status,
   dataScurta,
 }: {
-  status: 'live' | 'upcoming' | 'ended';
+  status: 'live' | 'upcoming' | 'ended' | 'anulat';
   dataScurta?: string | null;
 }) {
   if (status === 'live') return <span className="badge-eveniment live pulsand">● LIVE ACUM</span>;
   if (status === 'upcoming') {
     return <span className="badge-eveniment upcoming">URMEAZĂ{dataScurta ? ` · ${dataScurta}` : ''}</span>;
   }
+  if (status === 'anulat') return <span className="badge-eveniment anulat">ANULAT</span>;
   return <span className="badge-eveniment ended">ÎNCHEIAT</span>;
 }

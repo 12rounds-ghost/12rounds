@@ -238,6 +238,7 @@ a { color: var(--accent-hover); }
 @media (prefers-reduced-motion: reduce) { .badge-eveniment.live.pulsand { animation: none; } }
 .badge-eveniment.upcoming { background: transparent; color: var(--text); border: 1px solid var(--text); }
 .badge-eveniment.ended { background: var(--panel-2); color: var(--muted); border: 1px solid var(--border); }
+.badge-eveniment.anulat { background: #3a1414; color: #ff8a8a; border: 1px solid #7a2c2c; }
 
 /* header public — sticky (Sarcina A). Valori exacte din sursa referintei
    (app/globals.css, .site-header/.brand): inaltime 88px, logo 55px cu
@@ -623,6 +624,7 @@ a { color: var(--accent-hover); }
 .ops-shell .badge-eveniment.live.pulsand { animation: pulseLive 1.6s ease-in-out infinite; }
 .ops-shell .badge-eveniment.upcoming { background: #1b1b1b; border-color: #343434; color: #b0b0b0; }
 .ops-shell .badge-eveniment.ended { background: #161616; color: #6e6e6e; border-color: #292929; }
+.ops-shell .badge-eveniment.anulat { color: #ff8a8a; border-color: #4a2420; background: #24110e; }
 
 .ops-shell .eroare { background: #30110e; border: 1px solid #6a2823; color: #ffb1a9; padding: 10px 14px; border-radius: 3px; font-size: 13px; margin-top: 10px; }
 
