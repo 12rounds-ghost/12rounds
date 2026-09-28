@@ -9,6 +9,7 @@ const ETICHETA_STATUS: Record<Event['status'], string> = {
   live: 'LIVE',
   upcoming: 'urmează',
   ended: 'încheiat',
+  anulat: 'anulat',
 };
 
 export default async function AdminDashboard() {

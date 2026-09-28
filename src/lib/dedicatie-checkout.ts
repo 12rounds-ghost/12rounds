@@ -89,6 +89,14 @@ export async function pregatesteDedicatie(req: Request, body: CorpDedicatie): Pr
       ),
     };
   }
+  if (event.status === 'anulat') {
+    return {
+      eroare: NextResponse.json(
+        { error: 'Această ediție a fost anulată. Nu se mai acceptă plăți pentru dedicații.' },
+        { status: 409 }
+      ),
+    };
+  }
   // Sarcina: lansare site fara zona de dedicatii — formularul e ascuns pe
   // pagina evenimentului, dar validam si aici (API-ul e apelabil direct,
   // ocolind interfata).

@@ -28,7 +28,7 @@ export interface Event {
   id: string;
   nume: string;
   data_show: string | null;
-  status: 'upcoming' | 'live' | 'ended';
+  status: 'upcoming' | 'live' | 'ended' | 'anulat';
   linkuri_stream: Record<string, string>;
   mesaj_urmatorul_show: string | null;
   durata_afisare_secunde: number;
