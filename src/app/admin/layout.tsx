@@ -18,12 +18,17 @@ const LINKURI_PE_ROL: Record<RolModerator, { href: string; eticheta: string }[]>
     { href: '/admin/sponsori', eticheta: 'Sponsori' },
     { href: '/admin/statistici', eticheta: 'Statistici' },
     { href: '/admin/setari', eticheta: 'Setări' },
+    { href: '/admin/ghid', eticheta: 'Ghid' },
   ],
   moderator: [
     { href: '/admin/moderare', eticheta: 'Moderare' },
     { href: '/admin/dedicatii', eticheta: 'Dedicații' },
+    { href: '/admin/ghid', eticheta: 'Ghid' },
   ],
-  operator: [{ href: '/admin/regie', eticheta: 'Regie' }],
+  operator: [
+    { href: '/admin/regie', eticheta: 'Regie' },
+    { href: '/admin/ghid', eticheta: 'Ghid' },
+  ],
 };
 
 const DATA_AZI = new Date().toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
