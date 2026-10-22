@@ -1,8 +1,9 @@
 // Ghidul de administrare, ca document HTML de sine statator (stiluri si script
 // incluse). E servit de ghid/document/route.ts doar utilizatorilor logati in
-// admin si afisat intr-un iframe de pagina /admin/ghid. Cand se schimba o
-// functie din admin, actualizeaza si textul de aici. Tema e fortata pe
-// "dark" (ca restul adminului); la tiparire se foloseste varianta deschisa.
+// admin si afisat intr-un iframe de pagina /admin/ghid. Imaginile sunt marcaje
+// {{img:nume}}, inlocuite la servire cu cele din ghid-imagini.ts. Cand se schimba o
+// functie din admin, actualizeaza si textul de aici. Tema e fortata pe "dark"
+// (ca restul adminului); la tiparire se foloseste varianta deschisa.
 export const GHID_HTML = `<!doctype html>
 <html lang="ro" data-theme="dark">
 <head>
@@ -173,6 +174,12 @@ td.centru, th.centru { text-align: center; }
 .dl dt:last-of-type, .dl dd:last-of-type { border-bottom: 0; }
 @media (max-width: 560px) { .dl { grid-template-columns: minmax(0, 1fr); } .dl dt { border-bottom: 0; padding-bottom: 2px; } }
 
+.fig { margin: 20px 0 28px; max-width: 100%; }
+.fig.ingust { max-width: 780px; }
+.fig img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; background: #0b0b0b; }
+.fig figcaption { font-size: 14.5px; color: var(--muted); margin-top: 10px; max-width: 78ch; line-height: 1.6; }
+.fig figcaption b { color: var(--ink); }
+.cn { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #ffd60a; color: #111; font: 700 12px/1 Arial, sans-serif; margin: 0 3px 0 1px; vertical-align: 1px; }
 .toc-print { display: none; }
 
 @media print {
@@ -201,7 +208,8 @@ td.centru, th.centru { text-align: center; }
   h3 { margin-top: 22px; }
   .tabel { overflow: visible; }
   table { min-width: 0; font-size: 10.5pt; }
-  tr, .nota, .etapa, .ramura, .pasi > li { break-inside: avoid; }
+  tr, .nota, .etapa, .ramura, .pasi > li, .fig { break-inside: avoid; }
+  .fig img { max-height: 235mm; width: auto; max-width: 100%; }
   th, td { padding: 7px 10px; }
   .dl dt, .dl dd { break-inside: avoid; }
   .reset { display: none; }
@@ -268,6 +276,7 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
 
   <div class="nota stiai"><span class="eticheta">De știut</span>
     <p>Toate paginile din panou se actualizează singure (moderarea, regia, ecranele). Nu trebuie să reîncarci pagina ca să vezi mesaje noi.</p>
+    <p>Imaginile din ghid arată panoul cu date de exemplu: numele, mesajele și sumele sunt inventate. Cifrele galbene din imagini se regăsesc în legenda de sub fiecare.</p>
   </div>
 </section>
 
@@ -311,6 +320,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     <li><b>+ Eveniment nou</b> creează o ediție goală și te duce direct în editor.</li>
     <li><b>Curăță poze vechi (48h+)</b> șterge pozele încărcate de clienți care nu au ajuns la o dedicație plătită (cineva a urcat o poză, dar nu a mai plătit). Se rulează din când în când, nu e nevoie în timpul show-ului.</li>
   </ul>
+
+<figure class="fig">
+  <img src="{{img:dashboard}}" alt="Dashboard-ul administratorului, cu o ediție live">
+  <figcaption>Dashboard-ul în timpul unui show. <span class="cn">1</span> creează o ediție nouă. <span class="cn">2</span> șterge pozele rămase de la plăți nefinalizate. <span class="cn">3</span> este cardul ediției live, cu cifrele de moment și scurtături spre Moderare, Regie, Ecrane și editor. Dedesubt, lista tuturor edițiilor.</figcaption>
+</figure>
 </section>
 
 <!-- ============ EVENIMENTE ============ -->
@@ -367,7 +381,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     </tbody>
   </table></div>
 
-  <p>„Redeschide” întoarce ediția la „urmează”. De acolo o poți porni din nou LIVE.</p>
+  <figure class="fig ingust">
+  <img src="{{img:editor-status}}" alt="Blocul de status din editorul unei ediții, urmat de tarife">
+  <figcaption>Începutul editorului unei ediții cu status „urmează”. <span class="cn">1</span> pornește ediția LIVE, <span class="cn">2</span> o anulează, <span class="cn">3</span> activează formularul public de dedicații (se aplică imediat). Dedesubt sunt tarifele: bifa „activ”, prețul în lei, descrierea și ordinea fiecărui tip.</figcaption>
+</figure>
+<p>„Redeschide” întoarce ediția la „urmează”. De acolo o poți porni din nou LIVE.</p>
 
   <div class="nota atentie"><span class="eticheta">Atenție</span>
     <p>Ține <b>o singură ediție live</b> o dată. Ecranele din sală caută ediția live și nu știu să aleagă între două.</p>
@@ -470,7 +488,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
   <h3>Pasul 3. Ce vede clientul</h3>
   <p>Pe pagina lui de urmărire, actualizată singură, clientul vede pașii: plata confirmată, mesaj în verificare, mesaj aprobat, programat pentru difuzare, difuzat. Dacă mesajul este respins, vede motivul scris de moderator. Dedicațiile lui se regăsesc și la <span class="path">/dedicatiile-mele</span>, din același browser, fără cont.</p>
 
-  <h3>Cele trei stări ale unei dedicații</h3>
+  <figure class="fig">
+  <img src="{{img:status-client}}" alt="Pagina de urmărire a clientului, în patru situații">
+  <figcaption>Cum își vede clientul dedicația pe pagina lui, care se actualizează singură. De la stânga: <b>în verificare</b> (plata e confirmată, moderatorul citește mesajul), <b>aprobat</b> (urmează difuzarea), <b>difuzat</b> (toți pașii sunt bifați) și <b>respins</b> (clientul vede motivul scris de moderator și primește rambursarea).</figcaption>
+</figure>
+<h3>Cele trei stări ale unei dedicații</h3>
   <p>În panou o dedicație are trei stări independente. Le vezi ca etichete și le poți filtra în Arhivă.</p>
   <div class="tabel"><table>
     <thead><tr><th>Stare</th><th>Valori</th><th>Se schimbă când</th></tr></thead>
@@ -494,7 +516,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     <li>Fiecare mesaj arată tipul, suma, sursa, textul, „de la” și „pentru”, eventual poza și avertizările ⚠.</li>
   </ul>
 
-  <h3>Ce faci cu un mesaj</h3>
+  <figure class="fig">
+  <img src="{{img:moderare}}" alt="Pagina Moderare, cu trei mesaje în așteptare">
+  <figcaption>Coada de moderare. <span class="cn">1</span> alegi ediția. <span class="cn">2</span> pornești sunetul pentru mesaje noi. La un mesaj cu poză ai trei decizii: <span class="cn">3</span> aprobi mesajul și poza, <span class="cn">4</span> aprobi doar textul sau <span class="cn">5</span> respingi tot. <span class="cn">6</span> este o avertizare automată (aici, mesajul conține un link): mesajul nu e blocat, dar îl citești cu atenție. La un mesaj fără poză apar doar <span class="cn">7</span> Aprobă și <span class="cn">8</span> Respinge.</figcaption>
+</figure>
+<h3>Ce faci cu un mesaj</h3>
   <dl class="dl">
     <dt>Aprobă</dt><dd>Mesajul intră în coada de difuzare a tipului lui. Pentru ecran și stream, nu mai ai nimic de făcut: apare automat, cât timp ediția este live.</dd>
     <dt>Respinge</dt><dd>Ți se cere motivul, pe care îl vede clientul. Apoi platforma întreabă „Trimiți și rambursarea acum?”. Rambursarea poate fi făcută doar de admin; dacă ești moderator, primești mesajul să anunți un admin, iar adminul o face ulterior din Arhivă.</dd>
@@ -533,7 +559,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     <li>Pozele aprobate apar împreună cu mesajul.</li>
   </ul>
 
-  <h3>Transmisiunea live (overlay)</h3>
+  <figure class="fig ingust">
+  <img src="{{img:ecran-sala}}" alt="O dedicație afișată pe un ecran din sală">
+  <figcaption>O dedicație afișată pe ecranul din sală: destinatarul, mesajul, expeditorul și cadoul ales de client (aici, un trandafir). Același material apare ulterior, o singură dată, și pe stream.</figcaption>
+</figure>
+<h3>Transmisiunea live (overlay)</h3>
   <ul>
     <li>Overlay-ul preia dedicațiile de tip „stream” și pe cele de tip „ecran”. Cele din sală apar astfel și pe live.</li>
     <li>Fiecare dedicație apare pe stream <b>o singură dată</b>, în ordinea sosirii.</li>
@@ -549,7 +579,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     <li><b>Apeși „▶ Pe rând”</b>pe un mesaj din „Coada aprobată”. Mesajul urcă la „Acum la prezentator”, unde prezentatorul îl citește.</li>
     <li><b>Apeși „✓ Citit — următorul”</b>după ce a fost citit. Mesajul trece pe „difuzat”, iar următorul poate fi trimis.</li>
   </ol>
-  <p>Poți avea un singur mesaj „Acum la prezentator”. Dacă încerci să mai trimiți unul, platforma cere să marchezi întâi ca „Citit” mesajul curent.</p>
+  <figure class="fig ingust">
+  <img src="{{img:regie}}" alt="Pagina Regie, pe care o folosește operatorul">
+  <figcaption>Regia, gândită pentru tabletă. <span class="cn">1</span> este mesajul care se citește acum, iar <span class="cn">2</span> îl marchează ca citit. În „Coada aprobată”, <span class="cn">3</span> trimite următorul mesaj la prezentator.</figcaption>
+</figure>
+<p>Poți avea un singur mesaj „Acum la prezentator”. Dacă încerci să mai trimiți unul, platforma cere să marchezi întâi ca „Citit” mesajul curent.</p>
 </section>
 
 <!-- ============ DEDICATII ============ -->
@@ -566,7 +600,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     <li>Lista are 25 de dedicații pe pagină.</li>
   </ul>
 
-  <h3>Ce poți face pe o dedicație</h3>
+  <figure class="fig">
+  <img src="{{img:dedicatii}}" alt="Arhiva de dedicații, cu filtre și o dedicație desfăcută">
+  <figcaption>Arhiva de dedicații. <span class="cn">1</span> deschide formularul pentru dedicație manuală (doar admin). <span class="cn">2</span> sunt taburile după starea difuzării, cu numărul din fiecare. <span class="cn">3</span> sunt filtrele. <span class="cn">4</span> exportă rezultatele în CSV. Prima dedicație este desfăcută și arată acțiunile posibile: <span class="cn">5</span> rambursarea (doar admin) și <span class="cn">6</span> retrimiterea pe ecrane și pe stream.</figcaption>
+</figure>
+<h3>Ce poți face pe o dedicație</h3>
   <p>Click pe un rând îl desface. Acțiunile apar în funcție de situație:</p>
   <dl class="dl">
     <dt>Aprobă / Respinge</dt><dd>Doar dacă dedicația este încă „in_verificare”.</dd>
@@ -584,7 +622,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     <li>Dedicația intră direct ca „plătită”, cu sursa <code>admin-manual</code>, ca s-o găsești ușor în filtre.</li>
     <li>Bifa „Aprobă automat” o ocolește pe cea de moderare. Debifează-o dacă vrei să treacă prin Moderare.</li>
   </ul>
-  <div class="nota stiai"><span class="eticheta">De știut</span>
+  <figure class="fig">
+  <img src="{{img:dedicatie-manuala}}" alt="Formularul de dedicație manuală">
+  <figcaption>Formularul de dedicație manuală, desfăcut. Alegi <span class="cn">1</span> ediția și <span class="cn">2</span> tipul, apoi completezi <span class="cn">3</span> „de la”, <span class="cn">4</span> „pentru”, <span class="cn">5</span> suma în lei (0 dacă e gratuită) și <span class="cn">6</span> mesajul. Pentru ecran și stream alegi <span class="cn">7</span> cadoul. <span class="cn">8</span> decide dacă trece prin Moderare sau intră direct aprobată. <span class="cn">9</span> adaugă dedicația.</figcaption>
+</figure>
+<div class="nota stiai"><span class="eticheta">De știut</span>
     <p>Dedicațiile manuale rămân în listă și în statistici. Pentru teste, pune suma 0 și filtrează după sursa <code>admin-manual</code>.</p>
   </div>
 </section>
@@ -602,7 +644,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     <li><b>Verifică în panou</b>că apare „● online”. Un ecran este online dacă a cerut conținut în ultimele 15 secunde.</li>
   </ol>
 
-  <h3>Ce poți face cu fiecare ecran</h3>
+  <figure class="fig ingust">
+  <img src="{{img:ecrane}}" alt="Pagina Ecrane, cu trei ecrane configurate">
+  <figcaption>Lista ecranelor. <span class="cn">1</span> adaugă un ecran nou. <span class="cn">2</span> arată că ecranul a cerut conținut în ultimele 15 secunde. <span class="cn">3</span> copiază linkul pe care îl deschizi pe dispozitivul din sală. <span class="cn">4</span> oprește ecranul, iar <span class="cn">5</span> schimbă cheia, ca vechiul link să nu mai funcționeze.</figcaption>
+</figure>
+<h3>Ce poți face cu fiecare ecran</h3>
   <dl class="dl">
     <dt>Redenumește</dt><dd>De exemplu „Bar” sau „Scenă stânga”.</dd>
     <dt>Dezactivează / Activează</dt><dd>Un ecran dezactivat nu mai afișează nimic.</dd>
@@ -629,7 +675,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
     </tbody>
   </table></div>
 
-  <h3>Cum îl adaugi în OBS sau vMix</h3>
+  <figure class="fig ingust">
+  <img src="{{img:overlay-16-9}}" alt="Overlay-ul 16:9 pentru YouTube, peste imaginea camerei">
+  <figcaption>Overlay-ul pentru YouTube (16:9) cu o dedicație activă, peste imaginea camerei (în imagine, un fundal de exemplu). Fundalul overlay-ului este transparent, deci camera se vede în rest.</figcaption>
+</figure>
+<h3>Cum îl adaugi în OBS sau vMix</h3>
   <ol class="pasi">
     <li><b>Adaugă o sursă „Browser”.</b>Lipește linkul copiat din editor.</li>
     <li><b>Setează dimensiunea</b>din tabelul de mai sus.</li>
@@ -650,7 +700,11 @@ footer.sfarsit { max-width: 1160px; margin: 0 auto; padding-top: 28px; color: va
       <tr><td>TikTok</td><td>x 4 · y 200 · lățime 748 · înălțime 1060</td></tr>
     </tbody>
   </table></div>
-  <div class="nota atentie"><span class="eticheta">Atenție</span>
+  <figure class="fig ingust">
+  <img src="{{img:overlay-9-16}}" alt="Layout-urile verticale pentru Instagram și TikTok">
+  <figcaption>Layout-urile verticale (9:16) cu o dedicație activă. Camera se vede în fereastra din stânga, dedicația apare în coloana din dreapta, iar zona întunecată de jos este rezervată comentariilor platformei. Fereastra camerei diferă puțin între Instagram și TikTok.</figcaption>
+</figure>
+<div class="nota atentie"><span class="eticheta">Atenție</span>
     <p>Pentru Instagram și TikTok, sursa video (camera) trebuie poziționată în dreptunghiul de mai sus, nu pe tot canvasul. Fiecare platformă are propria scenă în OBS.</p>
   </div>
 
